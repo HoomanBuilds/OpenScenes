@@ -16,28 +16,43 @@ interface ElementRendererProps {
     fontSizeValue: any; // Accept motion value or number
 }
 
+const processBold = (text: string) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+            return <strong key={i} className="font-bold text-white">{part.slice(2, -2)}</strong>;
+        }
+        return part;
+    });
+};
+
 export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontSizeValue }) => {
     switch (element.type) {
         case 'headline':
-            return <h1 className="leading-tight drop-shadow-md whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign }}>{element.content}</h1>;
+            return <h1 className="leading-tight drop-shadow-md whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'Rejouice-Headline, Inter, sans-serif' }}>{element.content}</h1>;
         case 'subheadline':
-            return <p className="leading-snug drop-shadow-sm whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign }}>{element.content}</p>;
+            return <p className="leading-snug drop-shadow-sm whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'Rejouice-Headline, Inter, sans-serif' }}>{element.content}</p>;
         case 'text':
             return (
                 <div className="leading-normal whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign }}>
                     {element.textFormat === 'markdown' ? (
-                        element.content.split('\n').map((line, i) => (
-                            <div key={i} className="flex items-start mb-0.5">
-                                {line.startsWith('- ') ? (
-                                    <>
-                                        <span className="mr-2 mt-[0.6em] block h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
-                                        <span>{line.substring(2)}</span>
-                                    </>
-                                ) : (
-                                    <span>{line}</span>
-                                )}
-                            </div>
-                        ))
+                        element.content.split('\n').map((line, i) => {
+                            if (line.startsWith('### ')) {
+                                return <h3 key={i} className="text-xl font-bold mt-4 mb-2 text-white">{processBold(line.substring(4))}</h3>;
+                            }
+                            if (line.startsWith('- ')) {
+                                return (
+                                    <div key={i} className="flex items-start mb-1">
+                                        <span className="mr-2 mt-[0.6em] block h-1.5 w-1.5 shrink-0 rounded-full bg-purple-500" />
+                                        <span>{processBold(line.substring(2))}</span>
+                                    </div>
+                                );
+                            }
+                            if (line.trim() === '') {
+                                return <div key={i} className="h-4" />;
+                            }
+                            return <div key={i} className="mb-0.5">{processBold(line)}</div>;
+                        })
                     ) : (
                         element.content
                     )}

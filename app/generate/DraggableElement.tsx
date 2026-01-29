@@ -14,10 +14,11 @@ interface DraggableElementProps {
     onUpdate: (slideId: string, elementId: string, x: number, y: number, changes?: Partial<SlideElement>) => void;
     onSelect: (id: string, multi: boolean) => void;
     onDrop?: (e: React.DragEvent, id: string) => void;
+    scale?: number;
 }
 
 export const DraggableElement: React.FC<DraggableElementProps> = ({ 
-    element, slideId, isSelected, onUpdate, onSelect, onDrop 
+    element, slideId, isSelected, onUpdate, onSelect, onDrop, scale = 1 
 }) => {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -38,17 +39,17 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
         let newH = element.height || 300;
 
         if (type.includes('l')) {
-            newW = Math.max(20, (element.width || 400) - dx);
-            newX = dx;
+            newW = Math.max(20, (element.width || 400) - dx / scale);
+            newX = dx / scale;
         } else {
-            newW = Math.max(20, (element.width || 400) + dx);
+            newW = Math.max(20, (element.width || 400) + dx / scale);
         }
 
         if (type.includes('t')) {
-            newH = Math.max(20, (element.height || 300) - dy);
-            newY = dy;
+            newH = Math.max(20, (element.height || 300) - dy / scale);
+            newY = dy / scale;
         } else {
-            newH = Math.max(20, (element.height || 300) + dy);
+            newH = Math.max(20, (element.height || 300) + dy / scale);
         }
 
         width.set(newW);
@@ -102,7 +103,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
         drag: true,
         dragMomentum: false,
         onDragEnd: () => {
-            onUpdate(slideId, element.id, element.x + x.get(), element.y + y.get());
+            onUpdate(slideId, element.id, element.x + x.get() / scale, element.y + y.get() / scale);
             x.set(0); y.set(0);
         },
         onPointerDown: (e: React.PointerEvent) => {
@@ -113,7 +114,10 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
             onSelect(element.id, e.shiftKey);
         },
         onDragOver: (e: React.DragEvent) => {
-            if (element.type === 'image') { e.preventDefault(); e.stopPropagation(); }
+            if (element.type === 'image' || element.type === 'video') { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
         },
         onDrop: (e: React.DragEvent) => onDrop && onDrop(e, element.id),
         className: `cursor-grab active:cursor-grabbing group absolute ${isSelected ? 'ring-2 ring-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.3)]' : 'hover:ring-1 hover:ring-white/30'}`,

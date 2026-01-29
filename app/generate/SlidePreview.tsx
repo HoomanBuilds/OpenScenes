@@ -21,11 +21,12 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
     if (!slide) return <div className="w-full h-full bg-zinc-900" />;
 
     // Base resolution for the slide canvas
-    const BASE_WIDTH = 1280;
-    const BASE_HEIGHT = 720;
+    // Base resolution matching the InteractiveSlidePreview max-width
+    const BASE_WIDTH = 1000;
+    const BASE_HEIGHT = 562.5;
 
     return (
-        <div className={`relative overflow-hidden bg-zinc-900 ${className}`}
+        <div className={`relative overflow-hidden bg-zinc-900 ${className} flex items-center justify-center`}
             style={{
                 width: '100%',
                 height: '100%',
@@ -36,10 +37,9 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                     width: BASE_WIDTH,
                     height: BASE_HEIGHT,
                     transform: `scale(${scale})`,
-                    transformOrigin: 'top left',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
+                    transformOrigin: 'center center',
+                    position: 'relative',
+                    flexShrink: 0
                 }}
             >
              {/* Background Image Rendering */}

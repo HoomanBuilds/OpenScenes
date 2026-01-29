@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Slide, Asset, GenerationStatus, SlideElement, SlideBackground } from './types';
+import { Slide, Asset, GenerationStatus, SlideElement, SlideBackground, ContextFile } from './types';
 import { LeftPanel_Global } from './LeftPanel_Global';
 import { LeftPanel_Assets } from './LeftPanel_Assets';
 import { LeftPanel_ComponentLibrary } from './LeftPanel_ComponentLibrary';
@@ -19,12 +19,15 @@ interface LeftPanelProps {
     generationStatus: GenerationStatus;
     onGenerate: () => void;
     onBackToGlobal: () => void;
-    onUploadAsset: (file: File, type: 'image' | 'audio') => void;
+    onUploadAsset: (file: File, type: 'image' | 'audio' | 'video') => void;
     onUpdateElement: (slideId: string, elementId: string, changes: Partial<SlideElement>) => void;
     onUpdateSlideBackground: (slideId: string, bg: SlideBackground) => void;
     onRemove: () => void;
     onRegenerateSlide: (slideId: string) => void;
     onRemoveElement: (slideId: string, elementId: string) => void;
+    contextFiles: ContextFile[];
+    onAddContextFile: (file: ContextFile) => void;
+    onRemoveContextFile: (id: string) => void;
 }
 
 const LeftPanel: React.FC<LeftPanelProps> = ({ 
@@ -43,7 +46,10 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
     onUpdateSlideBackground,
     onRemove,
     onRegenerateSlide,
-    onRemoveElement
+    onRemoveElement,
+    contextFiles,
+    onAddContextFile,
+    onRemoveContextFile
 }) => {
     const [libraryTab, setLibraryTab] = useState<'assets' | 'components'>('assets');
     const [aiEditPrompt, setAiEditPrompt] = useState('');
@@ -242,6 +248,9 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
                             onBackToGlobal={onBackToGlobal}
                             visualStyle={visualStyle}
                             setVisualStyle={setVisualStyle}
+                            contextFiles={contextFiles}
+                            onAddContextFile={onAddContextFile}
+                            onRemoveContextFile={onRemoveContextFile}
                         />
                          
                          <div className="space-y-3">

@@ -18,8 +18,11 @@ import { HyperDrive_Slide3 } from './templates/example/hyper-drive/Slide3';
 import { HyperDrive_Slide4 } from './templates/example/hyper-drive/Slide4';
 import { HyperDrive_Slide5 } from './templates/example/hyper-drive/Slide5';
 
+// Import Template
+import HyperDriveLaunch from './templates/HyperDriveLaunch.json';
+
 // Types
-import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation } from './types';
+import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation, ContextFile } from './types';
 
 const Dashboard: React.FC = () => {
     // State
@@ -34,6 +37,10 @@ const Dashboard: React.FC = () => {
     const [viewMode, setViewMode] = useState<ViewMode>('sequence');
     const [generationStatus, setGenerationStatus] = useState<GenerationStatus>('idle');
     const [refreshKey, setRefreshKey] = useState<number>(0);
+    const [contextFiles, setContextFiles] = useState<ContextFile[]>([]);
+    
+    // Undo/History State
+    const [history, setHistory] = useState<Slide[][]>([]);
 
     // Console Log State for User Verification
     useEffect(() => {
@@ -47,8 +54,53 @@ const Dashboard: React.FC = () => {
         }
     }, [slides, generationStatus, selectedElementIds, selectedSlideId, globalPrompt]);
 
-    // Handlers
+    // History Helper
+    const saveToHistory = () => {
+        setHistory(prev => [...prev.slice(-19), JSON.parse(JSON.stringify(slides))]); // Max 20 steps
+    };
+
+    const handleUndo = () => {
+        if (history.length === 0) return;
+        const previous = history[history.length - 1];
+        setHistory(prev => prev.slice(0, -1));
+        setSlides(previous);
+    };
+
+    // Keyboard Shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Guard: don't trigger if user is typing in an input or textarea
+            const activeTag = document.activeElement?.tagName.toLowerCase();
+            if (activeTag === 'input' || activeTag === 'textarea' || (document.activeElement as HTMLElement)?.isContentEditable) {
+                return;
+            }
+
+            // Undo: Ctrl+Z
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                handleUndo();
+            }
+
+            // Delete: Delete or Backspace (if something is selected)
+            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElementIds.length > 0 && selectedSlideId) {
+                e.preventDefault();
+                saveToHistory();
+                setSlides(prev => prev.map(s => {
+                    if (s.id !== selectedSlideId) return s;
+                    return {
+                        ...s,
+                        elements: s.elements?.filter(el => !selectedElementIds.includes(el.id))
+                    };
+                }));
+                setSelectedElementIds([]);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [slides, history, selectedElementIds, selectedSlideId]);
     const handleAddSlide = () => {
+        saveToHistory();
         const newSlide: Slide = {
             id: `slide-${Date.now()}`,
             type: 'default',
@@ -87,10 +139,12 @@ const Dashboard: React.FC = () => {
     };
 
     const handleReorder = (newSlides: Slide[]) => {
+        saveToHistory();
         setSlides(newSlides);
     };
 
     const handleDurationChange = (slideId: string, deltaFrames: number) => {
+        saveToHistory();
         setSlides(prev => prev.map(s => {
             if (s.id !== slideId) return s;
             const newDuration = Math.max(30, s.duration + deltaFrames); // Min 1 sec
@@ -99,6 +153,7 @@ const Dashboard: React.FC = () => {
     };
 
     const handleRemoveSlide = (slideId: string) => {
+        saveToHistory();
         setSlides(prev => prev.filter(s => s.id !== slideId));
         if (selectedSlideId === slideId) {
             handleSelectSlide(null);
@@ -110,7 +165,7 @@ const Dashboard: React.FC = () => {
         setRefreshKey(prev => prev + 1);
     };
 
-    const handleUploadAsset = (file: File, type: 'image' | 'audio') => {
+    const handleUploadAsset = (file: File, type: 'image' | 'audio' | 'video') => {
         if (file.size > 2 * 1024 * 1024) {
             alert('File size exceeds 2MB limit.');
             return;
@@ -126,7 +181,16 @@ const Dashboard: React.FC = () => {
         setGlobalAssets(prev => [...prev, newAsset]);
     };
 
+    const handleAddContextFile = (file: ContextFile) => {
+        setContextFiles(prev => [...prev, file]);
+    };
+
+    const handleRemoveContextFile = (id: string) => {
+        setContextFiles(prev => prev.filter(f => f.id !== id));
+    };
+
     const handleUpdateElement = (slideId: string, elementId: string, changes: Partial<SlideElement>) => {
+        saveToHistory();
         setSlides(prevSlides => prevSlides.map(slide => {
             if (slide.id !== slideId) return slide;
             return {
@@ -142,14 +206,17 @@ const Dashboard: React.FC = () => {
     };
 
     const handleUpdateSlide = (slideId: string, changes: Partial<Slide>) => {
+        saveToHistory();
         setSlides(prev => prev.map(s => s.id === slideId ? { ...s, ...changes } : s));
     };
 
     const handleUpdateSlideBackground = (slideId: string, bg: SlideBackground) => {
+        saveToHistory();
         setSlides(prev => prev.map(s => s.id === slideId ? { ...s, background: bg } : s));
     };
 
     const handleAddElement = (slideId: string, type: SlideElement['type'], position: { x: number, y: number }, preset?: string, content?: string) => {
+        saveToHistory();
         const isHollow = preset === 'Hollow';
         
         const newElement: SlideElement = {
@@ -159,29 +226,26 @@ const Dashboard: React.FC = () => {
                      (type === 'headline' || type === 'subheadline' || type === 'text') ? 
                      (type === 'headline' ? 'New Headline' : type === 'subheadline' ? 'New Subtitle' : 'New Text') :
                      type === 'image' ? 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80' : 
-                     type === 'list' ? 'Point 1\nPoint 2\nPoint 3' :
+                     type === 'video' ? 'https://www.w3schools.com/html/mov_bbb.mp4' :
                      type === 'shape' ? '' :
                      type === 'chart' ? 'Jan 400 240\nFeb 300 139\nMar 200 980\nApr 278 390\nMay 189 480' : 
-                     type === 'icon' ? 'star' :
                      'New Content'
             ),
             x: position.x,
             y: position.y,
-            width: type === 'image' || type === 'chart' ? 300 : (type === 'shape' || type === 'icon') ? 200 : 400,
-            height: type === 'image' || type === 'chart' || type === 'shape' || type === 'icon' ? 200 : (type === 'headline' || type === 'subheadline' || type === 'text') ? (type === 'headline' ? 60 : 40) : undefined,
+            width: (type === 'image' || type === 'video' || type === 'chart') ? 300 : type === 'shape' ? 200 : 400,
+            height: (type === 'image' || type === 'video' || type === 'chart' || type === 'shape') ? 200 : (type === 'headline' || type === 'subheadline' || type === 'text') ? (type === 'headline' ? 60 : 40) : undefined,
             textFormat: type === 'text' ? 'normal' : undefined,
-            color: type === 'shape' ? (isHollow ? 'transparent' : '#3b82f6') : type === 'icon' ? '#f59e0b' : '#ffffff',
+            color: type === 'shape' ? (isHollow ? 'transparent' : '#3b82f6') : '#ffffff',
             textColor: type === 'shape' ? '#ffffff' : undefined,
             strokeWidth: isHollow ? 2 : 0,
             strokeColor: isHollow ? '#3b82f6' : 'transparent',
-            fontSize: (type === 'headline' || type === 'text') ? 48 : (type === 'shape' ? 32 : 24),
+            fontSize: (type === 'headline' || type === 'subheadline' || type === 'text') ? 48 : (type === 'shape' ? 32 : 24),
             fontWeight: 'normal',
             textAlign: 'left',
             verticalAlign: (type === 'headline' || type === 'subheadline' || type === 'text') ? 'center' : undefined,
             // Default props for new types
-            borderRadius: type === 'shape' ? 20 : undefined,
-            listType: type === 'list' ? 'disc' : undefined,
-            listSpacing: type === 'list' ? 10 : undefined,
+            borderRadius: (type === 'shape' || type === 'image' || type === 'video') ? 20 : undefined,
             chartType: type === 'chart' ? 'bar' : undefined,
             chartProps: type === 'chart' ? { showGrid: true, showLegend: true } : undefined,
             lineHeight: 1.5,
@@ -202,6 +266,7 @@ const Dashboard: React.FC = () => {
     };
 
     const handleRemoveElement = (slideId: string, elementId: string) => {
+        saveToHistory();
         setSlides(prev => prev.map(s => {
             if (s.id !== slideId) return s;
             return {
@@ -214,8 +279,6 @@ const Dashboard: React.FC = () => {
 
     const [generationLog, setGenerationLog] = useState<string>('');
 
-    // ... (Keep existing effects) ...
-
     const handleGenerate = () => {
         if (generationStatus === 'generating') return;
         
@@ -225,43 +288,19 @@ const Dashboard: React.FC = () => {
         setSlides([]);
         setGenerationLog('Initializing Hyper-Drive system...');
 
-        // Simulation Timeline
-        
-        // Slide 1
-        setTimeout(() => {
-            setGenerationLog('Analyzing serverless architecture...');
-            setSlides([HyperDrive_Slide1(`gen-slide-1`)]);
-        }, 1500);
+        const templateSlides = HyperDriveLaunch.slides as unknown as Slide[];
 
-        // Slide 2
         setTimeout(() => {
-            setGenerationLog('Mapping globally distributed nodes...');
-            setSlides(prev => [...prev, HyperDrive_Slide2(`gen-slide-2`)]);
-        }, 3000);
+            setGenerationLog('Loading template configuration...');
+            
+            setTimeout(() => {
+                 setGenerationLog('Generating slides from schema...');
+                 setSlides(templateSlides);
+                 setGenerationStatus('done');
+                 setGenerationLog('');
+            }, 800);
 
-        // Slide 3
-        setTimeout(() => {
-            setGenerationLog('Simulating edge latency metrics...');
-            setSlides(prev => [...prev, HyperDrive_Slide3(`gen-slide-3`)]);
-        }, 4500);
-
-        // Slide 4
-        setTimeout(() => {
-            setGenerationLog('Calculating cloud tax elimination...');
-            setSlides(prev => [...prev, HyperDrive_Slide4(`gen-slide-4`)]);
-        }, 6000);
-
-        // Slide 5
-        setTimeout(() => {
-            setGenerationLog('Finalizing performance showcase...');
-            setSlides(prev => [...prev, HyperDrive_Slide5(`gen-slide-5`)]);
-        }, 7500);
-
-        // Finish
-        setTimeout(() => {
-            setGenerationLog('');
-            setGenerationStatus('done');
-        }, 8500);
+        }, 800);
     };
 
     return (
@@ -283,6 +322,9 @@ const Dashboard: React.FC = () => {
                 onRemove={() => selectedSlideId && handleRemoveSlide(selectedSlideId)}
                 onRegenerateSlide={handleRegenerateSlide}
                 onRemoveElement={handleRemoveElement}
+                contextFiles={contextFiles}
+                onAddContextFile={handleAddContextFile}
+                onRemoveContextFile={handleRemoveContextFile}
             />
             
             <RightPanel 

@@ -21,7 +21,7 @@ export type ElementAnimation = {
 
 export type SlideElement = {
     id: string;
-    type: 'headline' | 'subheadline' | 'text' | 'image' | 'video' | 'chart' | 'shape' | 'link-preview';
+    type: 'headline' | 'subheadline' | 'text' | 'image' | 'video' | 'chart' | 'shape' | 'link-preview' | 'list' | 'icon';
     content: string;
     textFormat?: 'normal' | 'markdown';
     x: number;
@@ -51,6 +51,8 @@ export type SlideElement = {
         colors?: string[];
         transparent?: boolean;
     };
+    listType?: 'disc' | 'decimal';
+    listSpacing?: number;
     animation?: ElementAnimation;
     objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
 };
@@ -70,9 +72,16 @@ export type Slide = {
 
 export type Asset = {
     id: string;
-    type: 'image' | 'audio';
+    type: 'image' | 'audio' | 'video';
     url: string;
     name: string;
+};
+
+export type ContextFile = {
+    id: string;
+    name: string;
+    type: string;
+    content: string;
 };
 
 export type ViewMode = 'sequence' | 'focus';

@@ -5,37 +5,78 @@ export const HyperDrive_Slide2 = (id: string): Slide => {
         id,
         type: 'HyperDrive Features',
         props: {},
-        duration: 150,
+        duration: 200,
         background: {
             type: 'color',
-            value: '#18181b'
+            value: '#09090b'
         },
         elements: [
             {
+                id: `${id}-sidebar`,
+                type: 'shape',
+                content: 'rect',
+                x: 0, y: 0, width: 300, height: 562.5,
+                color: '#18181b',
+                zIndex: 1
+            },
+            {
+                id: `${id}-sidebar-accent`,
+                type: 'shape',
+                content: 'rect',
+                x: 298, y: 0, width: 2, height: 562.5,
+                color: '#6366f1',
+                opacity: 0.3,
+                zIndex: 2
+            },
+            {
                 id: `${id}-header`,
                 type: 'headline',
-                content: 'Core Features',
-                x: 50, y: 50, width: 900, height: 80,
-                fontSize: 60, fontWeight: 'bold',
-                textColor: '#6366f1', textAlign: 'left',
-                zIndex: 2
+                content: 'CORE\nFEATURES',
+                x: 40, y: 60, width: 220, height: 100,
+                fontSize: 40, 
+                fontWeight: '900',
+                textColor: '#ffffff', 
+                textAlign: 'left',
+                lineHeight: 0.9,
+                zIndex: 3
+            },
+            {
+                id: `${id}-line`,
+                type: 'shape',
+                content: 'rect',
+                x: 40, y: 180, width: 40, height: 4,
+                color: '#6366f1',
+                zIndex: 3
             },
             {
                 id: `${id}-list`,
                 type: 'text',
                 textFormat: 'markdown',
-                content: '- 0ms Cold Starts via V8 snapshots\n- Global replication across 24 regions\n- SQL-compatible Key-Value performance\n- AI-native Vector Search built-in',
-                x: 80, y: 180, width: 840, height: 300,
-                fontSize: 32, fontWeight: 'normal',
-                textColor: '#d1d5db', textAlign: 'left',
+                content: '### Performance\n- **0ms Cold Starts** via V8 snapshots\n- **SQL-compatible** KV performance\n\n### Reliability\n- **Global replication** in 24 regions\n- **Automatic failover** protocols\n\n### Intelligence\n- **AI-native Vector Search**\n- **Edge caching** optimizations',
+                x: 360, y: 80, width: 580, height: 400,
+                fontSize: 22, 
+                fontWeight: '400',
+                textColor: '#d1d5db', 
+                textAlign: 'left',
                 verticalAlign: 'top',
+                fontFamily: 'Inter',
                 zIndex: 2,
                 animation: {
                     type: 'slide',
                     duration: 0.8,
-                    delay: 0.3,
+                    delay: 0.5,
                     direction: 'right'
                 }
+            },
+            {
+                id: `${id}-glow`,
+                type: 'shape',
+                content: 'circle',
+                x: 850, y: 400, width: 300, height: 300,
+                color: '#6366f1',
+                opacity: 0.05,
+                borderRadius: 50,
+                zIndex: 0
             }
         ]
     };

@@ -47,6 +47,14 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
                 if (onAddElement) {
                     onAddElement(slide.id, parsed.componentType, { x, y }, parsed.preset);
                 }
+            } else if (parsed.type === 'asset' && (parsed.assetType === 'image' || parsed.assetType === 'video')) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = e.clientX - rect.left - 150; // Offset for asset
+                const y = e.clientY - rect.top - 100;
+                
+                if (onAddElement) {
+                    onAddElement(slide.id, parsed.assetType, { x, y }, undefined, parsed.url);
+                }
             }
         } catch (err) {
             console.error("Drop failed:", err);
@@ -118,7 +126,7 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
                 ))}
             </div>
 
-            {/* Close Button Overlay */}
+            {/* Back Button Overlay */}
             <button 
                 onClick={onClose}
                 className="absolute top-6 right-6 p-2 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition-colors shadow-lg group"
