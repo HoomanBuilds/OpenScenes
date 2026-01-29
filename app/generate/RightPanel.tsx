@@ -53,11 +53,11 @@ const RightPanel: React.FC<RightPanelProps> = ({
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900/20 via-zinc-950 to-zinc-950 pointer-events-none" />
             
             {/* Top Bar Status */}
-            <div className="h-16 border-b border-zinc-800/50 flex items-center justify-end px-6 space-x-6 z-10 bg-zinc-950/50 backdrop-blur-sm">
-                <div className="flex items-center space-x-2">
-                     <span className={`w-2 h-2 rounded-full ${generationStatus === 'generating' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></span>
-                     <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
-                        {generationStatus === 'generating' ? 'Generating Video' : 'Ready'}
+            <div className="h-16 border-b-2 border-black flex items-center justify-end px-6 space-x-6 z-10 bg-[#09090b]">
+                <div className="flex items-center space-x-3 bg-zinc-900 border-2 border-zinc-800 px-3 py-1.5 rounded-sm">
+                     <span className={`w-2 h-2 rounded-full ${generationStatus === 'generating' ? 'bg-amber-500 animate-pulse' : 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]'}`}></span>
+                     <span className="text-[10px] text-zinc-400 font-bold font-mono uppercase tracking-widest">
+                        {generationStatus === 'generating' ? 'SYSTEM BUSY' : 'SYSTEM READY'}
                      </span>
                 </div>
             </div>

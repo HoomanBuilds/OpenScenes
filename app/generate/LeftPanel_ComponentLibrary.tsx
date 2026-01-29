@@ -28,16 +28,31 @@ export const LeftPanel_ComponentLibrary: React.FC<LeftPanel_ComponentLibraryProp
     ];
 
     return (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3 mt-4">
             {components.map((comp, idx) => (
                 <div 
                     key={`${comp.type}-${comp.label}-${idx}`}
                     draggable
                     onDragStart={(e) => onDragStart(e, comp.type, comp.label)}
-                    className="p-3 bg-zinc-900 border border-zinc-800 hover:border-purple-500/50 rounded-lg flex items-center space-x-3 cursor-grab active:cursor-grabbing hover:bg-zinc-800/80 transition-colors"
+                    className="group relative h-14 bg-zinc-950 border-2 border-zinc-900 hover:border-zinc-500 hover:bg-zinc-900 transition-all cursor-grab active:cursor-grabbing flex items-center px-4 space-x-3 overflow-hidden"
                 >
-                    <div className="text-zinc-400">{comp.icon}</div>
-                    <span className="text-sm text-zinc-300">{comp.label}</span>
+                    {/* Tech Decor */}
+                    <div className="absolute top-0 right-0 w-2 h-2 bg-zinc-800 group-hover:bg-purple-500 transition-colors"></div>
+                    <div className="absolute bottom-0 left-0 w-2 h-2 border-r border-t border-zinc-800"></div>
+
+                    <div className="text-zinc-600 group-hover:text-white transition-colors">
+                        {comp.icon}
+                    </div>
+                    
+                    <div className="flex flex-col">
+                        <span className="text-[10px] uppercase font-black tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">Module</span>
+                        <span className="text-xs font-bold text-zinc-300 group-hover:text-white uppercase tracking-tight">{comp.label}</span>
+                    </div>
+
+                    {/* Drag indicator */}
+                    <div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <svg className="w-3 h-3 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
+                    </div>
                 </div>
             ))}
         </div>

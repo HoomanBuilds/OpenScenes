@@ -87,11 +87,36 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
     };
 
     return (
-        <div className="h-full w-full flex items-center justify-center p-8 bg-zinc-950/80 backdrop-blur-sm">
+        <div className="h-full w-full flex items-center justify-center p-12 bg-[#09090b]/95 backdrop-blur-md relative overflow-hidden">
             
+            {/* --- MONITOR OVERLAY UI --- */}
+            <div className="absolute inset-0 pointer-events-none">
+                {/* Corner Brackets */}
+                <div className="absolute top-6 left-6 w-16 h-16 border-l-[3px] border-t-[3px] border-zinc-600 rounded-tl-sm opacity-50"></div>
+                <div className="absolute top-6 right-6 w-16 h-16 border-r-[3px] border-t-[3px] border-zinc-600 rounded-tr-sm opacity-50"></div>
+                <div className="absolute bottom-6 left-6 w-16 h-16 border-l-[3px] border-b-[3px] border-zinc-600 rounded-bl-sm opacity-50"></div>
+                <div className="absolute bottom-6 right-6 w-16 h-16 border-r-[3px] border-b-[3px] border-zinc-600 rounded-br-sm opacity-50"></div>
+
+                {/* Status Marks */}
+                <div className="absolute top-10 left-1/2 -translate-x-1/2 flex items-center space-x-4">
+                    <div className="flex items-center space-x-1.5 bg-zinc-900 border border-zinc-700 px-2 py-0.5 rounded-sm">
+                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                        <span className="text-[9px] font-mono font-bold text-zinc-400 tracking-widest">LIVE EDITOR</span>
+                    </div>
+                </div>
+
+                <div className="absolute top-8 left-8 font-mono text-[9px] text-zinc-600 tracking-[0.2em] opacity-80">
+                    CAM-204 [HQ]
+                </div>
+
+                <div className="absolute bottom-8 right-8 font-mono text-[9px] text-zinc-600 tracking-[0.2em] opacity-80">
+                    ISO 800 | 24FPS
+                </div>
+            </div>
+
             {/* Aspect Ratio Container (16:9) */}
             <div 
-                className="relative bg-black shadow-2xl overflow-hidden cursor-crosshair border border-zinc-800"
+                className="relative bg-black shadow-[0_0_50px_-10px_rgba(0,0,0,0.5)] overflow-hidden cursor-crosshair border-2 border-zinc-800 group"
                 onPointerDown={handlePointerDownBackground}
                 style={{ 
                     aspectRatio: '16/9', 
@@ -142,16 +167,21 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
                         onDrop={handleDropOnElement}
                     />
                 ))}
+
+                {/* Grid Overlay on Hover (Subtle) */}
+                <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10 transition-opacity" style={{ 
+                    backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)',
+                    backgroundSize: '100px 100px'
+                }}></div>
             </div>
 
             {/* Back Button Overlay */}
             <button 
                 onClick={onClose}
-                className="absolute top-6 right-6 p-2 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition-colors shadow-lg group"
+                className="absolute top-6 right-6 h-10 px-4 bg-zinc-900 border-b-[3px] border-r-[3px] border-black rounded-sm hover:-translate-y-0.5 transition-transform flex items-center space-x-2 z-20 group"
             >
-                <svg className="w-5 h-5 text-zinc-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <span className="text-[10px] font-black uppercase text-zinc-500 group-hover:text-red-400 transition-colors">Exit</span>
+                <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full group-hover:bg-red-500"></div>
             </button>
         </div>
     );
