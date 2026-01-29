@@ -21,7 +21,7 @@ export type ElementAnimation = {
 
 export type SlideElement = {
     id: string;
-    type: 'headline' | 'subheadline' | 'text' | 'image' | 'chart' | 'list' | 'shape' | 'link-preview' | 'icon';
+    type: 'headline' | 'subheadline' | 'text' | 'image' | 'video' | 'chart' | 'shape' | 'link-preview';
     content: string;
     textFormat?: 'normal' | 'markdown';
     x: number;
@@ -39,9 +39,7 @@ export type SlideElement = {
     verticalAlign?: 'top' | 'center' | 'bottom';
     fontFamily?: string; 
     lineHeight?: number; 
-    listSpacing?: number; 
     borderRadius?: number; 
-    listType?: 'disc' | 'decimal'; 
     strokeWidth?: number;
     strokeColor?: string;
     chartType?: 'bar' | 'line' | 'pie' | 'area';

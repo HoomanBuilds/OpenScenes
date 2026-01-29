@@ -180,7 +180,7 @@ export const LeftPanel_ElementStyle: React.FC<LeftPanel_ElementStyleProps> = ({ 
                                 onChange={(e) => onUpdate({ borderRadius: parseInt(e.target.value) })}
                                 className="flex-1 accent-purple-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
                                 />
-                                <span className="text-[10px] text-zinc-400 w-6 text-right">{element.borderRadius || 0}</span>
+                                <span className="text-[10px] text-zinc-400 w-6 text-right">{element.borderRadius || 0}{element.type === 'shape' ? '%' : 'px'}</span>
                             </div>
                         </div>
                          {element.type !== 'image' && (

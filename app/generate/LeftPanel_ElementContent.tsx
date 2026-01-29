@@ -1,5 +1,6 @@
 import React from 'react';
 import { SlideElement } from './types';
+import * as LucideIcons from 'lucide-react';
 
 interface LeftPanel_ElementContentProps {
     element: SlideElement;
@@ -44,52 +45,16 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
         );
     }
     
-    if (element.type === 'list') {
-        return (
-             <div className="space-y-4">
-                 <div>
-                    <label className="text-xs font-semibold text-zinc-400 mb-2 block">List Items (One per line)</label>
-                    <textarea 
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-300 focus:border-purple-500/50 focus:outline-none resize-y min-h-[150px]"
-                        value={element.content}
-                        onChange={(e) => onUpdate({ content: e.target.value })}
-                    />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                     <div>
-                         <label className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5 block">Type</label>
-                         <select
-                            className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-xs text-zinc-300"
-                            value={element.listType || 'disc'}
-                            onChange={(e) => onUpdate({ listType: e.target.value as any })}
-                         >
-                             <option value="disc">Bullet</option>
-                             <option value="decimal">Number</option>
-                         </select>
-                     </div>
-                     <div>
-                         <label className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5 block">Spacing</label>
-                         <input
-                            type="number"
-                            className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-xs text-zinc-300"
-                            value={element.listSpacing || 10}
-                            onChange={(e) => onUpdate({ listSpacing: parseInt(e.target.value) })}
-                         />
-                     </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (element.type === 'image') {
+    if (element.type === 'image' || element.type === 'video') {
         return (
             <div className="space-y-4">
                  <div>
-                    <label className="text-xs font-semibold text-zinc-400 mb-2 block">Image Source URL</label>
+                    <label className="text-xs font-semibold text-zinc-400 mb-2 block">{element.type === 'video' ? 'Video' : 'Image'} Source URL</label>
                     <input 
                         className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-sm text-zinc-300 focus:border-purple-500/50 focus:outline-none"
                         value={element.content}
                         onChange={(e) => onUpdate({ content: e.target.value })}
+                        placeholder={element.type === 'video' ? 'https://example.com/video.mp4' : 'https://example.com/image.jpg'}
                     />
                 </div>
             </div>
@@ -139,60 +104,22 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
         );
     }
 
-    if (element.type === 'icon') {
-          return (
-            <div className="space-y-4">
-                 <div>
-                    <label className="text-xs font-semibold text-zinc-400 mb-2 block">Lucide Icon Name</label>
-                    <input 
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-sm text-zinc-300 focus:border-purple-500/50 focus:outline-none"
-                        value={element.content}
-                        onChange={(e) => onUpdate({ content: e.target.value })}
-                        placeholder="e.g. Star, Heart, Zap, Clock"
-                    />
-                    <p className="text-[10px] text-zinc-600 mt-1 italic">Type any Lucide icon name (PascalCase or kebab-case)</p>
-                </div>
-
-                <div>
-                    <label className="text-xs font-semibold text-zinc-400 mb-2 block">Icon Size ({element.fontSize || 48}px)</label>
-                    <div className="flex items-center space-x-3">
-                        <input 
-                            type="range" min="12" max="200" step="4"
-                            className="flex-1 accent-purple-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
-                            value={element.fontSize || 48}
-                            onChange={(e) => onUpdate({ fontSize: parseInt(e.target.value) })}
-                        />
-                        <span className="text-xs text-zinc-400 w-8">{element.fontSize || 48}</span>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-4 gap-2 pt-2 border-t border-zinc-800/50">
-                    <label className="col-span-4 text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Common Icons</label>
-                    {['Star', 'Heart', 'Zap', 'CheckCircle', 'Info', 'AlertTriangle', 'User', 'Settings', 'Clock', 'ArrowRight', 'Home', 'Search'].map(i => (
-                        <button 
-                            key={i}
-                            onClick={() => onUpdate({ content: i })}
-                            className={`p-2 rounded border border-zinc-800 hover:border-purple-500/50 text-[10px] truncate ${element.content.toLowerCase() === i.toLowerCase() ? 'bg-purple-500/10 border-purple-500 text-white' : 'text-zinc-500'}`}
-                        >
-                            {i}
-                        </button>
-                    ))}
-                </div>
-            </div>
-        );
-    }
-    
     if (element.type === 'link-preview') {
          return (
             <div className="space-y-4">
                  <div>
-                    <label className="text-xs font-semibold text-zinc-400 mb-2 block">Link URL</label>
+                    <label className="text-xs font-semibold text-zinc-400 mb-2 block">Resource URL</label>
                     <input 
                         className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-sm text-zinc-300 focus:border-purple-500/50 focus:outline-none"
                         value={element.content}
                         onChange={(e) => onUpdate({ content: e.target.value })}
+                        placeholder="https://github.com/remotion-dev/remotion"
                     />
                 </div>
+                <div>
+                   <label className="text-xs font-semibold text-zinc-400 mb-2 block">Preview Note (Optional)</label>
+                   <p className="text-[10px] text-zinc-500 italic">This will update the card title in the preview.</p>
+               </div>
             </div>
         );
     }
