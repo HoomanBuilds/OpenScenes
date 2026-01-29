@@ -3,23 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
-import { Template_TitleCard } from './templates/Template_TitleCard';
-import { Template_ImageRight } from './templates/Template_ImageRight';
-import { Slide1 } from './templates/example/crypto/Slide1';
-import { Slide2 } from './templates/example/crypto/Slide2';
-import { Slide3 } from './templates/example/crypto/Slide3';
-import { Slide4 } from './templates/example/crypto/Slide4';
-import { SaaS_Slide1 } from './templates/example/saas/Slide1';
-import { SaaS_Slide2 } from './templates/example/saas/Slide2';
-import { SaaS_Slide3 } from './templates/example/saas/Slide3';
-import { HyperDrive_Slide1 } from './templates/example/hyper-drive/Slide1';
-import { HyperDrive_Slide2 } from './templates/example/hyper-drive/Slide2';
-import { HyperDrive_Slide3 } from './templates/example/hyper-drive/Slide3';
-import { HyperDrive_Slide4 } from './templates/example/hyper-drive/Slide4';
-import { HyperDrive_Slide5 } from './templates/example/hyper-drive/Slide5';
 
-// Import Template
-import HyperDriveLaunch from './templates/HyperDriveLaunch.json';
+import EcoStreamConfig from './templates/EcoStreamConfig.json';
 
 // Types
 import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation, ContextFile } from './types';
@@ -288,7 +273,7 @@ const Dashboard: React.FC = () => {
         setSlides([]);
         setGenerationLog('Initializing Hyper-Drive system...');
 
-        const templateSlides = HyperDriveLaunch.slides as unknown as Slide[];
+        const templateSlides = EcoStreamConfig.slides as unknown as Slide[];
 
         setTimeout(() => {
             setGenerationLog('Loading template configuration...');
