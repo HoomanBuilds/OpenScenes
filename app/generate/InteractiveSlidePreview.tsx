@@ -97,8 +97,26 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
                     aspectRatio: '16/9', 
                     width: '100%', 
                     maxWidth: '1000px',
-                    background: slide.background?.type === 'color' ? slide.background.value : 
-                               slide.background?.type === 'gradient' ? slide.background.value : 'black'
+                    ...(() => {
+                        const bgType = slide.background?.type;
+                        const bgValue = slide.background?.value;
+                        const isTransparent = !bgValue || bgValue === 'transparent';
+
+                        // Case 1: Active Color/Gradient (Not Transparent)
+                        if (!isTransparent && (bgType === 'color' || bgType === 'gradient')) {
+                            return {
+                                background: bgValue,
+                                backgroundSize: 'cover'
+                            };
+                        }
+                        
+                        // Case 2: Fallback Dotted Grid (Transparent or Undefined)
+                        return {
+                            background: 'radial-gradient(circle, rgba(255,255,255,0.08) 1.5px, transparent 1.5px)',
+                            backgroundSize: '24px 24px',
+                            backgroundColor: '#09090b', // explicit base color for the grid to sit on
+                        };
+                    })()
                 }}
                 onDragOver={handleDragOver}
                 onDrop={handleDropOnCanvas}

@@ -87,6 +87,16 @@ export const LeftPanel_SlideSettings: React.FC<LeftPanel_SlideSettingsProps> = (
                     {activeTab === 'solid' && (
                         <div className="space-y-2">
                             <div className="grid grid-cols-6 gap-1.5">
+                                 {/* Transparent / None Option */}
+                                <button
+                                    onClick={() => onUpdateSlideBackground(selectedSlide.id, { type: 'color', value: 'transparent' })}
+                                    className={`w-full aspect-square rounded border transition-all flex items-center justify-center group relative overflow-hidden ${selectedSlide.background?.value === 'transparent' ? 'border-purple-500 scale-110 shadow-lg' : 'border-white/5 hover:border-white/20'}`}
+                                    title="None (Transparent)"
+                                >
+                                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/checkerboard-cross-light.png')] opacity-20" />
+                                    <svg className="w-4 h-4 text-zinc-500 group-hover:text-red-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+
                                 {PRESET_COLORS.map(color => (
                                     <button
                                         key={color}
@@ -98,7 +108,7 @@ export const LeftPanel_SlideSettings: React.FC<LeftPanel_SlideSettingsProps> = (
                                 <input 
                                     type="color" 
                                     className="w-full aspect-square rounded bg-transparent border-white/5 cursor-pointer p-0 overflow-hidden"
-                                    value={selectedSlide.background?.type === 'color' ? selectedSlide.background.value : '#000000'}
+                                    value={selectedSlide.background?.type === 'color' && selectedSlide.background.value !== 'transparent' ? selectedSlide.background.value : '#000000'}
                                     onChange={(e) => onUpdateSlideBackground(selectedSlide.id, { type: 'color', value: e.target.value })}
                                 />
                             </div>

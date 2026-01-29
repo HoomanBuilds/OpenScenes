@@ -13,7 +13,7 @@ import { COLORS } from './InteractiveSlidePreview_Utils';
 
 interface ElementRendererProps {
     element: SlideElement;
-    fontSizeValue: any; // Accept motion value or number
+    fontSizeValue: any;
 }
 
 const processBold = (text: string) => {
