@@ -9,12 +9,11 @@ interface LeftPanel_AssetsProps {
 const STOCK_ASSETS: Asset[] = [
     { id: 'stock-charts-1', type: 'image', name: 'Analytics', url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80' },
     { id: 'stock-charts-2', type: 'image', name: 'Dashboard', url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80' },
+    { id: 'stock-global', type: 'image', name: 'Global Hub', url: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?auto=format&fit=crop&w=800&q=80' },
+    { id: 'stock-secure', type: 'image', name: 'Security', url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80' },
+    { id: 'stock-rocket', type: 'image', name: 'Growth', url: 'https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=800&q=80' },
+    { id: 'stock-team-1', type: 'image', name: 'Team', url: 'https://images.unsplash.com/photo-1522071823991-b9671f903f79?auto=format&fit=crop&w=800&q=80' },
     { id: 'stock-strat-1', type: 'image', name: 'Strategy', url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80' },
-    { id: 'stock-1', type: 'image', name: 'Nature', url: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=800&q=80' },
-    { id: 'stock-2', type: 'image', name: 'Interior', url: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800&q=80' },
-    { id: 'stock-4', type: 'image', name: 'City', url: 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=800&q=80' },
-    { id: 'stock-5', type: 'image', name: 'Abstract', url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80' },
-    { id: 'stock-6', type: 'image', name: 'People', url: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=800&q=80' },
 ];
 
 export const LeftPanel_Assets: React.FC<LeftPanel_AssetsProps> = ({

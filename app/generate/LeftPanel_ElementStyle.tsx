@@ -57,10 +57,24 @@ export const LeftPanel_ElementStyle: React.FC<LeftPanel_ElementStyleProps> = ({ 
                 </div>
             </div>
 
-            {['headline', 'subheadline', 'text', 'list', 'paragraph'].includes(element.type) && (
+            {['headline', 'subheadline', 'text', 'list', 'paragraph', 'shape'].includes(element.type) && (
                  <div className="space-y-3 pt-3 border-t border-zinc-800/50">
                     <label className="text-xs font-semibold text-zinc-400">Typography</label>
                     <div className="grid grid-cols-2 gap-3">
+                        {element.type === 'shape' && (
+                            <div>
+                                <label className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5 block">Text Color</label>
+                                <div className="flex items-center space-x-2 bg-zinc-900 border border-zinc-800 rounded p-1.5 h-[34px]">
+                                    <input 
+                                        type="color" 
+                                        className="w-5 h-5 rounded bg-transparent border-none cursor-pointer"
+                                        value={element.textColor || '#ffffff'}
+                                        onChange={(e) => onUpdate({ textColor: e.target.value })}
+                                    />
+                                    <span className="text-[10px] text-zinc-500 font-mono italic">{element.textColor || '#fff'}</span>
+                                </div>
+                            </div>
+                        )}
                         <div>
                              <label className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5 block">Font Size</label>
                              <input 
@@ -98,7 +112,7 @@ export const LeftPanel_ElementStyle: React.FC<LeftPanel_ElementStyleProps> = ({ 
                              </select>
                         </div>
                          <div className="col-span-2">
-                             <label className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5 block">Alignment</label>
+                             <label className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5 block">Horizontal Alignment</label>
                              <div className="flex bg-zinc-900 rounded border border-zinc-800 p-1">
                                  {['left', 'center', 'right'].map((align) => (
                                      <button
@@ -107,6 +121,20 @@ export const LeftPanel_ElementStyle: React.FC<LeftPanel_ElementStyleProps> = ({ 
                                         className={`flex-1 py-1 rounded text-xs capitalize ${element.textAlign === align ? 'bg-zinc-700 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
                                      >
                                          {align}
+                                     </button>
+                                 ))}
+                             </div>
+                        </div>
+                        <div className="col-span-2">
+                             <label className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5 block">Vertical Alignment</label>
+                             <div className="flex bg-zinc-900 rounded border border-zinc-800 p-1">
+                                 {['top', 'center', 'bottom'].map((vAlign) => (
+                                     <button
+                                        key={vAlign}
+                                        onClick={() => onUpdate({ verticalAlign: vAlign as any })}
+                                        className={`flex-1 py-1 rounded text-xs capitalize ${element.verticalAlign === vAlign ? 'bg-zinc-700 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                     >
+                                         {vAlign}
                                      </button>
                                  ))}
                              </div>

@@ -9,15 +9,35 @@ interface LeftPanel_ElementContentProps {
 export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> = ({ element, onUpdate }) => {
     
     // Helper inputs based on type
-    if (element.type === 'headline' || element.type === 'subheadline' || element.type === 'text') {
+    if (['headline', 'subheadline', 'text'].includes(element.type)) {
         return (
             <div className="space-y-4">
+                {element.type === 'text' && (
+                    <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-semibold text-zinc-400">Format</label>
+                        <div className="flex bg-zinc-900 rounded p-1 border border-zinc-800">
+                            {[
+                                { id: 'normal', label: 'Plain' },
+                                { id: 'markdown', label: 'Markdown' }
+                            ].map((f) => (
+                                <button
+                                    key={f.id}
+                                    onClick={() => onUpdate({ textFormat: f.id as any })}
+                                    className={`px-3 py-1 rounded text-[10px] uppercase font-bold transition-all ${ (element.textFormat || 'normal') === f.id ? 'bg-purple-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                >
+                                    {f.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 <div>
                     <label className="text-xs font-semibold text-zinc-400 mb-2 block">Text Content</label>
                     <textarea 
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-300 focus:border-purple-500/50 focus:outline-none resize-y min-h-[120px]"
                         value={element.content}
                         onChange={(e) => onUpdate({ content: e.target.value })}
+                        placeholder={element.textFormat === 'markdown' ? 'Use "- item" for bullets...' : 'Type your text here...'}
                     />
                 </div>
             </div>
@@ -177,6 +197,23 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
         );
     }
     
+    if (element.type === 'shape') {
+        return (
+            <div className="space-y-4">
+                <div>
+                    <label className="text-xs font-semibold text-zinc-400 mb-2 block">Inner Text (Optional)</label>
+                    <input 
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-sm text-zinc-300 focus:border-purple-500/50 focus:outline-none"
+                        value={element.content}
+                        onChange={(e) => onUpdate({ content: e.target.value })}
+                        placeholder="Type text to show inside shape..."
+                    />
+                    <p className="text-[10px] text-zinc-600 mt-1 italic text-center">Perfect for badges or labels</p>
+                </div>
+            </div>
+        );
+    }
+
     // Default fallback
     return (
          <div className="space-y-4">

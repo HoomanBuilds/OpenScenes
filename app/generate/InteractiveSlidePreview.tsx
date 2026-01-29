@@ -111,7 +111,7 @@ const DraggableElement: React.FC<{
             zIndex: element.zIndex,
             rotate: element.rotation,
             position: 'absolute' as const,
-            color: element.color || 'inherit',
+            color: element.type === 'shape' ? (element.textColor || '#ffffff') : (element.color || 'inherit'),
             fontSize: fontSize,
             fontWeight: element.fontWeight || 'normal',
             fontFamily: element.fontFamily || 'Inter, sans-serif',
@@ -138,14 +138,9 @@ const DraggableElement: React.FC<{
             // 5. Update State
             onUpdate(slideId, element.id, finalX, finalY);
 
-            // 6. INSTANTLY Reset Transform to 0 (since State now holds the new pos)
+            // 6. Reset Transform
             x.set(0);
             y.set(0);
-        },
-        onTap: (e: any) => {
-            e.stopPropagation?.(); // Prevent canvas background click
-            const isShift = e.shiftKey; 
-            onSelect(element.id, isShift);
         },
         onDragOver: (e: React.DragEvent) => {
             if (element.type === 'image') {
@@ -162,13 +157,14 @@ const DraggableElement: React.FC<{
         <motion.div
             key={element.id}
             {...commonProps}
+            data-element-id={element.id}
         >
             <div className={`
                 relative transition-all duration-200 w-full h-full flex flex-col
                 ${isSelected ? 'ring-2 ring-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.3)]' : 'hover:ring-1 hover:ring-white/30'}
                 ${element.type === 'chart' ? `rounded-xl p-4 border border-zinc-800 backdrop-blur-sm ${element.chartProps?.transparent ? 'bg-transparent border-transparent shadow-none' : 'bg-zinc-900/80'}` : ''}
                 ${element.type === 'shape' ? 'shadow-lg' : ''} 
-                ${(element.type === 'headline' || element.type === 'subheadline' || element.type === 'text' || element.type === 'list') ? 'justify-center' : ''}
+                ${(element.type === 'headline' || element.type === 'subheadline' || element.type === 'text' || element.type === 'list') ? '' : ''}
             `}
             style={{
                 width: '100%', 
@@ -176,12 +172,32 @@ const DraggableElement: React.FC<{
                 borderRadius: element.type === 'image' ? (element.borderRadius ? `${element.borderRadius}px` : '12px') : undefined,
                 overflow: element.type === 'image' ? 'hidden' : 'visible',
                 alignItems: element.textAlign === 'center' ? 'center' : element.textAlign === 'right' ? 'flex-end' : 'flex-start',
+                justifyContent: element.verticalAlign === 'center' ? 'center' : element.verticalAlign === 'bottom' ? 'flex-end' : 'flex-start',
             }}
             >
                 {/* Content Rendering */}
                 {element.type === 'headline' && <h1 className="leading-tight drop-shadow-md whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign }}>{element.content}</h1>}
                 {element.type === 'subheadline' && <p className="leading-snug drop-shadow-sm whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign }}>{element.content}</p>}
-                {element.type === 'text' && <div className="leading-normal whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign }}>{element.content}</div>}
+                {element.type === 'text' && (
+                    <div className="leading-normal whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign }}>
+                        {element.textFormat === 'markdown' ? (
+                            element.content.split('\n').map((line, i) => (
+                                <div key={i} className="flex items-start mb-0.5">
+                                    {line.startsWith('- ') ? (
+                                        <>
+                                            <span className="mr-2 mt-[0.6em] block h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
+                                            <span>{line.substring(2)}</span>
+                                        </>
+                                    ) : (
+                                        <span>{line}</span>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            element.content
+                        )}
+                    </div>
+                )}
                 
                 {element.type === 'image' && (
                     <img 
@@ -226,7 +242,10 @@ const DraggableElement: React.FC<{
                 )}
 
                 {element.type === 'shape' && (
-                    <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-full h-full flex items-center justify-center p-4 text-center break-words select-none pointer-events-none">
+                        <span style={{ fontSize: fontSize as any }}>
+                            {['rect', 'circle', 'square'].includes(element.content.toLowerCase()) ? '' : element.content}
+                        </span>
                     </div>
                 )}
                 
@@ -311,8 +330,8 @@ const DraggableElement: React.FC<{
                             const newH = Math.max(20, (element.height || 300) - dy);
                             x.set(dx); y.set(dy);
                             width.set(newW); height.set(newH);
-                            if (['headline', 'subheadline', 'text'].includes(element.type)) {
-                                fontSize.set(newH);
+                            if (element.type === 'shape') {
+                                fontSize.set(Math.max(12, Math.round(newH * 0.3)));
                             } else if (element.type === 'list') {
                                 fontSize.set(Math.max(8, Math.round((element.fontSize || 24) * (newH / (element.height || 100)))));
                             } else if (element.type === 'icon') {
@@ -338,8 +357,8 @@ const DraggableElement: React.FC<{
                             const newW = Math.max(20, (element.width || 400) + info.offset.x);
                             const newH = Math.max(20, (element.height || 300) - dy);
                             y.set(dy); width.set(newW); height.set(newH);
-                            if (['headline', 'subheadline', 'text'].includes(element.type)) {
-                                fontSize.set(newH);
+                            if (element.type === 'shape') {
+                                fontSize.set(Math.max(12, Math.round(newH * 0.3)));
                             } else if (element.type === 'list') {
                                 fontSize.set(Math.max(8, Math.round((element.fontSize || 24) * (newH / (element.height || 100)))));
                             } else if (element.type === 'icon') {
@@ -365,8 +384,8 @@ const DraggableElement: React.FC<{
                             const newW = Math.max(20, (element.width || 400) - dx);
                             const newH = Math.max(20, (element.height || 300) + info.offset.y);
                             x.set(dx); width.set(newW); height.set(newH);
-                            if (['headline', 'subheadline', 'text'].includes(element.type)) {
-                                fontSize.set(newH);
+                            if (element.type === 'shape') {
+                                fontSize.set(Math.max(12, Math.round(newH * 0.3)));
                             } else if (element.type === 'list') {
                                 fontSize.set(Math.max(8, Math.round((element.fontSize || 24) * (newH / (element.height || 100)))));
                             } else if (element.type === 'icon') {
@@ -393,8 +412,8 @@ const DraggableElement: React.FC<{
                             const newW = Math.max(20, (element.width || 400) + dx);
                             const newH = Math.max(20, (element.height || 300) + dy);
                             width.set(newW); height.set(newH);
-                            if (['headline', 'subheadline', 'text'].includes(element.type)) {
-                                fontSize.set(newH);
+                            if (element.type === 'shape') {
+                                fontSize.set(Math.max(12, Math.round(newH * 0.3)));
                             } else if (element.type === 'list') {
                                 fontSize.set(Math.max(8, Math.round((element.fontSize || 24) * (newH / (element.height || 100)))));
                             } else if (element.type === 'icon') {
@@ -480,13 +499,33 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
     };
 
 
+    const handlePointerDownCanvas = (e: React.PointerEvent) => {
+        if (e.button !== 0) return;
+        
+        // Find if we clicked an element (or a child of an element)
+        const target = e.target as HTMLElement;
+        const elContainer = target.closest('[data-element-id]');
+        
+        if (elContainer) {
+            const id = elContainer.getAttribute('data-element-id');
+            if (id) {
+                // Don't stop propagation yet, because Framer Motion might need it to start the drag
+                // But do trigger selection
+                onSelectElement && onSelectElement(id, e.shiftKey);
+                return;
+            }
+        }
+        
+        // If we didn't click an element, deselect
+        onSelectElement && onSelectElement(null);
+    };
+
     return (
-        <div className="h-full w-full flex items-center justify-center p-8 bg-zinc-950/80 backdrop-blur-sm" onClick={() => onSelectElement && onSelectElement(null)}>
+        <div className="h-full w-full flex items-center justify-center p-8 bg-zinc-950/80 backdrop-blur-sm" onPointerDown={handlePointerDownCanvas}>
             <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={() => onSelectElement && onSelectElement(null)} 
                 onDragOver={handleDragOver}
                 onDrop={handleDropOnCanvas}
                 className="relative w-full max-w-5xl aspect-video bg-zinc-900 rounded-3xl overflow-hidden shadow-2xl border border-zinc-800 group/canvas"

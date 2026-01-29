@@ -5,6 +5,18 @@ import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
 import { Template_TitleCard } from './templates/Template_TitleCard';
 import { Template_ImageRight } from './templates/Template_ImageRight';
+import { Slide1 } from './templates/example/crypto/Slide1';
+import { Slide2 } from './templates/example/crypto/Slide2';
+import { Slide3 } from './templates/example/crypto/Slide3';
+import { Slide4 } from './templates/example/crypto/Slide4';
+import { SaaS_Slide1 } from './templates/example/saas/Slide1';
+import { SaaS_Slide2 } from './templates/example/saas/Slide2';
+import { SaaS_Slide3 } from './templates/example/saas/Slide3';
+import { HyperDrive_Slide1 } from './templates/example/hyper-drive/Slide1';
+import { HyperDrive_Slide2 } from './templates/example/hyper-drive/Slide2';
+import { HyperDrive_Slide3 } from './templates/example/hyper-drive/Slide3';
+import { HyperDrive_Slide4 } from './templates/example/hyper-drive/Slide4';
+import { HyperDrive_Slide5 } from './templates/example/hyper-drive/Slide5';
 
 // Types
 import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation } from './types';
@@ -157,11 +169,15 @@ const Dashboard: React.FC = () => {
             y: position.y,
             width: type === 'image' || type === 'chart' ? 300 : (type === 'shape' || type === 'icon') ? 200 : 400,
             height: type === 'image' || type === 'chart' || type === 'shape' || type === 'icon' ? 200 : (type === 'headline' || type === 'subheadline' || type === 'text') ? (type === 'headline' ? 60 : 40) : undefined,
+            textFormat: type === 'text' ? 'normal' : undefined,
             color: type === 'shape' ? (isHollow ? 'transparent' : '#3b82f6') : type === 'icon' ? '#f59e0b' : '#ffffff',
+            textColor: type === 'shape' ? '#ffffff' : undefined,
             strokeWidth: isHollow ? 2 : 0,
             strokeColor: isHollow ? '#3b82f6' : 'transparent',
-            fontSize: (type === 'headline' || type === 'text') ? 48 : 24,
+            fontSize: (type === 'headline' || type === 'text') ? 48 : (type === 'shape' ? 32 : 24),
             fontWeight: 'normal',
+            textAlign: 'left',
+            verticalAlign: (type === 'headline' || type === 'subheadline' || type === 'text') ? 'center' : undefined,
             // Default props for new types
             borderRadius: type === 'shape' ? 20 : undefined,
             listType: type === 'list' ? 'disc' : undefined,
@@ -207,47 +223,45 @@ const Dashboard: React.FC = () => {
         setSelectedSlideId(null);
         setViewMode('sequence');
         setSlides([]);
-        setGenerationLog('Initializing system...');
+        setGenerationLog('Initializing Hyper-Drive system...');
 
         // Simulation Timeline
         
-        // Step 1: Slide 1 Skeleton
+        // Slide 1
         setTimeout(() => {
-            setGenerationLog('Planning narrative structure...');
-            setSlides([{ 
-                id: 'skeleton-1', type: 'skeleton', duration: 0, props: {}, elements: [], 
-                background: { type: 'color', value: '#000' } // Placeholder
-            }]);
+            setGenerationLog('Analyzing serverless architecture...');
+            setSlides([HyperDrive_Slide1(`gen-slide-1`)]);
         }, 1500);
 
-        // Step 2: Reveal Slide 1
+        // Slide 2
         setTimeout(() => {
-            const slide1 = Template_TitleCard(`gen-slide-1`, globalPrompt);
-            setGenerationLog('Analyzing visual requirements...');
-            setSlides([slide1]);
+            setGenerationLog('Mapping globally distributed nodes...');
+            setSlides(prev => [...prev, HyperDrive_Slide2(`gen-slide-2`)]);
         }, 3000);
 
-        // Step 3: Slide 2 Skeleton
+        // Slide 3
         setTimeout(() => {
-            setGenerationLog('Fetching stock assets...');
-            setSlides(prev => [prev[0], { 
-                id: 'skeleton-2', type: 'skeleton', duration: 0, props: {}, elements: [],
-                background: { type: 'color', value: '#000' }
-            }]);
+            setGenerationLog('Simulating edge latency metrics...');
+            setSlides(prev => [...prev, HyperDrive_Slide3(`gen-slide-3`)]);
         }, 4500);
 
-        // Step 4: Reveal Slide 2
+        // Slide 4
         setTimeout(() => {
-            const slide2 = Template_ImageRight(`gen-slide-2`, globalPrompt);
-            setGenerationLog('Finalizing transitions...');
-            setSlides(prev => [prev[0], slide2]);
+            setGenerationLog('Calculating cloud tax elimination...');
+            setSlides(prev => [...prev, HyperDrive_Slide4(`gen-slide-4`)]);
         }, 6000);
+
+        // Slide 5
+        setTimeout(() => {
+            setGenerationLog('Finalizing performance showcase...');
+            setSlides(prev => [...prev, HyperDrive_Slide5(`gen-slide-5`)]);
+        }, 7500);
 
         // Finish
         setTimeout(() => {
             setGenerationLog('');
             setGenerationStatus('done');
-        }, 7000);
+        }, 8500);
     };
 
     return (

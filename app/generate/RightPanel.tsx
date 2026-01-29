@@ -15,7 +15,7 @@ interface RightPanelProps {
     viewMode: ViewMode;
     onReorder: (newSlides: Slide[]) => void;
     onSelect: (id: string) => void;
-    onSelectElement: (id: string | null) => void;
+    onSelectElement: (id: string | null, multi?: boolean) => void;
     onAdd: () => void;
     onCloseFocus: () => void;
     onUpdateElement: (slideId: string, elementId: string, newX: number, newY: number, changes?: Partial<SlideElement>) => void;
