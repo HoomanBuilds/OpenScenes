@@ -43,3 +43,6 @@ next-env.d.ts
 worker/
 
 docker-compose.yml
+
+generate-logs/
+generate-logs/metadata.json
