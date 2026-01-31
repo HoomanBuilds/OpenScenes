@@ -12,7 +12,7 @@ export const REGISTRY: RegistryMap = {
   TITLE_CENTER_FADE: TitleCenterFade,
   TITLE_SUBTITLE_STACK: TitleSubtitleStack,
   FULLSCREEN_STATEMENT: FullscreenStatement,
-  BACKGROUND_GRADIENT: BackgroundGradient, // If used as a main component, else it's a wrapper usually. But Schema allows it as 'component'.
+  BACKGROUND_GRADIENT: BackgroundGradient,
   ACCENT_LINE_REVEAL: AccentLineReveal,
 };
 

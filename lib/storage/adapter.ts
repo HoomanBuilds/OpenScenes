@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 
-// Define the shape of our data wrapper
-// In the future, this interface could be implemented by a SQL/DB adapter
 export interface StorageAdapter {
     init(): Promise<void>;
     getNextRenderId(): Promise<number>;
@@ -33,19 +31,18 @@ class FileSystemAdapter implements StorageAdapter {
     }
 
     async getNextRenderId(): Promise<number> {
-        await this.init(); // Ensure files exist
+        await this.init(); 
         
         try {
             const data = JSON.parse(fs.readFileSync(this.metadataPath, 'utf-8'));
             const nextId = (data.count || 0) + 1;
             
-            // Atomic-ish write (in a real app, use locking or DB)
             fs.writeFileSync(this.metadataPath, JSON.stringify({ count: nextId }, null, 2));
             
             return nextId;
         } catch (e) {
             console.error('Failed to update render count', e);
-            return -1; // Fallback
+            return -1; 
         }
     }
 
@@ -59,5 +56,4 @@ class FileSystemAdapter implements StorageAdapter {
     }
 }
 
-// Export a singleton instance
 export const storage = new FileSystemAdapter();

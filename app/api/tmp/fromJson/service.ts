@@ -5,7 +5,7 @@ import fs from 'fs';
 import os from 'os';
 import { TemplateData, calculateTotalDuration } from './schemas';
 import { startCpuMonitor } from '@/app/lib/monitor';
-import { storage } from '../storage/adapter';
+import { storage } from '../../../../lib/storage/adapter';
 
 interface RenderOptions {
     templateData: TemplateData;
