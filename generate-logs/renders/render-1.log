@@ -1,0 +1,25 @@
+
+============================================================
+🎬 CLARITY VIDEO GENERATION STARTED (ID: #1)
+============================================================
+
+📋 JOB SETTINGS:
+   - Template: "Neo-Tokyo-Comics"
+   - Slides:   6
+   - Speed:    1x
+   - Quality:  HIGH (CRF 20)
+   - Duration: 1100 frames (36.7s)
+   - Output:   MP4 @ 30fps (Scale: 1x)
+----------------------------------------
+📦 Bundling Remotion composition...
+🚀 RENDER STARTED -> Neo-Tokyo-Comics.mp4
+   Resolution: 1000x562
+   Progress: 0% (CPU: 46%)
+   Progress: 25% (CPU: 69%)
+   Progress: 50% (CPU: 80%)
+   Progress: 100% (CPU: 89%)
+
+
+✅ RENDER COMPLETE in 36.23s
+📄 Output Size: 1.86MB
+============================================================

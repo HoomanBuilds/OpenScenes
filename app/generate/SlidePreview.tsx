@@ -8,6 +8,10 @@ import {
 } from 'recharts';
 import { parseChartData } from './utils';
 import * as LucideIcons from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
+import { markdownComponents } from './markdownConfig';
+import { resolveElementValues } from './valueKeywords';
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088FE', '#00C49F'];
 
@@ -62,9 +66,11 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
 
             {/* Elements Rendering */}
             <div className="absolute inset-0 z-10 overflow-hidden">
-                {slide.elements?.map(el => (
+                {slide.elements?.map(rawEl => {
+                    const el = resolveElementValues(rawEl);
+                    return (
                     <div
-                        key={el.id}
+                        key={el.id as string}
                         className={`absolute ${el.type === 'image' ? 'rounded-lg overflow-hidden' : ''} ${el.type === 'chart' ? (el.chartProps?.transparent ? 'p-2' : 'bg-zinc-900/80 rounded-lg p-2 border border-zinc-800') : ''}`}
                         style={{
                             left: el.x, 
@@ -74,10 +80,10 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                             zIndex: el.zIndex,
                             transform: `rotate(${el.rotation || 0}deg)`,
                             
-                            color: el.color || 'inherit',
+                            color: el.textColor || el.color || 'inherit',
                             fontSize: el.fontSize || 16,
                             fontWeight: el.fontWeight || 'normal',
-                            fontFamily: el.fontFamily || 'Inter',
+                            fontFamily: el.fontFamily ? `${el.fontFamily}, sans-serif` : 'Inter, sans-serif',
                             lineHeight: el.lineHeight || 1.5,
                             textAlign: el.textAlign || 'left',
                             backgroundColor: el.type === 'shape' ? (el.color || '#3b82f6') : undefined,
@@ -90,7 +96,15 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                     >
                          {el.type === 'headline' && <h1 className="leading-tight drop-shadow-md">{el.content}</h1>}
                          {el.type === 'subheadline' && <p className="leading-snug drop-shadow-sm">{el.content}</p>}
-                         {el.type === 'text' && <div className="leading-normal">{el.content}</div>}
+                         {el.type === 'text' && (
+                             <div className="leading-normal prose prose-invert prose-sm max-w-none">
+                                 {el.textFormat === 'markdown' ? (
+                                     <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkBreaks]}>
+                                         {el.content}
+                                     </ReactMarkdown>
+                                 ) : el.content}
+                             </div>
+                         )}
                          
                          {el.type === 'list' && (
                              <div className="text-left w-full h-full">
@@ -194,7 +208,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                             </div>
                         )}
                     </div>
-                ))}
+                    );
+                })}
             </div>
             </div>
         </div>

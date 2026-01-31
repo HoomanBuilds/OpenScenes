@@ -1,0 +1,574 @@
+{
+  "name": "Neo-Tokyo-Comics",
+  "slides": [
+    {
+      "id": "cover-slide",
+      "type": "title",
+      "duration": 180,
+      "background": {
+        "type": "color",
+        "value": "#ffffff"
+      },
+      "elements": [
+        {
+          "id": "speed-lines",
+          "type": "shape",
+          "content": "rect",
+          "x": 0,
+          "y": 0,
+          "width": 1000,
+          "height": 562,
+          "color": "transparent",
+          "background": "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.05) 10px, rgba(0,0,0,0.05) 20px)",
+          "zIndex": 0
+        },
+        {
+          "id": "hero-panel",
+          "type": "shape",
+          "content": "rect",
+          "x": 400,
+          "y": -50,
+          "width": 800,
+          "height": 700,
+          "color": "#dc2626",
+          "rotation": 15,
+          "zIndex": 1,
+          "animation": {
+             "type": "slide",
+             "direction": "right",
+             "duration": 0.4,
+             "delay": 0
+          }
+        },
+        {
+          "id": "title-text",
+          "type": "headline",
+          "content": "CODE\nWARRIOR",
+          "x": 50,
+          "y": 100,
+          "width": 600,
+          "height": 400,
+          "fontSize": 140,
+          "fontWeight": "bold",
+          "fontFamily": "Bebas Neue",
+          "textColor": "#171717",
+          "textAlign": "left",
+          "lineHeight": 0.9,
+          "zIndex": 2,
+           "animation": {
+             "type": "pop",
+             "duration": 0.3,
+             "delay": 0.2
+          }
+        },
+        {
+          "id": "issue-no",
+          "type": "text",
+          "content": "ISSUE #01",
+          "x": 60,
+          "y": 60,
+          "width": 200,
+          "height": 30,
+          "fontSize": 24,
+          "fontWeight": "bold",
+          "fontFamily": "Bebas Neue",
+          "textColor": "#dc2626",
+          "zIndex": 3
+        },
+        {
+           "id": "shout-bubble",
+           "type": "shape",
+           "content": "rect",
+           "x": 700,
+           "y": 350,
+           "width": 250,
+           "height": 120,
+           "color": "#ffffff",
+           "strokeWidth": 6,
+           "strokeColor": "#171717",
+           "borderRadius": 0,
+           "zIndex": 3,
+            "animation": {
+             "type": "scale",
+             "duration": 0.3,
+             "delay": 0.6
+          }
+        },
+        {
+            "id": "shout-text",
+            "type": "text",
+            "content": "DEPLOY\nNOW!",
+            "x": 700,
+            "y": 375,
+            "width": 250,
+            "height": 100,
+            "fontSize": 48,
+            "fontWeight": "bold",
+            "fontFamily": "Bebas Neue",
+            "textColor": "#171717",
+            "textAlign": "center",
+            "lineHeight": 1,
+            "zIndex": 4
+        }
+      ]
+    },
+    {
+      "id": "panel-slide",
+      "type": "problem",
+      "duration": 200,
+      "background": {
+        "type": "color",
+        "value": "#171717"
+      },
+      "elements": [
+        {
+          "id": "panel-1",
+          "type": "shape",
+          "content": "rect",
+          "x": 20,
+          "y": 20,
+          "width": 450,
+          "height": 522,
+          "color": "#ffffff",
+          "strokeWidth": 6,
+          "strokeColor": "#dc2626",
+          "zIndex": 1,
+           "animation": {
+             "type": "slide",
+             "direction": "left",
+             "duration": 0.3,
+             "delay": 0.1
+          }
+        },
+        {
+           "id": "panel-1-title",
+           "type": "headline",
+           "content": "THE BUG...",
+           "x": 40,
+           "y": 40,
+           "width": 400,
+           "height": 60,
+           "fontSize": 60,
+           "fontFamily": "Bebas Neue",
+           "textColor": "#171717",
+           "zIndex": 2
+        },
+        {
+           "id": "panel-1-desc",
+           "type": "text",
+           "content": "It came from nowhere. A silent killer in production. The logs were empty. The customers were screaming.",
+           "x": 50,
+           "y": 120,
+           "width": 380,
+           "height": 300,
+           "fontSize": 20,
+           "fontFamily": "Lato",
+           "textColor": "#171717",
+           "lineHeight": 1.4,
+           "zIndex": 2
+        },
+        {
+          "id": "panel-2",
+          "type": "shape",
+          "content": "rect",
+          "x": 490,
+          "y": 20,
+          "width": 490,
+          "height": 250,
+          "color": "#dc2626",
+          "strokeWidth": 6,
+          "strokeColor": "#ffffff",
+          "zIndex": 1,
+           "animation": {
+             "type": "slide",
+             "direction": "right",
+             "duration": 0.3,
+             "delay": 0.2
+          }
+        },
+        {
+           "id": "panel-2-text",
+           "type": "headline",
+           "content": "SYSTEM CRITICAL",
+           "x": 510,
+           "y": 100,
+           "width": 450,
+           "height": 100,
+           "fontSize": 60,
+           "fontFamily": "Bebas Neue",
+           "textColor": "#ffffff",
+           "textAlign": "center",
+           "rotation": -5,
+           "zIndex": 2
+        },
+        {
+          "id": "panel-3",
+          "type": "shape",
+          "content": "rect",
+          "x": 490,
+          "y": 290,
+          "width": 490,
+          "height": 252,
+          "color": "#ffffff",
+          "strokeWidth": 6,
+          "strokeColor": "#000000",
+          "zIndex": 1,
+          "animation": {
+             "type": "slide",
+             "direction": "up",
+             "duration": 0.3,
+             "delay": 0.3
+          }
+        },
+        {
+           "id": "panel-3-text",
+           "type": "text",
+           "content": "\"We only have 24 hours to fix it!\"",
+           "x": 540,
+           "y": 380,
+           "width": 400,
+           "height": 100,
+           "fontSize": 28,
+           "fontWeight": "bold",
+           "fontFamily": "Lato",
+           "textColor": "#171717",
+           "textAlign": "center",
+           "zIndex": 2
+        }
+      ]
+    },
+    {
+        "id": "character-slide",
+        "type": "features",
+        "duration": 180,
+        "background": {
+            "type": "color",
+            "value": "#fcd34d"
+        },
+        "elements": [
+            {
+               "id": "bg-stripe",
+               "type": "shape",
+               "content": "rect",
+               "x": 200,
+               "y": 0,
+               "width": 600,
+               "height": 562,
+               "color": "#ffffff",
+               "zIndex": 0
+            },
+            {
+                "id": "char-name",
+                "type": "headline",
+                "content": "THE HERO",
+                "x": 0,
+                "y": 450,
+                "width": 1000,
+                "height": 100,
+                "fontSize": 120,
+                "fontFamily": "Bebas Neue",
+                "textColor": "#171717",
+                "textAlign": "center",
+                "zIndex": 3,
+                "animation": {
+                    "type": "slide",
+                    "direction": "up",
+                    "duration": 0.3,
+                    "delay": 0.2
+                }
+            },
+            {
+                "id": "stat-card",
+                 "type": "shape",
+                "content": "rect",
+                "x": 50,
+                "y": 50,
+                "width": 300,
+                "height": 300,
+                "color": "#171717",
+                "strokeWidth": 6,
+                "strokeColor": "#ffffff",
+                "zIndex": 2,
+                 "animation": {
+                    "type": "pop",
+                    "duration": 0.3,
+                    "delay": 0.4
+                }
+            },
+            {
+                "id": "stat-title",
+                "type": "headline",
+                "content": "ABILITIES",
+                "x": 70,
+                "y": 70,
+                "width": 260,
+                "height": 40,
+                "fontSize": 32,
+                "fontFamily": "Bebas Neue",
+                "textColor": "#dc2626",
+                "zIndex": 3
+            },
+            {
+                "id": "stats-list",
+                "type": "text",
+                "textFormat": "markdown",
+                "content": "- 10x Engineer\n- VIM Master\n- Coffee Fueled\n- Never Sleeps",
+                "x": 70,
+                "y": 120,
+                "width": 260,
+                "height": 200,
+                "fontSize": 20,
+                "fontFamily": "Lato",
+                "textColor": "#ffffff",
+                "lineHeight": 1.6,
+                "zIndex": 3
+            },
+             {
+                "id": "action-img-placeholder",
+                "type": "shape",
+                "content": "circle",
+                "x": 650,
+                "y": 50,
+                "width": 300,
+                "height": 300,
+                "color": "#dc2626",
+                "opacity": 0.8,
+                "zIndex": 1
+            }
+        ]
+    },
+    {
+      "id": "action-slide",
+      "type": "solution",
+      "duration": 180,
+      "background": {
+        "type": "color",
+        "value": "#ffffff"
+      },
+      "elements": [
+        {
+          "id": "action-word",
+          "type": "headline",
+          "content": "GIT\nPUSH",
+          "x": 50,
+          "y": 50,
+          "width": 900,
+          "height": 500,
+          "fontSize": 200,
+          "fontFamily": "Bebas Neue",
+          "textColor": "#e5e5e5",
+          "textAlign": "center",
+          "lineHeight": 0.8,
+          "zIndex": 0
+        },
+         {
+          "id": "panel-diagonal",
+          "type": "shape",
+          "content": "rect",
+          "x": -100,
+          "y": 200,
+          "width": 1200,
+          "height": 150,
+          "color": "#171717",
+          "rotation": -10,
+          "zIndex": 1
+        },
+        {
+          "id": "solution-text",
+          "type": "headline",
+          "content": "DEPLOYING FIX...",
+          "x": 0,
+          "y": 230,
+          "width": 1000,
+          "height": 100,
+          "fontSize": 60,
+          "fontFamily": "Bebas Neue",
+          "textColor": "#fcd34d",
+          "textAlign": "center",
+          "rotation": -10,
+          "zIndex": 2,
+           "animation": {
+             "type": "slide",
+             "direction": "left",
+             "duration": 0.2,
+             "delay": 0.1
+          }
+        },
+        {
+            "id": "sound-fx",
+            "type": "text",
+            "content": "WHOOSH!!",
+            "x": 700,
+            "y": 100,
+            "width": 200,
+            "height": 80,
+            "fontSize": 48,
+            "fontWeight": "bold",
+            "fontFamily": "Bebas Neue",
+            "textColor": "#dc2626",
+            "rotation": 15,
+            "zIndex": 3,
+            "animation": {
+                "type": "scale",
+                "duration": 0.2,
+                "delay": 0.4
+            }
+        }
+      ]
+    },
+    {
+        "id": "chart-slide",
+        "type": "metrics",
+        "duration": 180,
+        "background": {
+            "type": "color",
+            "value": "#171717"
+        },
+        "elements": [
+            {
+                "id": "chart-title",
+                "type": "headline",
+                "content": "POWER LEVEL",
+                "x": 50,
+                "y": 30,
+                "width": 500,
+                "height": 60,
+                "fontSize": 48,
+                "fontFamily": "Bebas Neue",
+                "textColor": "#ffffff",
+                "zIndex": 2
+            },
+            {
+                "id": "chart-container",
+                "type": "shape",
+                "content": "rect",
+                "x": 50,
+                "y": 100,
+                "width": 900,
+                "height": 400,
+                "color": "#ffffff",
+                "strokeWidth": 6,
+                "strokeColor": "#fcd34d",
+                "zIndex": 1
+            },
+            {
+              "id": "power-chart",
+              "type": "chart",
+              "chartType": "area",
+              "content": "Pre-Fix 100 200\\nFixing 300 500\\nDeployed 800 900\\nOptimized 2000 3000",
+              "x": 100,
+              "y": 150,
+              "width": 800,
+              "height": 300,
+              "chartProps": {
+                 "colors": ["#dc2626", "#171717", "#fcd34d"],
+                 "showXAxis": true,
+                 "showYAxis": false,
+                 "showGrid": true,
+                 "showLegend": false,
+                 "transparent": true
+              },
+              "zIndex": 2,
+              "animation": {
+                  "type": "slide",
+                  "direction": "up",
+                  "duration": 0.5,
+                  "delay": 0.3
+              }
+            },
+             {
+                "id": "over-9000",
+                "type": "text",
+                "content": "IT'S OVER 9000!",
+                "x": 600,
+                "y": 50,
+                "width": 300,
+                "height": 50,
+                "fontSize": 32,
+                "fontWeight": "bold",
+                "fontFamily": "Bebas Neue",
+                "textColor": "#dc2626",
+                "rotation": -5,
+                "zIndex": 3,
+                 "animation": {
+                  "type": "pop",
+                  "duration": 0.2,
+                  "delay": 0.8
+              }
+            }
+        ]
+    },
+    {
+      "id": "end-slide",
+      "type": "cta",
+      "duration": 180,
+      "background": {
+        "type": "color",
+        "value": "#dc2626"
+      },
+      "elements": [
+        {
+          "id": "end-circle",
+           "type": "shape",
+           "content": "circle",
+           "x": 250,
+           "y": 31,
+           "width": 500,
+           "height": 500,
+           "color": "#ffffff",
+           "zIndex": 1,
+            "animation": {
+             "type": "scale",
+             "duration": 0.5,
+             "delay": 0
+          }
+        },
+        {
+          "id": "end-text",
+          "type": "headline",
+          "content": "TO BE\nCONTINUED...",
+          "x": 0,
+          "y": 200,
+          "width": 1000,
+          "height": 200,
+          "fontSize": 80,
+          "fontFamily": "Bebas Neue",
+          "textColor": "#171717",
+          "textAlign": "center",
+          "lineHeight": 0.9,
+          "zIndex": 2,
+           "animation": {
+             "type": "pop",
+             "duration": 0.4,
+             "delay": 0.4
+          }
+        },
+        {
+           "id": "subscribe-box",
+           "type": "shape",
+           "content": "rect",
+           "x": 350,
+           "y": 420,
+           "width": 300,
+           "height": 60,
+           "color": "#171717",
+           "zIndex": 2
+        },
+        {
+           "id": "subscribe-text",
+           "type": "text",
+           "content": "SUBSCRIBE FOR MORE",
+           "x": 350,
+           "y": 435,
+           "width": 300,
+           "height": 30,
+           "fontSize": 20,
+           "fontFamily": "Bebas Neue",
+           "textColor": "#ffffff",
+           "textAlign": "center",
+           "zIndex": 3
+        }
+      ]
+    }
+  ]
+}

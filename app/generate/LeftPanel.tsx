@@ -28,6 +28,8 @@ interface LeftPanelProps {
     contextFiles: ContextFile[];
     onAddContextFile: (file: ContextFile) => void;
     onRemoveContextFile: (id: string) => void;
+    renderStatus: 'idle' | 'rendering' | 'done';
+    onRender: () => void;
 }
 
 const LeftPanel: React.FC<LeftPanelProps> = ({ 
@@ -49,7 +51,9 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
     onRemoveElement,
     contextFiles,
     onAddContextFile,
-    onRemoveContextFile
+    onRemoveContextFile,
+    renderStatus,
+    onRender
 }) => {
     const [libraryTab, setLibraryTab] = useState<'assets' | 'components'>('assets');
     const [aiEditPrompt, setAiEditPrompt] = useState('');
@@ -251,6 +255,9 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
                             contextFiles={contextFiles}
                             onAddContextFile={onAddContextFile}
                             onRemoveContextFile={onRemoveContextFile}
+                            slidesCount={slides.length}
+                            renderStatus={renderStatus}
+                            onRender={onRender}
                         />
                          
                          <div className="space-y-4 pt-4 border-t-2 border-zinc-900">

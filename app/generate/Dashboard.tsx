@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
+import PresentationPreview from './PresentationPreview';
+import { FontLoader } from './FontLoader';
 
-import EcoStreamConfig from './templates/EcoStreamConfig.json';
+import hyperDrive from './templates/NeoTokyoComics.json';
 
 // Types
 import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation, ContextFile } from './types';
@@ -21,11 +23,15 @@ const Dashboard: React.FC = () => {
 
     const [viewMode, setViewMode] = useState<ViewMode>('sequence');
     const [generationStatus, setGenerationStatus] = useState<GenerationStatus>('idle');
+    const [renderStatus, setRenderStatus] = useState<'idle' | 'rendering' | 'done'>('idle');
     const [refreshKey, setRefreshKey] = useState<number>(0);
     const [contextFiles, setContextFiles] = useState<ContextFile[]>([]);
     
     // Undo/History State
     const [history, setHistory] = useState<Slide[][]>([]);
+    
+    // Preview State
+    const [showPreview, setShowPreview] = useState(false);
 
     // Console Log State for User Verification
     useEffect(() => {
@@ -220,7 +226,7 @@ const Dashboard: React.FC = () => {
             y: position.y,
             width: (type === 'image' || type === 'video' || type === 'chart') ? 300 : type === 'shape' ? 200 : 400,
             height: (type === 'image' || type === 'video' || type === 'chart' || type === 'shape') ? 200 : (type === 'headline' || type === 'subheadline' || type === 'text') ? (type === 'headline' ? 60 : 40) : undefined,
-            textFormat: type === 'text' ? 'normal' : undefined,
+            textFormat: type === 'text' ? 'markdown' : undefined,
             color: type === 'shape' ? (isHollow ? 'transparent' : '#3b82f6') : '#ffffff',
             textColor: type === 'shape' ? '#ffffff' : undefined,
             strokeWidth: isHollow ? 2 : 0,
@@ -268,12 +274,13 @@ const Dashboard: React.FC = () => {
         if (generationStatus === 'generating') return;
         
         setGenerationStatus('generating');
+        setRenderStatus('idle');
         setSelectedSlideId(null);
         setViewMode('sequence');
         setSlides([]);
         setGenerationLog('Initializing Hyper-Drive system...');
 
-        const templateSlides = EcoStreamConfig.slides as unknown as Slide[];
+        const templateSlides = hyperDrive.slides as unknown as Slide[];
 
         setTimeout(() => {
             setGenerationLog('Loading template configuration...');
@@ -288,11 +295,19 @@ const Dashboard: React.FC = () => {
         }, 800);
     };
 
+    const handleRender = () => {
+        setRenderStatus('rendering');
+        setTimeout(() => {
+            setRenderStatus('done');
+        }, 3000); // Simulate rendering
+    };
+
     return (
         <div className="flex h-screen w-full overflow-hidden bg-[#09090b] text-white font-sans relative selection:bg-purple-500/30">
-            {/* Global Noise Texture */}
             <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}></div>
             
+            <FontLoader slides={slides} />
+
             <LeftPanel 
                 globalPrompt={globalPrompt}
                 setGlobalPrompt={setGlobalPrompt}
@@ -313,6 +328,8 @@ const Dashboard: React.FC = () => {
                 contextFiles={contextFiles}
                 onAddContextFile={handleAddContextFile}
                 onRemoveContextFile={handleRemoveContextFile}
+                renderStatus={renderStatus}
+                onRender={handleRender}
             />
             
             <RightPanel 
@@ -332,8 +349,17 @@ const Dashboard: React.FC = () => {
                 onDurationChange={handleDurationChange}
                 onUpdateSlide={handleUpdateSlide}
                 onAddElement={handleAddElement}
+                onPreview={() => setShowPreview(true)}
                 refreshKey={refreshKey}
+                renderStatus={renderStatus}
             />
+            
+            {showPreview && slides.length > 0 && (
+                <PresentationPreview 
+                    slides={slides}
+                    onClose={() => setShowPreview(false)}
+                />
+            )}
         </div>
     );
 };

@@ -1,0 +1,1551 @@
+{
+  "name": "Nova-Product-Keynote",
+  "slides": [
+    {
+      "id": "slide-1",
+      "type": "title",
+      "duration": 180,
+      "background": {
+        "type": "gradient",
+        "value": "linear-gradient(145deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)"
+      },
+      "elements": [
+        {
+          "id": "glow-orb-1",
+          "type": "shape",
+          "content": "circle",
+          "x": 700,
+          "y": -100,
+          "width": 500,
+          "height": 500,
+          "color": "#6366f1",
+          "opacity": 0.15,
+          "zIndex": 0,
+          "animation": {
+            "type": "scale",
+            "duration": 2.5,
+            "delay": 0
+          }
+        },
+        {
+          "id": "glow-orb-2",
+          "type": "shape",
+          "content": "circle",
+          "x": -150,
+          "y": 300,
+          "width": 400,
+          "height": 400,
+          "color": "#8b5cf6",
+          "opacity": 0.1,
+          "zIndex": 0,
+          "animation": {
+            "type": "scale",
+            "duration": 3,
+            "delay": 0.3
+          }
+        },
+        {
+          "id": "brand-tag",
+          "type": "text",
+          "content": "NOVA LABS",
+          "x": 0,
+          "y": 120,
+          "width": 1000,
+          "height": 40,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "textColor": "#6366f1",
+          "textAlign": "center",
+          "zIndex": 3,
+          "animation": {
+            "type": "fade",
+            "duration": 1,
+            "delay": 0.2
+          }
+        },
+        {
+          "id": "hero-headline",
+          "type": "headline",
+          "content": "Nova Pro",
+          "x": 0,
+          "y": 180,
+          "width": 1000,
+          "height": 120,
+          "fontSize": 96,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 3,
+          "animation": {
+            "type": "pop",
+            "duration": 0.8,
+            "delay": 0.4
+          }
+        },
+        {
+          "id": "hero-sub",
+          "type": "subheadline",
+          "content": "The Future of Collaborative Intelligence",
+          "x": 0,
+          "y": 300,
+          "width": 1000,
+          "height": 60,
+          "fontSize": 28,
+          "textColor": "#a5b4fc",
+          "textAlign": "center",
+          "zIndex": 3,
+          "animation": {
+            "type": "fade",
+            "duration": 1.2,
+            "delay": 0.8
+          }
+        },
+        {
+          "id": "launch-date",
+          "type": "text",
+          "content": "Available Spring 2026",
+          "x": 0,
+          "y": 400,
+          "width": 1000,
+          "height": 40,
+          "fontSize": 16,
+          "textColor": "#64748b",
+          "textAlign": "center",
+          "zIndex": 3,
+          "animation": {
+            "type": "slide",
+            "direction": "up",
+            "duration": 1,
+            "delay": 1.2
+          }
+        },
+        {
+          "id": "bottom-line",
+          "type": "shape",
+          "content": "rect",
+          "x": 400,
+          "y": 520,
+          "width": 200,
+          "height": 3,
+          "color": "#6366f1",
+          "zIndex": 2
+        }
+      ]
+    },
+    {
+      "id": "slide-2",
+      "type": "problem",
+      "duration": 200,
+      "background": {
+        "type": "color",
+        "value": "#0f0f0f"
+      },
+      "elements": [
+        {
+          "id": "section-label",
+          "type": "text",
+          "content": "THE CHALLENGE",
+          "x": 60,
+          "y": 50,
+          "width": 200,
+          "height": 30,
+          "fontSize": 12,
+          "fontWeight": "bold",
+          "textColor": "#ef4444",
+          "zIndex": 2
+        },
+        {
+          "id": "problem-headline",
+          "type": "headline",
+          "content": "Teams are drowning in disconnected tools",
+          "x": 60,
+          "y": 100,
+          "width": 600,
+          "height": 120,
+          "fontSize": 48,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "left",
+          "zIndex": 2,
+          "animation": {
+            "type": "slide",
+            "direction": "right",
+            "duration": 0.8,
+            "delay": 0.2
+          }
+        },
+        {
+          "id": "problem-stats",
+          "type": "text",
+          "textFormat": "markdown",
+          "content": "- Average knowledge worker uses 9.4 apps daily\n- 28% of workweek lost to app-switching\n- 67% report tool fatigue as productivity killer\n- $4.5B lost annually to context switching",
+          "x": 60,
+          "y": 240,
+          "width": 500,
+          "height": 220,
+          "fontSize": 20,
+          "textColor": "#94a3b8",
+          "textAlign": "left",
+          "lineHeight": 1.8,
+          "zIndex": 2,
+          "animation": {
+            "type": "fade",
+            "duration": 1,
+            "delay": 0.6
+          }
+        },
+        {
+          "id": "problem-visual",
+          "type": "shape",
+          "content": "rect",
+          "x": 620,
+          "y": 100,
+          "width": 320,
+          "height": 360,
+          "color": "#1e1e1e",
+          "borderRadius": 24,
+          "zIndex": 1
+        },
+        {
+          "id": "chaos-icon-1",
+          "type": "shape",
+          "content": "rect",
+          "x": 660,
+          "y": 140,
+          "width": 100,
+          "height": 100,
+          "color": "#ef4444",
+          "opacity": 0.3,
+          "borderRadius": 16,
+          "zIndex": 2
+        },
+        {
+          "id": "chaos-icon-2",
+          "type": "shape",
+          "content": "rect",
+          "x": 780,
+          "y": 180,
+          "width": 120,
+          "height": 120,
+          "color": "#f97316",
+          "opacity": 0.3,
+          "borderRadius": 16,
+          "zIndex": 2
+        },
+        {
+          "id": "chaos-icon-3",
+          "type": "shape",
+          "content": "rect",
+          "x": 680,
+          "y": 280,
+          "width": 80,
+          "height": 80,
+          "color": "#eab308",
+          "opacity": 0.3,
+          "borderRadius": 16,
+          "zIndex": 2
+        },
+        {
+          "id": "chaos-icon-4",
+          "type": "shape",
+          "content": "rect",
+          "x": 790,
+          "y": 320,
+          "width": 90,
+          "height": 90,
+          "color": "#a855f7",
+          "opacity": 0.3,
+          "borderRadius": 16,
+          "zIndex": 2
+        }
+      ]
+    },
+    {
+      "id": "slide-3",
+      "type": "solution",
+      "duration": 180,
+      "background": {
+        "type": "gradient",
+        "value": "linear-gradient(180deg, #0f0f0f 0%, #1a1a2e 100%)"
+      },
+      "elements": [
+        {
+          "id": "solution-glow",
+          "type": "shape",
+          "content": "circle",
+          "x": 350,
+          "y": 150,
+          "width": 300,
+          "height": 300,
+          "color": "#6366f1",
+          "opacity": 0.2,
+          "zIndex": 0,
+          "animation": {
+            "type": "scale",
+            "duration": 2,
+            "delay": 0
+          }
+        },
+        {
+          "id": "solution-label",
+          "type": "text",
+          "content": "THE SOLUTION",
+          "x": 0,
+          "y": 80,
+          "width": 1000,
+          "height": 30,
+          "fontSize": 12,
+          "fontWeight": "bold",
+          "textColor": "#22c55e",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "solution-headline",
+          "type": "headline",
+          "content": "One Surface. Infinite Possibilities.",
+          "x": 0,
+          "y": 130,
+          "width": 1000,
+          "height": 100,
+          "fontSize": 56,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 2,
+          "animation": {
+            "type": "pop",
+            "duration": 0.8,
+            "delay": 0.3
+          }
+        },
+        {
+          "id": "solution-sub",
+          "type": "text",
+          "content": "Nova Pro unifies your entire workflow into a single, intelligent workspace.\nNo more tab chaos. No more lost context. Just pure focus.",
+          "x": 150,
+          "y": 260,
+          "width": 700,
+          "height": 100,
+          "fontSize": 22,
+          "textColor": "#94a3b8",
+          "textAlign": "center",
+          "lineHeight": 1.7,
+          "zIndex": 2,
+          "animation": {
+            "type": "fade",
+            "duration": 1,
+            "delay": 0.7
+          }
+        },
+        {
+          "id": "cta-pill",
+          "type": "shape",
+          "content": "rect",
+          "x": 380,
+          "y": 400,
+          "width": 240,
+          "height": 50,
+          "color": "#6366f1",
+          "borderRadius": 25,
+          "zIndex": 2,
+          "animation": {
+            "type": "scale",
+            "duration": 0.6,
+            "delay": 1.1
+          }
+        },
+        {
+          "id": "cta-text",
+          "type": "text",
+          "content": "See it in action →",
+          "x": 380,
+          "y": 410,
+          "width": 240,
+          "height": 30,
+          "fontSize": 16,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 3
+        }
+      ]
+    },
+    {
+      "id": "slide-4",
+      "type": "features",
+      "duration": 220,
+      "background": {
+        "type": "color",
+        "value": "#0a0a0a"
+      },
+      "elements": [
+        {
+          "id": "features-header",
+          "type": "headline",
+          "content": "Core Capabilities",
+          "x": 0,
+          "y": 40,
+          "width": 1000,
+          "height": 60,
+          "fontSize": 40,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "feature-card-1-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 50,
+          "y": 130,
+          "width": 280,
+          "height": 380,
+          "color": "#18181b",
+          "borderRadius": 20,
+          "zIndex": 1,
+          "animation": {
+            "type": "slide",
+            "direction": "up",
+            "duration": 0.6,
+            "delay": 0.2
+          }
+        },
+        {
+          "id": "feature-1-icon",
+          "type": "shape",
+          "content": "circle",
+          "x": 100,
+          "y": 160,
+          "width": 60,
+          "height": 60,
+          "color": "#6366f1",
+          "zIndex": 2
+        },
+        {
+          "id": "feature-1-title",
+          "type": "text",
+          "content": "Unified Canvas",
+          "x": 70,
+          "y": 240,
+          "width": 240,
+          "height": 40,
+          "fontSize": 22,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "zIndex": 2
+        },
+        {
+          "id": "feature-1-desc",
+          "type": "text",
+          "content": "x All your docs, tasks, notes, and data in one infinite workspace. Drag, connect, and create freely.",
+          "x": 70,
+          "y": 290,
+          "width": 240,
+          "height": 150,
+          "fontSize": 15,
+          "verticalAlign": "center",
+          "textColor": "#71717a",
+          "lineHeight": 1.6,
+          "zIndex": 2
+        },
+        {
+          "id": "feature-card-2-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 360,
+          "y": 130,
+          "width": 280,
+          "height": 380,
+          "color": "#18181b",
+          "borderRadius": 20,
+          "zIndex": 1,
+          "animation": {
+            "type": "slide",
+            "direction": "up",
+            "duration": 0.6,
+            "delay": 0.4
+          }
+        },
+        {
+          "id": "feature-2-icon",
+          "type": "shape",
+          "content": "circle",
+          "x": 410,
+          "y": 160,
+          "width": 60,
+          "height": 60,
+          "color": "#22c55e",
+          "zIndex": 2
+        },
+        {
+          "id": "feature-2-title",
+          "type": "text",
+          "content": "AI Co-Pilot",
+          "x": 380,
+          "y": 240,
+          "width": 240,
+          "height": 40,
+          "fontSize": 22,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "zIndex": 2
+        },
+        {
+          "id": "feature-2-desc",
+          "type": "text",
+          "content": "Context-aware AI that understands your work. Generate, summarize, and automate without prompting.",
+          "x": 380,
+          "y": 290,
+          "width": 240,
+          "height": 150,
+          "fontSize": 15,
+          "textColor": "#71717a",
+          "lineHeight": 1.6,
+          "zIndex": 2
+        },
+        {
+          "id": "feature-card-3-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 670,
+          "y": 130,
+          "width": 280,
+          "height": 380,
+          "color": "#18181b",
+          "borderRadius": 20,
+          "zIndex": 1,
+          "animation": {
+            "type": "slide",
+            "direction": "up",
+            "duration": 0.6,
+            "delay": 0.6
+          }
+        },
+        {
+          "id": "feature-3-icon",
+          "type": "shape",
+          "content": "circle",
+          "x": 720,
+          "y": 160,
+          "width": 60,
+          "height": 60,
+          "color": "#f59e0b",
+          "zIndex": 2
+        },
+        {
+          "id": "feature-3-title",
+          "type": "text",
+          "content": "Real-Time Sync",
+          "x": 690,
+          "y": 240,
+          "width": 240,
+          "height": 40,
+          "fontSize": 22,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "zIndex": 2
+        },
+        {
+          "id": "feature-3-desc",
+          "type": "text",
+          "content": "Collaboration at the speed of thought. See changes instantly, work together seamlessly.",
+          "x": 690,
+          "y": 290,
+          "width": 240,
+          "height": 150,
+          "fontSize": 15,
+          "textColor": "#71717a",
+          "lineHeight": 1.6,
+          "zIndex": 2
+        }
+      ]
+    },
+    {
+      "id": "slide-5",
+      "type": "metrics",
+      "duration": 200,
+      "background": {
+        "type": "color",
+        "value": "#0f0f0f"
+      },
+      "elements": [
+        {
+          "id": "metrics-label",
+          "type": "text",
+          "content": "PERFORMANCE",
+          "x": 0,
+          "y": 50,
+          "width": 1000,
+          "height": 30,
+          "fontSize": 12,
+          "fontWeight": "bold",
+          "textColor": "#6366f1",
+          "textAlign": "center",
+          
+          "zIndex": 2
+        },
+        {
+          "id": "metrics-headline",
+          "type": "headline",
+          "content": "Built for Speed",
+          "x": 0,
+          "y": 90,
+          "width": 1000,
+          "height": 70,
+          "fontSize": 52,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 2,
+          "animation": {
+            "type": "pop",
+            "duration": 0.6,
+            "delay": 0.2
+          }
+        },
+        {
+          "id": "metric-1-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 80,
+          "y": 200,
+          "width": 240,
+          "height": 160,
+          "color": "#1c1c1c",
+          "borderRadius": 16,
+          "zIndex": 1
+        },
+        {
+          "id": "metric-1-value",
+          "type": "text",
+          "content": "<50ms",
+          "x": 80,
+          "y": 230,
+          "width": 240,
+          "height": 60,
+          "fontSize": 48,
+          "fontWeight": "bold",
+          "textColor": "#22c55e",
+          "textAlign": "center",
+          "zIndex": 2,
+          "animation": {
+            "type": "scale",
+            "duration": 0.6,
+            "delay": 0.4
+          }
+        },
+        {
+          "id": "metric-1-label",
+          "type": "text",
+          "content": "Response Time",
+          "x": 80,
+          "y": 300,
+          "width": 240,
+          "height": 30,
+          "fontSize": 14,
+          "textColor": "#71717a",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "metric-2-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 380,
+          "y": 200,
+          "width": 240,
+          "height": 160,
+          "color": "#1c1c1c",
+          "borderRadius": 16,
+          "zIndex": 1
+        },
+        {
+          "id": "metric-2-value",
+          "type": "text",
+          "content": "99.99%",
+          "x": 380,
+          "y": 230,
+          "width": 240,
+          "height": 60,
+          "fontSize": 48,
+          "fontWeight": "bold",
+          "textColor": "#3b82f6",
+          "textAlign": "center",
+          "zIndex": 2,
+          "animation": {
+            "type": "scale",
+            "duration": 0.6,
+            "delay": 0.6
+          }
+        },
+        {
+          "id": "metric-2-label",
+          "type": "text",
+          "content": "Uptime SLA",
+          "x": 380,
+          "y": 300,
+          "width": 240,
+          "height": 30,
+          "fontSize": 14,
+          "textColor": "#71717a",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "metric-3-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 680,
+          "y": 200,
+          "width": 240,
+          "height": 160,
+          "color": "#1c1c1c",
+          "borderRadius": 16,
+          "zIndex": 1
+        },
+        {
+          "id": "metric-3-value",
+          "type": "text",
+          "content": "∞",
+          "x": 680,
+          "y": 230,
+          "width": 240,
+          "height": 60,
+          "fontSize": 48,
+          "fontWeight": "bold",
+          "textColor": "#a855f7",
+          "textAlign": "center",
+          "zIndex": 2,
+          "animation": {
+            "type": "scale",
+            "duration": 0.6,
+            "delay": 0.8
+          }
+        },
+        {
+          "id": "metric-3-label",
+          "type": "text",
+          "content": "Scalability",
+          "x": 680,
+          "y": 300,
+          "width": 240,
+          "height": 30,
+          "fontSize": 14,
+          "textColor": "#71717a",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "metrics-chart",
+          "type": "chart",
+          "chartType": "bar",
+          "content": "Nova-Pro 12 48\\nCompetitor-A 85 180\\nCompetitor-B 120 240\\nLegacy-Tools 350 800",
+          "x": 150,
+          "y": 390,
+          "width": 700,
+          "height": 150,
+          "chartProps": {
+            "colors": ["#6366f1", "#ef4444"],
+            "showXAxis": true,
+            "showYAxis": true,
+            "showGrid": false,
+            "showLegend": false
+          },
+          "zIndex": 2,
+          "animation": {
+            "type": "slide",
+            "direction": "up",
+            "duration": 0.8,
+            "delay": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "slide-6",
+      "type": "testimonial",
+      "duration": 180,
+      "background": {
+        "type": "gradient",
+        "value": "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)"
+      },
+      "elements": [
+        {
+          "id": "quote-mark",
+          "type": "text",
+          "content": "\"",
+          "x": 80,
+          "y": 100,
+          "width": 100,
+          "height": 150,
+          "fontSize": 200,
+          "fontWeight": "bold",
+          "textColor": "#6366f1",
+          "opacity": 0.3,
+          "zIndex": 1
+        },
+        {
+          "id": "quote-text",
+          "type": "text",
+          "content": "Nova Pro transformed how our team operates. We shipped 3x faster in the first month. It's not a tool—it's a superpower.",
+          "x": 100,
+          "y": 180,
+          "width": 800,
+          "height": 150,
+          "fontSize": 32,
+          "fontWeight": "normal",
+          "textColor": "#ffffff",
+          "textAlign": "left",
+          "lineHeight": 1.5,
+          "zIndex": 2,
+          "animation": {
+            "type": "fade",
+            "duration": 1.2,
+            "delay": 0.3
+          }
+        },
+        {
+          "id": "author-avatar-bg",
+          "type": "shape",
+          "content": "circle",
+          "x": 100,
+          "y": 380,
+          "width": 60,
+          "height": 60,
+          "color": "#4f46e5",
+          "zIndex": 2
+        },
+        {
+          "id": "author-info",
+          "type": "text",
+          "content": "Sarah Chen\nCTO, Velocity Labs",
+          "x": 180,
+          "y": 385,
+          "width": 400,
+          "height": 60,
+          "fontSize": 16,
+          "textColor": "#c7d2fe",
+          "lineHeight": 1.5,
+          "zIndex": 2,
+          "animation": {
+            "type": "slide",
+            "direction": "right",
+            "duration": 0.8,
+            "delay": 0.8
+          }
+        },
+        {
+          "id": "testimonial-decorative",
+          "type": "shape",
+          "content": "circle",
+          "x": 800,
+          "y": 350,
+          "width": 200,
+          "height": 200,
+          "color": "#818cf8",
+          "opacity": 0.15,
+          "zIndex": 0
+        }
+      ]
+    },
+    {
+      "id": "slide-7",
+      "type": "pricing",
+      "duration": 200,
+      "background": {
+        "type": "color",
+        "value": "#0a0a0a"
+      },
+      "elements": [
+        {
+          "id": "pricing-headline",
+          "type": "headline",
+          "content": "Simple, Transparent Pricing",
+          "x": 0,
+          "y": 40,
+          "width": 1000,
+          "height": 60,
+          "fontSize": 44,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 2,
+          "animation": {
+            "type": "pop",
+            "duration": 0.6,
+            "delay": 0.2
+          }
+        },
+        {
+          "id": "pricing-sub",
+          "type": "text",
+          "content": "Start free. Scale infinitely.",
+          "x": 0,
+          "y": 100,
+          "width": 1000,
+          "height": 30,
+          "fontSize": 18,
+          "textColor": "#71717a",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "tier-1-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 60,
+          "y": 160,
+          "width": 280,
+          "height": 360,
+          "color": "#18181b",
+          "borderRadius": 20,
+          "zIndex": 1,
+          "animation": {
+            "type": "slide",
+            "direction": "up",
+            "duration": 0.6,
+            "delay": 0.3
+          }
+        },
+        {
+          "id": "tier-1-name",
+          "type": "text",
+          "content": "Starter",
+          "x": 60,
+          "y": 190,
+          "width": 280,
+          "height": 40,
+          "fontSize": 24,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "tier-1-price",
+          "type": "text",
+          "content": "Free",
+          "x": 60,
+          "y": 240,
+          "width": 280,
+          "height": 50,
+          "fontSize": 40,
+          "fontWeight": "bold",
+          "textColor": "#22c55e",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "tier-1-features",
+          "type": "text",
+          "textFormat": "markdown",
+          "content": "- Up to 3 users\n- 5GB storage\n- Core features\n- Community support",
+          "x": 80,
+          "y": 310,
+          "width": 240,
+          "height": 180,
+          "fontSize": 14,
+          "textColor": "#a1a1aa",
+          "lineHeight": 1.8,
+          "zIndex": 2
+        },
+        {
+          "id": "tier-2-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 360,
+          "y": 150,
+          "width": 280,
+          "height": 380,
+          "color": "#6366f1",
+          "borderRadius": 20,
+          "zIndex": 1,
+          "animation": {
+            "type": "slide",
+            "direction": "up",
+            "duration": 0.6,
+            "delay": 0.5
+          }
+        },
+        {
+          "id": "tier-2-badge",
+          "type": "text",
+          "content": "MOST POPULAR",
+          "x": 360,
+          "y": 165,
+          "width": 280,
+          "height": 20,
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "textColor": "#c7d2fe",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "tier-2-name",
+          "type": "text",
+          "content": "Pro",
+          "x": 360,
+          "y": 195,
+          "width": 280,
+          "height": 40,
+          "fontSize": 24,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "tier-2-price",
+          "type": "text",
+          "content": "$19/mo",
+          "x": 360,
+          "y": 245,
+          "width": 280,
+          "height": 50,
+          "fontSize": 40,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "tier-2-features",
+          "type": "text",
+          "textFormat": "markdown",
+          "content": "- Unlimited users\n- 100GB storage\n- AI Co-Pilot included\n- Priority support\n- Advanced analytics",
+          "x": 380,
+          "y": 315,
+          "width": 240,
+          "height": 200,
+          "fontSize": 14,
+          "textColor": "#e0e7ff",
+          "lineHeight": 1.8,
+          "zIndex": 2
+        },
+        {
+          "id": "tier-3-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 660,
+          "y": 160,
+          "width": 280,
+          "height": 360,
+          "color": "#18181b",
+          "borderRadius": 20,
+          "zIndex": 1,
+          "animation": {
+            "type": "slide",
+            "direction": "up",
+            "duration": 0.6,
+            "delay": 0.7
+          }
+        },
+        {
+          "id": "tier-3-name",
+          "type": "text",
+          "content": "Enterprise",
+          "x": 660,
+          "y": 190,
+          "width": 280,
+          "height": 40,
+          "fontSize": 24,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "tier-3-price",
+          "type": "text",
+          "content": "Custom",
+          "x": 660,
+          "y": 240,
+          "width": 280,
+          "height": 50,
+          "fontSize": 40,
+          "fontWeight": "bold",
+          "textColor": "#a855f7",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "tier-3-features",
+          "type": "text",
+          "textFormat": "markdown",
+          "content": "- Everything in Pro\n- Unlimited storage\n- SSO & SAML\n- Dedicated success manager\n- Custom integrations",
+          "x": 680,
+          "y": 310,
+          "width": 240,
+          "height": 200,
+          "fontSize": 14,
+          "textColor": "#a1a1aa",
+          "lineHeight": 1.8,
+          "zIndex": 2
+        }
+      ]
+    },
+    {
+      "id": "slide-8",
+      "type": "roadmap",
+      "duration": 180,
+      "background": {
+        "type": "color",
+        "value": "#0f0f0f"
+      },
+      "elements": [
+        {
+          "id": "roadmap-label",
+          "type": "text",
+          "content": "ROADMAP",
+          "x": 0,
+          "y": 50,
+          "width": 1000,
+          "height": 30,
+          "fontSize": 12,
+          "fontWeight": "bold",
+          "textColor": "#6366f1",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "roadmap-headline",
+          "type": "headline",
+          "content": "What's Next",
+          "x": 0,
+          "y": 85,
+          "width": 1000,
+          "height": 60,
+          "fontSize": 48,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "timeline-line",
+          "type": "shape",
+          "content": "rect",
+          "x": 100,
+          "y": 280,
+          "width": 800,
+          "height": 4,
+          "color": "#27272a",
+          "zIndex": 1
+        },
+        {
+          "id": "milestone-1-dot",
+          "type": "shape",
+          "content": "circle",
+          "x": 150,
+          "y": 268,
+          "width": 28,
+          "height": 28,
+          "color": "#22c55e",
+          "zIndex": 2,
+          "animation": {
+            "type": "pop",
+            "duration": 0.4,
+            "delay": 0.3
+          }
+        },
+        {
+          "id": "milestone-1-label",
+          "type": "text",
+          "content": "Q1 2026\nMobile Apps",
+          "x": 100,
+          "y": 320,
+          "width": 140,
+          "height": 60,
+          "fontSize": 14,
+          "textColor": "#a1a1aa",
+          "textAlign": "center",
+          "lineHeight": 1.5,
+          "zIndex": 2
+        },
+        {
+          "id": "milestone-2-dot",
+          "type": "shape",
+          "content": "circle",
+          "x": 350,
+          "y": 268,
+          "width": 28,
+          "height": 28,
+          "color": "#6366f1",
+          "zIndex": 2,
+          "animation": {
+            "type": "pop",
+            "duration": 0.4,
+            "delay": 0.5
+          }
+        },
+        {
+          "id": "milestone-2-label",
+          "type": "text",
+          "content": "Q2 2026\nAPI v2 + Plugins",
+          "x": 300,
+          "y": 320,
+          "width": 140,
+          "height": 60,
+          "fontSize": 14,
+          "textColor": "#a1a1aa",
+          "textAlign": "center",
+          "lineHeight": 1.5,
+          "zIndex": 2
+        },
+        {
+          "id": "milestone-3-dot",
+          "type": "shape",
+          "content": "circle",
+          "x": 550,
+          "y": 268,
+          "width": 28,
+          "height": 28,
+          "color": "#6366f1",
+          "zIndex": 2,
+          "animation": {
+            "type": "pop",
+            "duration": 0.4,
+            "delay": 0.7
+          }
+        },
+        {
+          "id": "milestone-3-label",
+          "type": "text",
+          "content": "Q3 2026\nAI Workflows",
+          "x": 500,
+          "y": 320,
+          "width": 140,
+          "height": 60,
+          "fontSize": 14,
+          "textColor": "#a1a1aa",
+          "textAlign": "center",
+          "lineHeight": 1.5,
+          "zIndex": 2
+        },
+        {
+          "id": "milestone-4-dot",
+          "type": "shape",
+          "content": "circle",
+          "x": 750,
+          "y": 268,
+          "width": 28,
+          "height": 28,
+          "color": "#a855f7",
+          "zIndex": 2,
+          "animation": {
+            "type": "pop",
+            "duration": 0.4,
+            "delay": 0.9
+          }
+        },
+        {
+          "id": "milestone-4-label",
+          "type": "text",
+          "content": "Q4 2026\nNova Enterprise",
+          "x": 700,
+          "y": 320,
+          "width": 140,
+          "height": 60,
+          "fontSize": 14,
+          "textColor": "#a1a1aa",
+          "textAlign": "center",
+          "lineHeight": 1.5,
+          "zIndex": 2
+        },
+        {
+          "id": "roadmap-note",
+          "type": "text",
+          "content": "Join 12,000+ teams already on the waitlist",
+          "x": 0,
+          "y": 440,
+          "width": 1000,
+          "height": 30,
+          "fontSize": 16,
+          "textColor": "#52525b",
+          "textAlign": "center",
+          "zIndex": 2
+        }
+      ]
+    },
+    {
+      "id": "slide-9",
+      "type": "team",
+      "duration": 160,
+      "background": {
+        "type": "gradient",
+        "value": "linear-gradient(180deg, #0f0f0f 0%, #18181b 100%)"
+      },
+      "elements": [
+        {
+          "id": "team-label",
+          "type": "text",
+          "content": "THE TEAM",
+          "x": 0,
+          "y": 50,
+          "width": 1000,
+          "height": 30,
+          "fontSize": 12,
+          "fontWeight": "bold",
+          "textColor": "#6366f1",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "team-headline",
+          "type": "headline",
+          "content": "Built by Obsessives",
+          "x": 0,
+          "y": 90,
+          "width": 1000,
+          "height": 60,
+          "fontSize": 44,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "team-sub",
+          "type": "text",
+          "content": "Former engineers from Notion, Linear, and Figma",
+          "x": 0,
+          "y": 155,
+          "width": 1000,
+          "height": 30,
+          "fontSize": 18,
+          "textColor": "#71717a",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "member-1-avatar",
+          "type": "shape",
+          "content": "circle",
+          "x": 180,
+          "y": 230,
+          "width": 100,
+          "height": 100,
+          "color": "#3b82f6",
+          "zIndex": 2,
+          "animation": {
+            "type": "scale",
+            "duration": 0.5,
+            "delay": 0.3
+          }
+        },
+        {
+          "id": "member-1-info",
+          "type": "text",
+          "content": "Alex Rivera\nCEO & Co-founder",
+          "x": 130,
+          "y": 350,
+          "width": 200,
+          "height": 60,
+          "fontSize": 15,
+          "textColor": "#d4d4d8",
+          "textAlign": "center",
+          "lineHeight": 1.5,
+          "zIndex": 2
+        },
+        {
+          "id": "member-2-avatar",
+          "type": "shape",
+          "content": "circle",
+          "x": 450,
+          "y": 230,
+          "width": 100,
+          "height": 100,
+          "color": "#22c55e",
+          "zIndex": 2,
+          "animation": {
+            "type": "scale",
+            "duration": 0.5,
+            "delay": 0.5
+          }
+        },
+        {
+          "id": "member-2-info",
+          "type": "text",
+          "content": "Jordan Lee\nCTO & Co-founder",
+          "x": 400,
+          "y": 350,
+          "width": 200,
+          "height": 60,
+          "fontSize": 15,
+          "textColor": "#d4d4d8",
+          "textAlign": "center",
+          "lineHeight": 1.5,
+          "zIndex": 2
+        },
+        {
+          "id": "member-3-avatar",
+          "type": "shape",
+          "content": "circle",
+          "x": 720,
+          "y": 230,
+          "width": 100,
+          "height": 100,
+          "color": "#a855f7",
+          "zIndex": 2,
+          "animation": {
+            "type": "scale",
+            "duration": 0.5,
+            "delay": 0.7
+          }
+        },
+        {
+          "id": "member-3-info",
+          "type": "text",
+          "content": "Sam Patel\nHead of Design",
+          "x": 670,
+          "y": 350,
+          "width": 200,
+          "height": 60,
+          "fontSize": 15,
+          "textColor": "#d4d4d8",
+          "textAlign": "center",
+          "lineHeight": 1.5,
+          "zIndex": 2
+        },
+        {
+          "id": "investors-note",
+          "type": "text",
+          "content": "Backed by Sequoia • a16z • Index Ventures",
+          "x": 0,
+          "y": 480,
+          "width": 1000,
+          "height": 30,
+          "fontSize": 14,
+          "textColor": "#52525b",
+          "textAlign": "center",
+          "zIndex": 2
+        }
+      ]
+    },
+    {
+      "id": "slide-10",
+      "type": "cta",
+      "duration": 180,
+      "background": {
+        "type": "gradient",
+        "value": "linear-gradient(145deg, #1e1b4b 0%, #0f0f0f 50%, #0a0a0a 100%)"
+      },
+      "elements": [
+        {
+          "id": "cta-glow-1",
+          "type": "shape",
+          "content": "circle",
+          "x": 300,
+          "y": 100,
+          "width": 400,
+          "height": 400,
+          "color": "#6366f1",
+          "opacity": 0.12,
+          "zIndex": 0,
+          "animation": {
+            "type": "scale",
+            "duration": 3,
+            "delay": 0
+          }
+        },
+        {
+          "id": "cta-headline",
+          "type": "headline",
+          "content": "Ready to Transform\nYour Workflow?",
+          "x": 0,
+          "y": 150,
+          "width": 1000,
+          "height": 140,
+          "fontSize": 56,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "lineHeight": 1.2,
+          "zIndex": 2,
+          "animation": {
+            "type": "pop",
+            "duration": 0.8,
+            "delay": 0.2
+          }
+        },
+        {
+          "id": "cta-sub",
+          "type": "text",
+          "content": "Join the future of collaborative work",
+          "x": 0,
+          "y": 310,
+          "width": 1000,
+          "height": 40,
+          "fontSize": 22,
+          "textColor": "#a5b4fc",
+          "textAlign": "center",
+          "zIndex": 2,
+          "animation": {
+            "type": "fade",
+            "duration": 1,
+            "delay": 0.6
+          }
+        },
+        {
+          "id": "cta-button-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 350,
+          "y": 390,
+          "width": 300,
+          "height": 60,
+          "color": "#6366f1",
+          "borderRadius": 30,
+          "zIndex": 2,
+          "animation": {
+            "type": "scale",
+            "duration": 0.6,
+            "delay": 0.9
+          }
+        },
+        {
+          "id": "cta-button-text",
+          "type": "text",
+          "content": "Get Early Access →",
+          "x": 350,
+          "y": 403,
+          "width": 300,
+          "height": 35,
+          "fontSize": 18,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 3
+        },
+        {
+          "id": "cta-url",
+          "type": "text",
+          "content": "nova.app/early-access",
+          "x": 0,
+          "y": 480,
+          "width": 1000,
+          "height": 30,
+          "fontSize": 16,
+          "textColor": "#6366f1",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "footer-line",
+          "type": "shape",
+          "content": "rect",
+          "x": 450,
+          "y": 530,
+          "width": 100,
+          "height": 3,
+          "color": "#6366f1",
+          "opacity": 0.5,
+          "zIndex": 2
+        }
+      ]
+    }
+  ]
+}

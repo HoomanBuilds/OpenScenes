@@ -14,6 +14,9 @@ interface LeftPanel_GlobalProps {
     contextFiles: ContextFile[];
     onAddContextFile: (file: ContextFile) => void;
     onRemoveContextFile: (id: string) => void;
+    slidesCount: number;
+    renderStatus: 'idle' | 'rendering' | 'done';
+    onRender: () => void;
 }
 
 export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
@@ -26,7 +29,10 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
     setVisualStyle,
     contextFiles,
     onAddContextFile,
-    onRemoveContextFile
+    onRemoveContextFile,
+    slidesCount,
+    renderStatus,
+    onRender
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -187,6 +193,37 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
                         </div>
                     )}
                 </button>
+
+                {slidesCount > 0 && (
+                    <button
+                        onClick={onRender}
+                        disabled={renderStatus === 'rendering'}
+                        className={`w-full mt-3 h-12 relative group transition-all flex items-center justify-between px-6 border-b-[3px] border-r-[3px] border-black active:border-0 active:translate-y-[3px] active:translate-x-[3px] ${
+                            renderStatus === 'rendering'
+                                ? 'bg-zinc-800 cursor-not-allowed border-zinc-700'
+                                : renderStatus === 'done'
+                                ? 'bg-green-600 hover:bg-green-500'
+                                : 'bg-purple-600 hover:bg-purple-500'
+                        }`}
+                    >
+                        <div className="flex flex-col items-start leading-none">
+                            <span className="text-[9px] font-black uppercase tracking-widest mb-0.5 text-white/70">
+                                {renderStatus === 'rendering' ? 'Processing' : renderStatus === 'done' ? 'Completed' : `${slidesCount} Slides`}
+                            </span>
+                            <span className="text-sm font-black tracking-tighter text-white">
+                                {renderStatus === 'rendering' ? 'RENDERING...' : renderStatus === 'done' ? 'RENDER COMPLETE' : 'RENDER VIDEO'}
+                            </span>
+                        </div>
+
+                        {renderStatus === 'rendering' ? (
+                            <LucideIcons.Loader2 className="animate-spin h-4 w-4 text-white/70" />
+                        ) : renderStatus === 'done' ? (
+                            <LucideIcons.Check className="h-5 w-5 text-white" />
+                        ) : (
+                            <LucideIcons.Film className="h-5 w-5 text-white" />
+                        )}
+                    </button>
+                )}
             </div>
         </div>
     );

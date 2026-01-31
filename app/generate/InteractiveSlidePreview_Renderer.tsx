@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { SlideElement } from './types';
 import { motion, MotionValue } from 'framer-motion';
 import { 
@@ -10,53 +10,35 @@ import {
 import * as LucideIcons from 'lucide-react';
 import { parseChartData } from './utils';
 import { COLORS } from './InteractiveSlidePreview_Utils';
+import ReactMarkdown from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
+import { createMarkdownComponents } from './markdownConfig';
 
 interface ElementRendererProps {
     element: SlideElement;
     fontSizeValue: any;
 }
 
-const processBold = (text: string) => {
-    const parts = text.split(/(\*\*.*?\*\*)/g);
-    return parts.map((part, i) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-            return <strong key={i} className="font-bold text-white">{part.slice(2, -2)}</strong>;
-        }
-        return part;
-    });
-};
-
 export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontSizeValue }) => {
     switch (element.type) {
         case 'headline':
-            return <h1 className="leading-tight drop-shadow-md whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'Rejouice-Headline, Inter, sans-serif' }}>{element.content}</h1>;
+            return <motion.h1 className="leading-tight drop-shadow-md whitespace-pre-wrap w-full min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue }}>{element.content}</motion.h1>;
         case 'subheadline':
-            return <p className="leading-snug drop-shadow-sm whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'Rejouice-Headline, Inter, sans-serif' }}>{element.content}</p>;
+            return <motion.p className="leading-snug drop-shadow-sm whitespace-pre-wrap w-full min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue }}>{element.content}</motion.p>;
         case 'text':
             return (
-                <div className="leading-normal whitespace-pre-wrap w-full" style={{ textAlign: element.textAlign }}>
+                <motion.div className="leading-normal w-full max-w-none min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue }}>
                     {element.textFormat === 'markdown' ? (
-                        element.content.split('\n').map((line, i) => {
-                            if (line.startsWith('### ')) {
-                                return <h3 key={i} className="text-xl font-bold mt-4 mb-2 text-white">{processBold(line.substring(4))}</h3>;
-                            }
-                            if (line.startsWith('- ')) {
-                                return (
-                                    <div key={i} className="flex items-start mb-1">
-                                        <span className="mr-2 mt-[0.6em] block h-1.5 w-1.5 shrink-0 rounded-full bg-purple-500" />
-                                        <span>{processBold(line.substring(2))}</span>
-                                    </div>
-                                );
-                            }
-                            if (line.trim() === '') {
-                                return <div key={i} className="h-4" />;
-                            }
-                            return <div key={i} className="mb-0.5">{processBold(line)}</div>;
-                        })
+                        <ReactMarkdown 
+                            components={useMemo(() => createMarkdownComponents('dark', element.fontFamily), [element.fontFamily])} 
+                            remarkPlugins={[remarkBreaks]}
+                        >
+                            {element.content}
+                        </ReactMarkdown>
                     ) : (
-                        element.content
+                        <div className="whitespace-pre-wrap">{element.content}</div>
                     )}
-                </div>
+                </motion.div>
             );
         case 'image':
             return (
@@ -177,6 +159,20 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontS
                             </span>
                         </div>
                     </div>
+                </div>
+            );
+        case 'list':
+            return (
+                <div className="text-left w-full h-full">
+                    {element.listType === 'decimal' ? (
+                        <ol className="list-decimal list-inside" style={{ display: 'flex', flexDirection: 'column', gap: (element.listSpacing || 4), textAlign: (element.textAlign as any), fontFamily: 'inherit' }}>
+                            {element.content.split('\n').map((item: string, i: number) => <li key={i} style={{ fontWeight: element.fontWeight, fontFamily: 'inherit' }}>{item}</li>)}
+                        </ol>
+                    ) : (
+                        <ul className="list-disc list-inside" style={{ display: 'flex', flexDirection: 'column', gap: (element.listSpacing || 4), textAlign: (element.textAlign as any), fontFamily: 'inherit' }}>
+                            {element.content.split('\n').map((item: string, i: number) => <li key={i} style={{ fontWeight: element.fontWeight, fontFamily: 'inherit' }}>{item}</li>)}
+                        </ul>
+                    )}
                 </div>
             );
         default:

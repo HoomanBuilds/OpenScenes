@@ -23,7 +23,7 @@ export const Registry_Text: React.FC<RegistryTextProps> = ({ element, scale }) =
                 fontSize: (element.fontSize || 24) * scale,
                 fontWeight: element.fontWeight,
                 textAlign: element.textAlign as any,
-                fontFamily: element.fontFamily,
+                fontFamily: element.fontFamily || 'inherit',
                 zIndex: element.zIndex,
                 transform: `rotate(${element.rotation || 0}deg)`,
                 whiteSpace: 'pre-wrap'

@@ -1,0 +1,298 @@
+{
+  "name": "HyperDrive-Launch-Keywords",
+  "slides": [
+    {
+      "id": "slide-1",
+      "type": "title",
+      "duration": 150,
+      "background": {
+        "type": "color",
+        "value": "dark"
+      },
+      "elements": [
+        {
+          "id": "accent-1",
+          "type": "shape",
+          "content": "rect",
+          "x": "left",
+          "y": "top",
+          "width": "full",
+          "height": 10,
+          "color": "brand",
+          "zIndex": "default"
+        },
+        {
+          "id": "headline",
+          "type": "headline",
+          "content": "Project Hyper-Drive",
+          "x": "center",
+          "y": "topThird",
+          "width": "full",
+          "height": "heading",
+          "fontSize": "heading",
+          "fontWeight": "bold",
+          "textColor": "brand",
+          "textAlign": "center",
+          "verticalAlign": "center",
+          "zIndex": "front",
+          "animation": {
+            "type": "pop",
+            "duration": "normal",
+            "delay": "short"
+          }
+        },
+        {
+          "id": "subheadline",
+          "type": "subheadline",
+          "content": "The Next-Generation Serverless Database for Edge Computing",
+          "x": "center",
+          "y": "center",
+          "width": "full",
+          "height": "subheading",
+          "fontSize": "subheading",
+          "fontWeight": "normal",
+          "textColor": "success",
+          "textAlign": "center",
+          "zIndex": "front",
+          "animation": {
+            "type": "fade",
+            "duration": "slow",
+            "delay": "medium"
+          }
+        },
+        {
+          "id": "accent-2",
+          "type": "shape",
+          "content": "circle",
+          "x": "rightThird",
+          "y": "bottomThird",
+          "width": "small",
+          "height": "large",
+          "color": "brand",
+          "opacity": "faint",
+          "zIndex": "back"
+        }
+      ]
+    },
+    {
+      "id": "slide-2",
+      "type": "features",
+      "duration": 150,
+      "background": {
+        "type": "color",
+        "value": "dark"
+      },
+      "elements": [
+        {
+          "id": "features-header",
+          "type": "headline",
+          "content": "Core Features",
+          "x": "leftMargin",
+          "y": "topMargin",
+          "width": "xl",
+          "height": "heading",
+          "fontSize": "heading",
+          "fontWeight": "bold",
+          "textColor": "brand",
+          "textAlign": "left",
+          "zIndex": "front"
+        },
+        {
+          "id": "features-list",
+          "type": "text",
+          "textFormat": "markdown",
+          "content": "- 0ms Cold Starts via V8 snapshots\n- Global replication across 24 regions\n- SQL-compatible Key-Value performance\n- AI-native Vector Search built-in",
+          "x": "leftMargin",
+          "y": "topThird",
+          "width": "xl",
+          "height": "xl",
+          "fontSize": "subheading",
+          "fontWeight": "normal",
+          "textColor": "secondary",
+          "textAlign": "left",
+          "verticalAlign": "top",
+          "zIndex": "front",
+          "animation": {
+            "type": "slide",
+            "duration": "normal",
+            "delay": "short",
+            "direction": "right"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slide-3",
+      "type": "latency",
+      "duration": 180,
+      "background": {
+        "type": "color",
+        "value": "dark"
+      },
+      "elements": [
+        {
+          "id": "latency-header",
+          "type": "headline",
+          "content": "Global Latency (ms)",
+          "x": "center",
+          "y": "topMargin",
+          "width": "full",
+          "height": "heading",
+          "fontSize": "heading",
+          "fontWeight": "bold",
+          "textColor": "brand",
+          "textAlign": "center",
+          "zIndex": "front"
+        },
+        {
+          "id": "latency-chart",
+          "type": "chart",
+          "chartType": "bar",
+          "content": "US-East 12 85\nEurope 15 92\nAsia 22 110\nSouth-Am 28 145",
+          "x": "center",
+          "y": "topThird",
+          "width": "large",
+          "height": "half",
+          "chartProps": {
+            "colors": ["success", "error"],
+            "showXAxis": true,
+            "showYAxis": true,
+            "showGrid": true,
+            "showLegend": true
+          },
+          "zIndex": "default",
+          "animation": {
+            "type": "scale",
+            "duration": "slow",
+            "delay": "medium"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slide-4",
+      "type": "comparison",
+      "duration": 150,
+      "background": {
+        "type": "color",
+        "value": "dark"
+      },
+      "elements": [
+        {
+          "id": "comp-header",
+          "type": "headline",
+          "content": "Eliminating the Cloud Tax",
+          "x": 0,
+          "y": "topMargin",
+          "width": "full",
+          "height": "heading",
+          "fontSize": "heading",
+          "fontWeight": "bold",
+          "textColor": "brand",
+          "textAlign": "center",
+          "zIndex": "front"
+        },
+        {
+          "id": "old-infra-box",
+          "type": "shape",
+          "content": "rect",
+          "x": 100,
+          "y": 140,
+          "width": 350,
+          "height": 280,
+          "color": "zinc",
+          "borderRadius": "large",
+          "zIndex": "default"
+        },
+        {
+          "id": "new-infra-box",
+          "type": "shape",
+          "content": "rect",
+          "x": 550,
+          "y": 140,
+          "width": 350,
+          "height": 280,
+          "color": "#064e3b",
+          "borderRadius": "large",
+          "zIndex": "default"
+        },
+        {
+          "id": "old-text",
+          "type": "text",
+          "content": "Legacy Clouds\nIdle Overhead\nCold Starts\nFixed Billing",
+          "x": 100,
+          "y": 180,
+          "width": 350,
+          "height": 200,
+          "fontSize": "medium",
+          "textColor": "muted",
+          "textAlign": "center",
+          "zIndex": "front"
+        },
+        {
+          "id": "new-text",
+          "type": "text",
+          "content": "Hyper-Drive\n0% Idle Cost\nInstant Start\nConsumption Only",
+          "x": 550,
+          "y": 180,
+          "width": 350,
+          "height": 200,
+          "fontSize": "medium",
+          "textColor": "success",
+          "textAlign": "center",
+          "fontWeight": "bold",
+          "zIndex": "front"
+        }
+      ]
+    },
+    {
+      "id": "slide-5",
+      "type": "cta",
+      "duration": 120,
+      "background": {
+        "type": "color",
+        "value": "dark"
+      },
+      "elements": [
+        {
+          "id": "cta-header",
+          "type": "headline",
+          "content": "Scale to Infinitum.",
+          "x": "center",
+          "y": "topThird",
+          "width": "full",
+          "height": "heading",
+          "fontSize": "heading",
+          "fontWeight": "bold",
+          "textColor": "success",
+          "textAlign": "center",
+          "zIndex": "front"
+        },
+        {
+          "id": "cta-sub",
+          "type": "text",
+          "content": "github.com/hyper-drive/core",
+          "x": "center",
+          "y": "center",
+          "width": "full",
+          "height": "text",
+          "fontSize": "subheading",
+          "textColor": "brand",
+          "textAlign": "center",
+          "zIndex": "front"
+        },
+        {
+          "id": "cta-accent",
+          "type": "shape",
+          "content": "rect",
+          "x": "center",
+          "y": "bottomThird",
+          "width": "small",
+          "height": 4,
+          "color": "brand",
+          "zIndex": "default"
+        }
+      ]
+    }
+  ]
+}

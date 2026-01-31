@@ -116,10 +116,19 @@ export const LeftPanel_ElementStyle: React.FC<LeftPanel_ElementStyleProps> = ({ 
                                 onChange={(e) => onUpdate({ fontFamily: e.target.value })}
                              >
                                  <option value="Inter">Inter UI</option>
-                                 <option value="Roboto">Roboto Mono</option>
+                                 <option value="Roboto">Roboto</option>
+                                 <option value="Roboto Mono">Roboto Mono</option>
                                  <option value="Merriweather">Merriweather Serif</option>
                                  <option value="Oswald">Oswald Condensed</option>
                                  <option value="Playfair Display">Playfair Display</option>
+                                 <option value="Bebas Neue">Bebas Neue</option>
+                                 <option value="Lora">Lora Serif</option>
+                                 <option value="Montserrat">Montserrat</option>
+                                 <option value="Lato">Lato</option>
+                                 <option value="Open Sans">Open Sans</option>
+                                 <option value="Poppins">Poppins</option>
+                                 <option value="Press Start 2P">Press Start 2P</option>
+                                 <option value="VT323">VT323</option>
                              </select>
                         </div>
                          <div className="col-span-2 space-y-2">

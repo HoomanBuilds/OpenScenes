@@ -1,0 +1,45 @@
+
+============================================================
+🎬 CLARITY VIDEO GENERATION STARTED (ID: #2)
+============================================================
+
+📋 JOB SETTINGS:
+   - Template: "Neo-Tokyo-Comics"
+   - Slides:   6
+   - Speed:    1x
+   - Quality:  HIGH (CRF 20)
+   - Duration: 1100 frames (36.7s)
+   - Output:   MP4 @ 30fps (Scale: 1x)
+----------------------------------------
+📦 Bundling Remotion composition...
+❌ ERROR: Module not found: Error: Can't resolve './VideoRenderer' in 'C:\Users\HP VICTUS\Desktop\clarity\remotion'
+resolve './VideoRenderer' in 'C:\Users\HP VICTUS\Desktop\clarity\remotion'
+  using description file: C:\Users\HP VICTUS\Desktop\clarity\package.json (relative path: ./remotion)
+    Field 'browser' doesn't contain a valid alias configuration
+    using description file: C:\Users\HP VICTUS\Desktop\clarity\package.json (relative path: ./remotion/VideoRenderer)
+      no extension
+        Field 'browser' doesn't contain a valid alias configuration
+        C:\Users\HP VICTUS\Desktop\clarity\remotion\VideoRenderer doesn't exist
+      .ts
+        Field 'browser' doesn't contain a valid alias configuration
+        C:\Users\HP VICTUS\Desktop\clarity\remotion\VideoRenderer.ts doesn't exist
+      .tsx
+        Field 'browser' doesn't contain a valid alias configuration
+        C:\Users\HP VICTUS\Desktop\clarity\remotion\VideoRenderer.tsx doesn't exist
+      .web.js
+        Field 'browser' doesn't contain a valid alias configuration
+        C:\Users\HP VICTUS\Desktop\clarity\remotion\VideoRenderer.web.js doesn't exist
+      .js
+        Field 'browser' doesn't contain a valid alias configuration
+        C:\Users\HP VICTUS\Desktop\clarity\remotion\VideoRenderer.js doesn't exist
+      .jsx
+        Field 'browser' doesn't contain a valid alias configuration
+        C:\Users\HP VICTUS\Desktop\clarity\remotion\VideoRenderer.jsx doesn't exist
+      .mjs
+        Field 'browser' doesn't contain a valid alias configuration
+        C:\Users\HP VICTUS\Desktop\clarity\remotion\VideoRenderer.mjs doesn't exist
+      .cjs
+        Field 'browser' doesn't contain a valid alias configuration
+        C:\Users\HP VICTUS\Desktop\clarity\remotion\VideoRenderer.cjs doesn't exist
+      as directory
+        C:\Users\HP VICTUS\Desktop\clarity\remotion\VideoRenderer doesn't exist

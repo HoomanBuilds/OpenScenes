@@ -1,0 +1,640 @@
+{
+  "name": "PixelCraft-Adventure",
+  "slides": [
+    {
+      "id": "intro-slide",
+      "type": "title",
+      "duration": 180,
+      "background": {
+        "type": "gradient",
+        "value": "linear-gradient(180deg, #3b82f6 0%, #16a34a 50%, #3e2723 50%, #3e2723 100%)"
+      },
+      "elements": [
+        {
+          "id": "sky-sun",
+          "type": "shape",
+          "content": "rect",
+          "x": 850,
+          "y": 50,
+          "width": 80,
+          "height": 80,
+          "color": "#fbbf24",
+          "borderRadius": 0,
+          "zIndex": 1,
+          "strokeWidth": 4,
+          "strokeColor": "#000000",
+          "animation": {
+             "type": "scale",
+             "duration": 0.5,
+             "delay": 0.2
+          }
+        },
+        {
+            "id": "cloud-1",
+            "type": "shape",
+            "content": "rect",
+            "x": 100,
+            "y": 80,
+            "width": 120,
+            "height": 40,
+            "color": "#ffffff",
+            "opacity": 0.8,
+            "borderRadius": 0,
+            "zIndex": 1
+        },
+        {
+          "id": "game-title",
+          "type": "headline",
+          "content": "PIXEL CRAFT",
+          "x": 0,
+          "y": 180,
+          "width": 1000,
+          "height": 100,
+          "fontSize": 64,
+          "fontWeight": "normal",
+          "fontFamily": "VT323",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 3,
+          "animation": {
+            "type": "pop",
+            "duration": 0.5,
+            "delay": 0.5
+          }
+        },
+        {
+          "id": "game-subtitle",
+          "type": "text",
+          "content": "BUILD • EXPLORE • SURVIVE",
+          "x": 0,
+          "y": 280,
+          "width": 1000,
+          "height": 50,
+          "fontSize": 24,
+          "fontFamily": "VT323",
+          "textColor": "#fcd34d",
+          "textAlign": "center",
+          "zIndex": 3,
+            "animation": {
+            "type": "fade",
+            "duration": 0.5,
+            "delay": 1.0
+          }
+        },
+        {
+           "id": "start-btn-bg",
+           "type": "shape",
+           "content": "rect",
+           "x": 350,
+           "y": 400,
+           "width": 300,
+           "height": 60,
+           "color": "#1c1c1c",
+           "strokeWidth": 4,
+           "strokeColor": "#ffffff",
+           "borderRadius": 0,
+           "zIndex": 2
+        },
+        {
+            "id": "start-btn-text",
+            "type": "text",
+            "content": "INSERT COIN",
+            "x": 350,
+            "y": 415,
+            "width": 300,
+            "height": 30,
+            "fontSize": 20,
+            "fontFamily": "VT323",
+            "textColor": "#4ade80",
+            "textAlign": "center",
+            "zIndex": 3,
+            "animation": {
+                "type": "fade",
+                "duration": 0.8,
+                "delay": 1.5
+            }
+        }
+      ]
+    },
+    {
+      "id": "mission-slide",
+      "type": "problem",
+      "duration": 200,
+      "background": {
+        "type": "color",
+        "value": "#0f0f0f"
+      },
+      "elements": [
+        {
+          "id": "mission-header",
+          "type": "headline",
+          "content": "Current Quest",
+          "x": 50,
+          "y": 50,
+          "width": 600,
+          "height": 60,
+          "fontSize": 32,
+          "fontFamily": "VT323",
+          "textColor": "#ef4444",
+          "textAlign": "left",
+          "zIndex": 2
+        },
+        {
+            "id": "quest-log-bg",
+            "type": "shape",
+            "content": "rect",
+            "x": 50,
+            "y": 140,
+            "width": 500,
+            "height": 300,
+            "color": "#262626",
+            "strokeWidth": 4,
+            "strokeColor": "#737373",
+            "borderRadius": 0,
+            "zIndex": 1
+        },
+        {
+          "id": "quest-text",
+          "type": "text",
+          "textFormat": "markdown",
+          "content": "- Survive the first night\n- Gather 64x Wood Blocks\n- Craft basic tools\n- Avoid the Creepers",
+          "x": 80,
+          "y": 170,
+          "width": 440,
+          "height": 240,
+          "fontSize": 24,
+          "fontFamily": "VT323",
+          "textColor": "#d4d4d4",
+          "textAlign": "left",
+          "lineHeight": 1.5,
+          "zIndex": 2
+        },
+        {
+            "id": "creeper-face",
+            "type": "shape",
+            "content": "rect",
+            "x": 650,
+            "y": 140,
+            "width": 200,
+            "height": 200,
+            "color": "#4ade80",
+            "borderRadius": 0,
+            "zIndex": 1,
+            "animation": {
+                "type": "pop",
+                "duration": 0.5,
+                "delay": 0.5
+            }
+        },
+        {
+            "id": "creeper-eye-1",
+            "type": "shape",
+            "content": "rect",
+            "x": 690,
+            "y": 180,
+            "width": 40,
+            "height": 40,
+            "color": "#000000",
+            "borderRadius": 0,
+            "zIndex": 2
+        },
+        {
+             "id": "creeper-eye-2",
+             "type": "shape",
+             "content": "rect",
+             "x": 770,
+             "y": 180,
+             "width": 40,
+             "height": 40,
+             "color": "#000000",
+             "borderRadius": 0,
+             "zIndex": 2
+        },
+         {
+             "id": "creeper-mouth",
+             "type": "shape",
+             "content": "rect",
+             "x": 730,
+             "y": 240,
+             "width": 40,
+             "height": 60,
+             "color": "#000000",
+             "borderRadius": 0,
+             "zIndex": 2
+        }
+      ]
+    },
+    {
+        "id": "inventory-slide",
+        "type": "features",
+        "duration": 220,
+        "background": {
+            "type": "color",
+            "value": "#3f3f46"
+        },
+        "elements": [
+            {
+                "id": "inv-title",
+                "type": "headline",
+                "content": "INVENTORY",
+                "x": 0,
+                "y": 40,
+                "width": 1000,
+                "height": 50,
+                "fontSize": 32,
+                "fontFamily": "VT323",
+                "textColor": "#ffffff",
+                "textAlign": "center",
+                "zIndex": 2
+            },
+            {
+                "id": "slot-1",
+                "type": "shape",
+                "content": "rect",
+                "x": 180,
+                "y": 150,
+                "width": 150,
+                "height": 150,
+                "color": "#71717a",
+                "strokeWidth": 4,
+                "strokeColor": "#a1a1aa",
+                "borderRadius": 0,
+                "zIndex": 1
+            },
+            {
+                "id": "slot-1-item",
+                "type": "shape",
+                "content": "rect",
+                "x": 230,
+                "y": 190,
+                "width": 50,
+                "height": 50,
+                "color": "#ef4444",
+                "borderRadius": 0,
+                "zIndex": 2
+            },
+            {
+                "id": "slot-1-label",
+                "type": "text",
+                "content": "Health Potion",
+                "x": 180,
+                "y": 310,
+                "width": 150,
+                "height": 30,
+                "fontSize": 18,
+                "fontFamily": "VT323",
+                "textColor": "#ffffff",
+                "textAlign": "center",
+                "zIndex": 2
+            },
+             {
+                "id": "slot-2",
+                "type": "shape",
+                "content": "rect",
+                "x": 425,
+                "y": 150,
+                "width": 150,
+                "height": 150,
+                "color": "#71717a",
+                "strokeWidth": 4,
+                "strokeColor": "#a1a1aa",
+                "borderRadius": 0,
+                "zIndex": 1
+            },
+            {
+                "id": "slot-2-item",
+                "type": "shape",
+                "content": "rect",
+                "x": 475,
+                "y": 190,
+                "width": 50,
+                "height": 50,
+                "color": "#3b82f6",
+                "borderRadius": 0,
+                "zIndex": 2
+            },
+             {
+                "id": "slot-2-label",
+                "type": "text",
+                "content": "Mana Crystal",
+                "x": 425,
+                "y": 310,
+                "width": 150,
+                "height": 30,
+                "fontSize": 18,
+                 "fontFamily": "VT323",
+                "textColor": "#ffffff",
+                "textAlign": "center",
+                "zIndex": 2
+            },
+             {
+                "id": "slot-3",
+                "type": "shape",
+                "content": "rect",
+                "x": 670,
+                "y": 150,
+                "width": 150,
+                "height": 150,
+                "color": "#71717a",
+                "strokeWidth": 4,
+                "strokeColor": "#a1a1aa",
+                "borderRadius": 0,
+                "zIndex": 1
+            },
+             {
+                "id": "slot-3-item",
+                "type": "shape",
+                "content": "rect",
+                "x": 720,
+                "y": 190,
+                "width": 50,
+                "height": 50,
+                "color": "#eab308",
+                "borderRadius": 0,
+                "zIndex": 2
+            },
+             {
+                "id": "slot-3-label",
+                "type": "text",
+                "content": "Gold Ingot",
+                "x": 670,
+                "y": 310,
+                "width": 150,
+                "height": 30,
+                "fontSize": 18,
+                 "fontFamily": "VT323",
+                "textColor": "#ffffff",
+                "textAlign": "center",
+                "zIndex": 2
+            }
+        ]
+    },
+    {
+      "id": "stats-slide",
+      "type": "metrics",
+      "duration": 200,
+      "background": {
+        "type": "color",
+        "value": "#18181b"
+      },
+      "elements": [
+        {
+          "id": "stats-title",
+          "type": "headline",
+          "content": "SERVER STATS",
+          "x": 0,
+          "y": 50,
+          "width": 1000,
+          "height": 50,
+          "fontSize": 32,
+          "fontFamily": "VT323",
+          "textColor": "#4ade80",
+          "textAlign": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "stats-chart",
+          "type": "chart",
+          "chartType": "bar",
+          "content": "Diamonds 45 45\\nIron 128 128\\nCoal 300 300\\nGold 32 32",
+          "x": 100,
+          "y": 150,
+          "width": 800,
+          "height": 300,
+          "chartProps": {
+             "colors": ["#3b82f6", "#a1a1aa", "#171717", "#fbbf24"],
+             "showXAxis": true,
+             "showYAxis": true,
+             "showGrid": false,
+             "showLegend": false,
+             "transparent": true
+          },
+          "zIndex": 2,
+          "animation": {
+              "type": "slide",
+              "direction": "up",
+              "duration": 0.5,
+              "delay": 0.2
+          }
+        }
+      ]
+    },
+    {
+        "id": "map-slide",
+        "type": "roadmap",
+        "duration": 200,
+        "background": {
+            "type": "color",
+            "value": "#3b82f6"
+        },
+        "elements": [
+            {
+                "id": "map-bg",
+                "type": "shape",
+                "content": "rect",
+                "x": 50,
+                "y": 50,
+                "width": 900,
+                "height": 462,
+                "color": "#fcd34d",
+                "strokeWidth": 8,
+                "strokeColor": "#92400e",
+                "borderRadius": 0,
+                "zIndex": 0
+            },
+             {
+                "id": "map-title",
+                "type": "headline",
+                "content": "WORLD MAP",
+                "x": 100,
+                "y": 80,
+                "width": 800,
+                "height": 40,
+                "fontSize": 28,
+                "fontFamily": "VT323",
+                "textColor": "#92400e",
+                "textAlign": "center",
+                "zIndex": 1
+            },
+            {
+                "id": "loc-1",
+                "type": "shape",
+                "content": "rect",
+                "x": 150,
+                "y": 250,
+                "width": 40,
+                "height": 40,
+                "color": "#dc2626",
+                "strokeWidth": 2,
+                "strokeColor": "#000",
+                "borderRadius": 0,
+                "zIndex": 2
+            },
+             {
+                "id": "path-1",
+                "type": "shape",
+                "content": "rect",
+                "x": 190,
+                "y": 265,
+                "width": 200,
+                "height": 10,
+                "color": "#92400e",
+                "borderRadius": 0,
+                "zIndex": 1
+            },
+            {
+                "id": "loc-2",
+                "type": "shape",
+                "content": "rect",
+                "x": 390,
+                "y": 250,
+                "width": 40,
+                "height": 40,
+                "color": "#4ade80",
+                "strokeWidth": 2,
+                "strokeColor": "#000",
+                "borderRadius": 0,
+                 "zIndex": 2
+            },
+             {
+                "id": "path-2",
+                "type": "shape",
+                "content": "rect",
+                "x": 430,
+                "y": 265,
+                "width": 200,
+                "height": 10,
+                "color": "#92400e",
+                "borderRadius": 0,
+                "zIndex": 1
+            },
+             {
+                "id": "loc-3",
+                "type": "shape",
+                "content": "rect",
+                "x": 630,
+                "y": 250,
+                "width": 40,
+                "height": 40,
+                "color": "#3b82f6",
+                "strokeWidth": 2,
+                "strokeColor": "#000",
+                "borderRadius": 0,
+                 "zIndex": 2
+            },
+             {
+                "id": "note-1",
+                "type": "text",
+                "content": "Spawn",
+                "x": 130,
+                "y": 300,
+                "width": 80,
+                "height": 30,
+                "fontSize": 16,
+                "fontFamily": "VT323",
+                "textColor": "#000",
+                "textAlign": "center",
+                "zIndex": 2
+            },
+             {
+                "id": "note-2",
+                "type": "text",
+                "content": "Forest",
+                 "x": 370,
+                "y": 300,
+                "width": 80,
+                "height": 30,
+                 "fontSize": 16,
+                 "fontFamily": "VT323",
+                "textColor": "#000",
+                 "textAlign": "center",
+                "zIndex": 2
+            },
+             {
+                "id": "note-3",
+                "type": "text",
+                "content": "Lake",
+                 "x": 610,
+                "y": 300,
+                "width": 80,
+                "height": 30,
+                 "fontSize": 16,
+                 "fontFamily": "VT323",
+                "textColor": "#000",
+                 "textAlign": "center",
+                "zIndex": 2
+            }
+        ]
+    },
+    {
+        "id": "victory-slide",
+        "type": "cta",
+        "duration": 200,
+        "background": {
+            "type": "image",
+            "value": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop"
+        },
+        "elements": [
+             {
+                "id": "overlay",
+                "type": "shape",
+                "content": "rect",
+                "x": 0,
+                "y": 0,
+                "width": 1000,
+                "height": 562,
+                "color": "#000000",
+                "opacity": 0.7,
+                "zIndex": 0
+            },
+            {
+                "id": "victory-text",
+                "type": "headline",
+                "content": "VICTORY!",
+                "x": 0,
+                "y": 150,
+                "width": 1000,
+                "height": 100,
+                "fontSize": 72,
+                 "fontFamily": "VT323",
+                "textColor": "#fbbf24",
+                "textAlign": "center",
+                 "zIndex": 2,
+                 "animation": {
+                     "type": "scale",
+                     "duration": 0.4,
+                     "delay": 0.2
+                 }
+            },
+             {
+                "id": "play-more-btn",
+                "type": "shape",
+                "content": "rect",
+                "x": 300,
+                "y": 300,
+                "width": 400,
+                "height": 80,
+                "color": "#4ade80",
+                "strokeWidth": 4,
+                "strokeColor": "#ffffff",
+                "borderRadius": 0,
+                "zIndex": 2
+            },
+            {
+                "id": "play-text",
+                "type": "text",
+                "content": "MAIN MENU",
+                "x": 300,
+                "y": 325,
+                "width": 400,
+                "height": 40,
+                "fontSize": 24,
+                "fontFamily": "VT323",
+                "textColor": "#ffffff",
+                "textAlign": "center",
+                "zIndex": 3
+            }
+        ]
+    }
+  ]
+}

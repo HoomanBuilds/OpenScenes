@@ -8,17 +8,13 @@ interface LeftPanel_AssetsProps {
 }
 
 const STOCK_ASSETS: Asset[] = [
-    // --- IMAGES ---
     { id: 'stock-charts-1', type: 'image', name: 'Analytics', url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80' },
     { id: 'stock-global', type: 'image', name: 'Global Hub', url: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?auto=format&fit=crop&w=800&q=80' },
     { id: 'stock-rocket', type: 'image', name: 'Growth', url: 'https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=800&q=80' },
     { id: 'stock-strat-1', type: 'image', name: 'Strategy', url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80' },
     
-    // --- VIDEOS ---
     { id: 'stock-vid-tech', type: 'video', name: 'Network Loop', url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
     { id: 'stock-vid-abstract', type: 'video', name: 'Bear Intro', url: 'https://www.w3schools.com/html/movie.mp4' },
-    { id: 'stock-vid-nature', type: 'video', name: 'Water Flow', url: 'https://assets.mixkit.co/videos/preview/mixkit-top-view-of-a-body-of-water-broken-by-some-rocks-4275-large.mp4' },
-    { id: 'stock-vid-cloud', type: 'video', name: 'Clouds', url: 'https://assets.mixkit.co/videos/preview/mixkit-clouds-slowly-moving-across-the-blue-sky-4643-large.mp4' },
 ];
 
 export const LeftPanel_Assets: React.FC<LeftPanel_AssetsProps> = ({
