@@ -13,6 +13,8 @@ import { loadFont as loadPoppins } from '@remotion/google-fonts/Poppins';
 import { loadFont as loadPressStart2P } from '@remotion/google-fonts/PressStart2P';
 import { loadFont as loadVT323 } from '@remotion/google-fonts/VT323';
 
+import { loadFont as loadOrbitron } from '@remotion/google-fonts/Orbitron';
+
 // Load fonts with only latin subset and common weights to reduce network requests
 // Note: We use type assertion to any to avoid strict type mismatches with @remotion/google-fonts definitions
 const options = { subsets: ['latin'], weights: ['400', '700'], ignoreTooManyRequestsWarning: true } as any;
@@ -32,6 +34,7 @@ const { fontFamily: openSansFamily } = loadOpenSans('normal', options);
 const { fontFamily: poppinsFamily } = loadPoppins('normal', options);
 const { fontFamily: pressStart2PFamily } = loadPressStart2P('normal', normalOptions);
 const { fontFamily: vt323Family } = loadVT323('normal', normalOptions);
+const { fontFamily: orbitronFamily } = loadOrbitron('normal', options);
 
 export const fontFamilyMap: Record<string, string> = {
     'Inter': interFamily,
@@ -48,6 +51,7 @@ export const fontFamilyMap: Record<string, string> = {
     'Poppins': poppinsFamily,
     'Press Start 2P': pressStart2PFamily,
     'VT323': vt323Family,
+    'Orbitron': orbitronFamily,
 };
 
 export const getFontFamily = (fontName: string): string => {

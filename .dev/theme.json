@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "1.0.0",
-    "description": "Clarity Theme Registry - Visual styles and prompt modifiers for each theme",
+    "description": "OpenScenes Theme Registry - Visual styles and prompt modifiers for each theme",
     "usage": "Inject the selected theme's `prompt_injection` into <theme_prompt> placeholder",
     "canvas": {
       "width": 1000,

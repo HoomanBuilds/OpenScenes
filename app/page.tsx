@@ -15,7 +15,6 @@ export default function LandingPage() {
             <div className="absolute top-0 left-0 right-0 h-12 border-b border-zinc-900 bg-zinc-950/50 backdrop-blur-sm flex items-center justify-between px-6 z-20">
                 <div className="flex items-center space-x-4">
                     <div className="w-2 h-2 bg-purple-500 animate-pulse" />
-                    <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest">System_v2.0.4 // Stable</span>
                 </div>
                 <div className="flex items-center space-x-8">
                      <div className="hidden md:flex font-mono text-[9px] text-zinc-600 space-x-8 uppercase tracking-widest opacity-50">
@@ -30,7 +29,7 @@ export default function LandingPage() {
                 
                 <div className="flex flex-col items-center space-y-6">
                     <div className="flex items-center space-x-2">
-                        {['C','L','A','R','I','T','Y'].map((l, i) => (
+                        {['O','P','E','N','S','C',"E" , "N" , "E" , "S"].map((l, i) => (
                             <div key={i} 
                                 className="w-16 h-24 bg-zinc-950 border-b-[6px] border-r-[6px] border-black flex items-center justify-center relative group hover:-translate-y-2 transition-transform duration-300 cursor-default"
                                 style={{ 
@@ -71,26 +70,6 @@ export default function LandingPage() {
 
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 h-24 border-t border-zinc-900 bg-zinc-950/80 backdrop-blur-md flex items-center justify-center space-x-px">
-                 <div className="h-full w-48 border-r border-zinc-900 flex flex-col items-center justify-center space-y-2 group hover:bg-zinc-900/50 transition-colors">
-                    <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Core Engine</span>
-                    <div className="flex space-x-1">
-                        <div className="w-1.5 h-3 bg-purple-600" />
-                        <div className="w-1.5 h-3 bg-purple-600/50" />
-                        <div className="w-1.5 h-3 bg-purple-600/20" />
-                    </div>
-                 </div>
-                 
-                 <div className="h-full w-48 border-r border-zinc-900 flex flex-col items-center justify-center space-y-2 group hover:bg-zinc-900/50 transition-colors">
-                    <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Render: GPU</span>
-                    <div className="font-mono text-xs text-zinc-400 font-bold">READY</div>
-                 </div>
-
-                 <div className="h-full w-48 border-r border-zinc-900 flex flex-col items-center justify-center space-y-2 group hover:bg-zinc-900/50 transition-colors">
-                    <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Connection</span>
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981] animate-pulse" />
-                 </div>
-            </div>
 
             <div className="absolute top-12 left-6 w-px h-12 bg-zinc-800" />
             <div className="absolute top-12 right-6 w-px h-12 bg-zinc-800" />

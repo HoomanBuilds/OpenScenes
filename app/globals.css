@@ -6,7 +6,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-headline: var(--font-rejouice), var(--font-geist-sans);
 }
 
 :root {

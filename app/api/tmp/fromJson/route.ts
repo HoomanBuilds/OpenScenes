@@ -5,7 +5,7 @@ import fs from 'fs';
 
 export async function POST(req: NextRequest) {
     console.log('\n' + '='.repeat(60));
-    console.log('🎬 CLARITY VIDEO GENERATION STARTED');
+    console.log('🎬 OpenScenes VIDEO GENERATION STARTED');
     console.log('='.repeat(60) + '\n');
     
     try {
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
     return NextResponse.json({
-        name: 'Clarity Video Generator - fromJson',
+        name: 'OpenScenesi Video Generator - fromJson',
         version: '1.0.0',
         description: 'Generate videos from template JSON files',
         endpoints: {

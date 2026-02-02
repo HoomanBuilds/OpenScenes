@@ -44,7 +44,7 @@ export const RemotionRoot: React.FC = () => {
                 durationInFrames={150}
                 fps={30}
                 width={1000}
-                height={562}
+                height={563}
                 defaultProps={{
                     templateData: DEFAULT_TEMPLATE
                 }}

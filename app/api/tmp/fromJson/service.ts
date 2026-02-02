@@ -13,7 +13,7 @@ interface RenderOptions {
     scale: number;
     format: 'mp4' | 'webm';
     speed: number;
-    quality: 'low' | 'medium' | 'high';
+    quality: 'low' | 'medium' | 'high' | 'ultra';
     abortSignal: AbortSignal;
 }
 
@@ -81,11 +81,14 @@ export async function processVideoGeneration({
         const totalDurationFrames = calculateTotalDuration(templateData.slides);
         const durationSec = (totalDurationFrames / fps).toFixed(1);
 
-        const crfMap = { high: 20, medium: 26, low: 32 };
-        const crf = crfMap[quality];
+        const crfMap = { ultra: 10, high: 18, medium: 23, low: 28 }; // Lower CRF = Higher quality
+        const crf = crfMap[quality] || 18;
+        
+        // Auto-scale up for ultra quality if scale is default
+        const effectiveScale = quality === 'ultra' && scale === 1 ? 2 : scale;
 
         logger.log('\n' + '='.repeat(60));
-        logger.log(`🎬 CLARITY VIDEO GENERATION STARTED (ID: #${renderId})`);
+        logger.log(`🎬OpenScenes VIDEO GENERATION STARTED (ID: #${renderId})`);
         logger.log('='.repeat(60));
         logger.log('');
         logger.log(`📋 JOB SETTINGS:`);
@@ -94,7 +97,7 @@ export async function processVideoGeneration({
         logger.log(`   - Speed:    ${speed}x`);
         logger.log(`   - Quality:  ${quality.toUpperCase()} (CRF ${crf})`);
         logger.log(`   - Duration: ${totalDurationFrames} frames (${durationSec}s)`);
-        logger.log(`   - Output:   ${format.toUpperCase()} @ ${fps}fps (Scale: ${scale}x)`);
+        logger.log(`   - Output:   ${format.toUpperCase()} @ ${fps}fps (Scale: ${effectiveScale}x)`);
         logger.log('-'.repeat(40));
 
         const entryPoint = path.join(process.cwd(), 'remotion', 'index.tsx');
@@ -115,14 +118,14 @@ export async function processVideoGeneration({
             ...composition,
             durationInFrames: totalDurationFrames,
             fps,
-            width: Math.round(1000 * scale),
-            height: Math.round(562 * scale),
+            width: Math.round(1000 * effectiveScale),
+            height: Math.round(562 * effectiveScale),
         };
 
         const tmpDir = os.tmpdir();
         const timestamp = Date.now();
         const safeName = templateData.name.replace(/[^a-zA-Z0-9-_]/g, '_');
-        outputFile = path.join(tmpDir, `clarity-${safeName}-${timestamp}.${format}`);
+        outputFile = path.join(tmpDir, `Scenes-${safeName}-${timestamp}.${format}`);
 
         logger.log(`🚀 RENDER STARTED -> ${safeName}.${format}`);
         logger.log(`   Resolution: ${finalComposition.width}x${finalComposition.height}`);

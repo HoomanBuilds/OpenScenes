@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Slide, Asset, GenerationStatus, SlideElement, SlideBackground, ContextFile } from './types';
-import { LeftPanel_Global } from './LeftPanel_Global';
+import { LeftPanel_Global, RenderOptions } from './LeftPanel_Global';
 import { LeftPanel_Assets } from './LeftPanel_Assets';
 import { LeftPanel_ComponentLibrary } from './LeftPanel_ComponentLibrary';
 import { LeftPanel_SlideSettings } from './LeftPanel_SlideSettings';
@@ -29,7 +29,12 @@ interface LeftPanelProps {
     onAddContextFile: (file: ContextFile) => void;
     onRemoveContextFile: (id: string) => void;
     renderStatus: 'idle' | 'rendering' | 'done';
-    onRender: () => void;
+    renderProgress: number;
+    renderPhase: string;
+    onRender: (options: RenderOptions) => void;
+    onAbort: () => void;
+    visualStyle: string;
+    setVisualStyle: (style: string) => void;
 }
 
 const LeftPanel: React.FC<LeftPanelProps> = ({ 
@@ -53,13 +58,16 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
     onAddContextFile,
     onRemoveContextFile,
     renderStatus,
-    onRender
+    renderProgress,
+    renderPhase,
+    onRender,
+    onAbort,
+    visualStyle,
+    setVisualStyle,
 }) => {
     const [libraryTab, setLibraryTab] = useState<'assets' | 'components'>('assets');
     const [aiEditPrompt, setAiEditPrompt] = useState('');
-    const [visualStyle, setVisualStyle] = useState('Modern Dark');
 
-    // Primary selection for property editing (first selected)
     const primaryElementId = selectedElementIds[0];
     const selectedElement = selectedSlide?.elements?.find(e => e.id === primaryElementId);
     const selectionCount = selectedElementIds.length;
@@ -79,7 +87,7 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
                 <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}></div>
 
                 <div className="flex items-center space-x-1 relative z-10">
-                    {['C','L','A','R','I','T','Y'].map((l, i) => (
+                    {['S','C','E','N','E','S'].map((l, i) => (
                         <div key={i} 
                             className="w-6 h-8 bg-zinc-900 border-b-2 border-r-2 border-black flex items-center justify-center rounded-[1px] relative group hover:-translate-y-0.5 transition-transform"
                             style={{ 
@@ -91,7 +99,6 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
                             <span className={`text-[10px] font-black uppercase font-mono ${i === 0 ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-300'}`}>
                                 {l}
                             </span>
-                            {/* Reflection pixel */}
                             <div className="absolute top-0.5 left-0.5 w-1 h-1 bg-white/10 rounded-full" />
                         </div>
                     ))}
@@ -100,13 +107,11 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
             
             <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
                 
-                {/* --- CONTEXT SWITCHER --- */}
                 {selectedSlideId ? (
                     // =========================================
                     // SLIDE CONTEXT MODE
                     // =========================================
                     <div className="animate-in slide-in-from-left-4 fade-in duration-300 pb-20">
-                         {/* Back Nav */}
                         <div className="flex items-center justify-between mb-8 border-b-2 border-zinc-900 pb-4">
                             <h2 className="text-sm font-black text-zinc-100 flex items-center space-x-2 uppercase tracking-widest">
                                 <span className="text-purple-600">Edit</span>
@@ -139,7 +144,6 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
                             </div>
                         </div>
 
-                        {/* --- AI SELECTION BADGE & PROMPT --- */}
                         {selectionCount > 0 && (
                              <div className="mb-6 animate-in zoom-in-95 duration-200">
                                 <div className="bg-zinc-950/50 border-2 border-zinc-900 p-0 relative overflow-hidden group">
@@ -199,7 +203,6 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
                                 />
                              </div>
                         ) : (
-                            // --- SLIDE GENERAL SETTINGS ((No Selection) ---
                             <div className="space-y-8 animate-in fade-in duration-300">
                                 
                                 <LeftPanel_SlideSettings 
@@ -208,7 +211,6 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
                                     onUploadAsset={onUploadAsset}
                                 />
 
-                                {/* Asset / Component Library Tabs */}
                                 <div className="space-y-4 pt-4 border-t-2 border-zinc-900">
                                     <div className="flex bg-zinc-950 p-1 border-2 border-zinc-900">
                                         <button 
@@ -257,13 +259,16 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
                             onRemoveContextFile={onRemoveContextFile}
                             slidesCount={slides.length}
                             renderStatus={renderStatus}
+                            renderProgress={renderProgress}
+                            renderPhase={renderPhase}
                             onRender={onRender}
+                            onAbort={onAbort}
                         />
                          
                          <div className="space-y-4 pt-4 border-t-2 border-zinc-900">
                              <h3 className="text-[10px] uppercase tracking-widest text-zinc-500 font-black flex items-center space-x-2">
                                 <div className="w-2 h-2 bg-purple-600"></div>
-                                <span>Global Assets Registry</span>
+                                <span>Assets Registry</span>
                              </h3>
                             <LeftPanel_Assets 
                                 globalAssets={globalAssets}

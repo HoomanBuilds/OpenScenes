@@ -53,11 +53,14 @@ const AnimatedElement: React.FC<{ element: SlideElement; slideKey: string }> = (
         const duration = Number(anim?.duration) || 0.6;
         const delay = Number(anim?.delay) || 0;
         
+        // Use linear easing to match Remotion's interpolate behavior
+        const ease = 'linear';
+        
         switch (type) {
             case 'fade':
                 return {
                     initial: { opacity: 0 },
-                    animate: { opacity: el.opacity ?? 1, transition: { duration, delay } }
+                    animate: { opacity: el.opacity ?? 1, transition: { duration, delay, ease } }
                 };
             case 'slide':
                 const dir = anim?.direction || 'left';
@@ -66,22 +69,32 @@ const AnimatedElement: React.FC<{ element: SlideElement; slideKey: string }> = (
                 const y = dir === 'up' ? -offset : dir === 'down' ? offset : 0;
                 return {
                     initial: { opacity: 0, x, y },
-                    animate: { opacity: el.opacity ?? 1, x: 0, y: 0, transition: { duration, delay } }
+                    animate: { opacity: el.opacity ?? 1, x: 0, y: 0, transition: { duration, delay, ease } }
                 };
             case 'scale':
                 return {
                     initial: { opacity: 0, scale: 0.5 },
-                    animate: { opacity: el.opacity ?? 1, scale: 1, transition: { duration, delay } }
+                    animate: { opacity: el.opacity ?? 1, scale: 1, transition: { duration, delay, ease } }
                 };
             case 'pop':
+                // Match Remotion's pop with overshoot using keyframes
                 return {
                     initial: { opacity: 0, scale: 0.3 },
-                    animate: { opacity: el.opacity ?? 1, scale: 1, transition: { duration, delay, type: 'spring' as const, stiffness: 300 } }
+                    animate: { 
+                        opacity: el.opacity ?? 1, 
+                        scale: [0.3, 1.1, 1], 
+                        transition: { 
+                            duration, 
+                            delay, 
+                            times: [0, 0.6, 1],
+                            ease: 'linear'
+                        } 
+                    }
                 };
             default:
                 return {
                     initial: { opacity: 0 },
-                    animate: { opacity: el.opacity ?? 1, transition: { duration: 0.3, delay } }
+                    animate: { opacity: el.opacity ?? 1, transition: { duration: 0.3, delay, ease } }
                 };
         }
     };
@@ -212,7 +225,7 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
             if (containerRef.current) {
                 const { clientWidth, clientHeight } = containerRef.current;
                 const scaleX = clientWidth / 1000;
-                const scaleY = clientHeight / 562.5;
+                const scaleY = clientHeight / 563;
                 setContainerScale(Math.min(scaleX, scaleY) * 0.9); // 0.9 for padding
             }
         };
@@ -269,7 +282,7 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
                 <div 
                     style={{ 
                         width: 1000, 
-                        height: 562.5,
+                        height: 563,
                         transform: `scale(${containerScale})`,
                         transformOrigin: 'center center'
                     }}
@@ -316,11 +329,9 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
                 </div>
             </div>
 
-            {/* Fixed Boxed Bottom Bar */}
             <div className="border-t-2 border-zinc-800 bg-[#09090b] p-6 z-20">
                 <div className="max-w-4xl mx-auto w-full">
                     
-                    {/* Progress Bar */}
                     <div className="flex gap-1 mb-6 bg-zinc-900 border-2 border-zinc-800 p-1">
                         {slides.map((_, idx) => (
                             <button
@@ -335,7 +346,6 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
                                                idx === currentIndex ? `${progress}%` : '0%' 
                                     }}
                                 />
-                                {/* Tooltip */}
                                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black border border-zinc-800 text-[9px] text-zinc-400 opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-20">
                                     SLIDE {idx + 1}
                                 </div>

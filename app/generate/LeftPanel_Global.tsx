@@ -1,7 +1,13 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { GenerationStatus, ContextFile } from './types';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
+import { getAllThemes, themes } from '../lib/themes';
+
+export interface RenderOptions {
+    speed: number;
+    quality: 'low' | 'medium' | 'high' | 'ultra';
+}
 
 interface LeftPanel_GlobalProps {
     globalPrompt: string;
@@ -16,7 +22,11 @@ interface LeftPanel_GlobalProps {
     onRemoveContextFile: (id: string) => void;
     slidesCount: number;
     renderStatus: 'idle' | 'rendering' | 'done';
-    onRender: () => void;
+    renderProgress: number;
+    renderPhase: string;
+
+    onRender: (options: RenderOptions) => void;
+    onAbort: () => void;
 }
 
 export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
@@ -32,22 +42,28 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
     onRemoveContextFile,
     slidesCount,
     renderStatus,
-    onRender
+    renderProgress,
+    renderPhase,
+    onRender,
+    onAbort
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [showOptions, setShowOptions] = useState(false);
+    const [renderOptions, setRenderOptions] = useState<RenderOptions>({
+        speed: 1,
+        quality: 'high'
+    });
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Skip image and video expensive stuffs
         if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
             alert('Please select text-based context files (PDF, CSV, JSON, TXT, MD).');
             return;
         }
 
-        // Keep it minimal and parsable
-        if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        if (file.size > 2 * 1024 * 1024) {
             alert('File too large. Context files should be under 2MB.');
             return;
         }
@@ -55,15 +71,11 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
         const reader = new FileReader();
         reader.onload = (event) => {
             const content = event.target?.result as string;
-            
-            // Extract some basic text-like content
-            // For PDF this will be messy without a library, but the user said "supported"
-            // We'll treat all compatible files as string context
             onAddContextFile({
                 id: `ctx-${Date.now()}`,
                 name: file.name,
                 type: file.type,
-                content: content.slice(0, 50000) // Safety first
+                content: content.slice(0, 50000)
             });
         };
 
@@ -72,9 +84,12 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
         };
 
         reader.readAsText(file);
-        
-        // Reset input for same file re-selection
         if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const handleRenderClick = () => {
+        if (renderStatus === 'rendering') return;
+        onRender(renderOptions);
     };
 
     return (
@@ -84,25 +99,58 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
                     <div className="w-2 h-2 bg-purple-600 rounded-sm"></div>
                     <span>Visual Tone</span>
                 </label>
-                <div className="grid grid-cols-2 gap-2 bg-zinc-950 p-1 border-2 border-zinc-900">
-                    {['Modern Dark', 'Minimal Light', 'Vibrant', 'Corporate'].map(style => (
-                        <button 
-                            key={style} 
-                            onClick={() => setVisualStyle(style)}
-                            className={`px-2 py-3 text-[9px] font-black uppercase tracking-widest transition-all ${
-                                visualStyle === style 
-                                ? 'bg-zinc-100 text-black' 
-                                : 'text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900'
-                            }`}
-                        >
-                            {style}
-                        </button>
-                    ))}
+                <div className="space-y-2 p-1 bg-zinc-950 border-2 border-zinc-900">
+                    <select
+                        value={getAllThemes().find(t => t.prompt_injection === visualStyle)?.id || ''}
+                        onChange={(e) => {
+                            const t = themes[e.target.value];
+                            if (t) setVisualStyle(t.prompt_injection);
+                        }}
+                        className="w-full bg-zinc-900 border border-black text-[10px] text-zinc-300 p-2 focus:outline-none focus:border-purple-500 uppercase tracking-wide font-mono"
+                    >
+                        <option value="" disabled>Select Theme...</option>
+                        {getAllThemes().map(t => (
+                            <option key={t.id} value={t.id}>
+                                {t.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    {/* Theme Preview */}
+                    {(() => {
+                        const currentTheme = getAllThemes().find(t => t.prompt_injection === visualStyle);
+                        if (currentTheme) {
+                            return (
+                                <div className="p-3 bg-black/50 border border-zinc-800 space-y-2">
+                                    <div 
+                                        className="h-12 w-full rounded-sm relative overflow-hidden"
+                                        style={{ background: currentTheme.preview_gradient }}
+                                    >
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                             <span className="text-[9px] font-black uppercase text-white drop-shadow-md tracking-widest">
+                                                 {currentTheme.name}
+                                             </span>
+                                        </div>
+                                    </div>
+                                    <p className="text-[9px] text-zinc-500 leading-relaxed">
+                                        {currentTheme.description}
+                                    </p>
+                                    <div className="flex flex-wrap gap-1">
+                                        {currentTheme.tags.map(tag => (
+                                            <span key={tag} className="px-1.5 py-0.5 bg-zinc-800 text-[8px] text-zinc-400 uppercase tracking-wider rounded-[1px]">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        }
+                        return null;
+                    })()}
                 </div>
             </div>
 
             <div className="bg-[#09090b] p-5 border-2 border-zinc-900 relative group transition-colors hover:border-zinc-700">
-                {/* Decorative Corner - Hard corners */}
                 <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-zinc-700"></div>
                 <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-zinc-700"></div>
 
@@ -129,7 +177,6 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
                     </div>
                 </div>
 
-                {/* Context Badges Area */}
                 <AnimatePresence>
                     {contextFiles.length > 0 && (
                         <motion.div 
@@ -169,9 +216,9 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
 
                 <button
                     onClick={onGenerate}
-                    disabled={generationStatus === 'generating'}
+                    disabled={generationStatus === 'generating' || renderStatus === 'rendering'}
                     className={`w-full mt-6 h-14 relative group transition-all flex items-center justify-between px-6 border-b-[4px] border-r-[4px] border-black active:border-0 active:translate-y-[4px] active:translate-x-[4px] ${
-                        generationStatus === 'generating'
+                        generationStatus === 'generating' || renderStatus === 'rendering'
                             ? 'bg-zinc-900 cursor-not-allowed border-zinc-800'
                             : 'bg-zinc-100 hover:bg-white'
                     }`}
@@ -195,36 +242,146 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
                 </button>
 
                 {slidesCount > 0 && (
-                    <button
-                        onClick={onRender}
-                        disabled={renderStatus === 'rendering'}
-                        className={`w-full mt-3 h-12 relative group transition-all flex items-center justify-between px-6 border-b-[3px] border-r-[3px] border-black active:border-0 active:translate-y-[3px] active:translate-x-[3px] ${
-                            renderStatus === 'rendering'
-                                ? 'bg-zinc-800 cursor-not-allowed border-zinc-700'
-                                : renderStatus === 'done'
-                                ? 'bg-green-600 hover:bg-green-500'
-                                : 'bg-purple-600 hover:bg-purple-500'
-                        }`}
-                    >
-                        <div className="flex flex-col items-start leading-none">
-                            <span className="text-[9px] font-black uppercase tracking-widest mb-0.5 text-white/70">
-                                {renderStatus === 'rendering' ? 'Processing' : renderStatus === 'done' ? 'Completed' : `${slidesCount} Slides`}
-                            </span>
-                            <span className="text-sm font-black tracking-tighter text-white">
-                                {renderStatus === 'rendering' ? 'RENDERING...' : renderStatus === 'done' ? 'RENDER COMPLETE' : 'RENDER VIDEO'}
-                            </span>
+                    <div className="mt-3 relative sticky bottom-0 bg-[#09090b] pt-2 pb-2 z-20 border-t border-zinc-900">
+                        {/* Main Render Button */}
+                        <div className="flex">
+                            <button
+                                onClick={handleRenderClick}
+                                disabled={renderStatus === 'rendering'}
+                                className={`flex-1 h-12 relative group transition-all flex items-center justify-between px-6 border-b-[3px] border-r-[3px] border-black active:border-0 active:translate-y-[3px] active:translate-x-[3px] ${
+                                    renderStatus === 'rendering'
+                                        ? 'bg-zinc-800 cursor-not-allowed border-zinc-700'
+                                        : renderStatus === 'done'
+                                        ? 'bg-green-600 hover:bg-green-500'
+                                        : 'bg-purple-600 hover:bg-purple-500'
+                                }`}
+                            >
+                                <div className="flex flex-col items-start leading-none">
+                                    <span className="text-[9px] font-black uppercase tracking-widest mb-0.5 text-white/70">
+                                        {renderStatus === 'rendering' ? `${renderProgress}%` : renderStatus === 'done' ? 'Completed' : `${slidesCount} Slides`}
+                                    </span>
+                                    <span className="text-sm font-black tracking-tighter text-white">
+                                        {renderStatus === 'rendering' ? 'RENDERING...' : renderStatus === 'done' ? 'RENDER COMPLETE' : 'RENDER VIDEO'}
+                                    </span>
+                                </div>
+
+                                {renderStatus === 'rendering' ? (
+                                    <LucideIcons.Loader2 className="animate-spin h-4 w-4 text-white/70" />
+                                ) : renderStatus === 'done' ? (
+                                    <LucideIcons.Check className="h-5 w-5 text-white" />
+                                ) : (
+                                    <LucideIcons.Film className="h-5 w-5 text-white" />
+                                )}
+                            </button>
+
+                            {renderStatus === 'rendering' ? (
+                                <button
+                                    onClick={onAbort}
+                                    className="w-10 h-12 flex items-center justify-center border-b-[3px] border-r-[3px] border-black bg-red-600 hover:bg-red-500 transition-all active:border-0 active:translate-y-[3px] active:translate-x-[3px]"
+                                    title="Abort Rendering"
+                                >
+                                    <div className="w-3 h-3 bg-white rounded-[2px]"></div>
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => setShowOptions(!showOptions)}
+                                    className={`w-10 h-12 flex items-center justify-center border-b-[3px] border-r-[3px] border-black transition-all ${
+                                        showOptions
+                                            ? 'bg-zinc-900'
+                                            : 'bg-zinc-800 hover:bg-zinc-700'
+                                    }`}
+                                >
+                                    <LucideIcons.ChevronDown className={`w-4 h-4 text-white transition-transform ${showOptions ? 'rotate-180' : ''}`} />
+                                </button>
+                            )}
                         </div>
 
-                        {renderStatus === 'rendering' ? (
-                            <LucideIcons.Loader2 className="animate-spin h-4 w-4 text-white/70" />
-                        ) : renderStatus === 'done' ? (
-                            <LucideIcons.Check className="h-5 w-5 text-white" />
-                        ) : (
-                            <LucideIcons.Film className="h-5 w-5 text-white" />
+                        {/* Progress Bar */}
+                        {renderStatus === 'rendering' && (
+                            <div className="mt-2 space-y-1">
+                                <div className="h-2 bg-zinc-900 border border-zinc-800 overflow-hidden">
+                                    <motion.div
+                                        className="h-full bg-gradient-to-r from-purple-600 to-purple-400"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${renderProgress}%` }}
+                                        transition={{ duration: 0.3 }}
+                                    />
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[9px] font-mono text-zinc-500 uppercase">
+                                        {renderPhase || 'connecting'}
+                                    </span>
+                                    <span className="text-[9px] font-mono text-zinc-400">
+                                        {renderProgress}%
+                                    </span>
+                                </div>
+                            </div>
                         )}
-                    </button>
+
+                        {/* Options Dropdown */}
+                        <AnimatePresence>
+                            {showOptions && renderStatus !== 'rendering' && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10, height: 0 }}
+                                    animate={{ opacity: 1, y: 0, height: 'auto' }}
+                                    exit={{ opacity: 0, y: -10, height: 0 }}
+                                    className="mt-2 bg-zinc-900 border-2 border-zinc-800 p-4 space-y-4"
+                                >
+                                    {/* Speed Option */}
+                                    <div>
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-2 block">
+                                            Speed (Playback Rate)
+                                        </label>
+                                        <div className="flex gap-2">
+                                            {[0.5, 1, 1.5, 2].map(s => (
+                                                <button
+                                                    key={s}
+                                                    onClick={() => setRenderOptions(prev => ({ ...prev, speed: s }))}
+                                                    className={`flex-1 py-2 text-[10px] font-black uppercase transition-all ${
+                                                        renderOptions.speed === s
+                                                            ? 'bg-purple-600 text-white'
+                                                            : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
+                                                    }`}
+                                                >
+                                                    {s}x
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Quality Option */}
+                                    <div>
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-2 block">
+                                            Quality
+                                        </label>
+                                        <div className="flex gap-2">
+                                            {(['low', 'medium', 'high', 'ultra'] as const).map(q => (
+                                                <button
+                                                    key={q}
+                                                    onClick={() => setRenderOptions(prev => ({ ...prev, quality: q }))}
+                                                    className={`flex-1 py-2 text-[10px] font-black uppercase transition-all relative overflow-hidden group/btn ${
+                                                        renderOptions.quality === q
+                                                            ? q === 'ultra' 
+                                                                ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]' 
+                                                                : 'bg-purple-600 text-white'
+                                                            : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
+                                                    }`}
+                                                >
+                                                    {q === 'ultra' && (
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]"></div>
+                                                    )}
+                                                    {q}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 )}
             </div>
         </div>
     );
 };
+

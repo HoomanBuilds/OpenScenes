@@ -1,39 +1,109 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
 import PresentationPreview from './PresentationPreview';
 import { FontLoader } from './FontLoader';
+import { validateTemplate } from './templateSchema';
+import { RenderOptions } from './LeftPanel_Global';
 
-import hyperDrive from './templates/NeoTokyoComics.json';
-
-// Types
 import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation, ContextFile } from './types';
+import { useSearchParams } from 'next/navigation';
+import { storage } from '@/lib/storage/adapter';
+import { Project } from '@/lib/storage/types';
 
 const Dashboard: React.FC = () => {
-    // State
+    const searchParams = useSearchParams();
+    const projectId = searchParams.get('id');
+
     const [globalPrompt, setGlobalPrompt] = useState<string>('');
+    const [visualStyle, setVisualStyle] = useState<string>('minimal_dark');
+
     const [slides, setSlides] = useState<Slide[]>([]);
     const [globalAssets, setGlobalAssets] = useState<Asset[]>([]);
     const [selectedSlideId, setSelectedSlideId] = useState<string | null>(null);
     
-    // Multi-Select State
     const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
+    const abortControllerRef = useRef<AbortController | null>(null);
 
     const [viewMode, setViewMode] = useState<ViewMode>('sequence');
     const [generationStatus, setGenerationStatus] = useState<GenerationStatus>('idle');
     const [renderStatus, setRenderStatus] = useState<'idle' | 'rendering' | 'done'>('idle');
     const [refreshKey, setRefreshKey] = useState<number>(0);
     const [contextFiles, setContextFiles] = useState<ContextFile[]>([]);
-    
-    // Undo/History State
+
     const [history, setHistory] = useState<Slide[][]>([]);
     
-    // Preview State
     const [showPreview, setShowPreview] = useState(false);
+    
+    const [renderProgress, setRenderProgress] = useState(0);
+    const [renderPhase, setRenderPhase] = useState<string>('');
+    const [renderedVideoUrl, setRenderedVideoUrl] = useState<string | null>(null);
 
-    // Console Log State for User Verification
+    const [renderFileName, setRenderFileName] = useState<string>('');
+
+    const [projectName, setProjectName] = useState('Untitled Project');
+    const [lastSaved, setLastSaved] = useState<number | null>(null);
+
+    // Load Project Data
+    useEffect(() => {
+        if (!projectId) return;
+
+        const loadProject = async () => {
+            const project = await storage.getProject(projectId);
+            if (project) {
+                if (project.data.slides) setSlides(project.data.slides);
+                if (project.data.globalPrompt) setGlobalPrompt(project.data.globalPrompt);
+                if (project.name) setProjectName(project.name);
+                if (project.data.themeId) setVisualStyle(project.data.themeId);
+            }
+        };
+        loadProject();
+    }, [projectId]);
+
+    // Auto-Save Project
+    useEffect(() => {
+        if (!projectId || slides.length === 0) return;
+
+        const saveTimeout = setTimeout(async () => {
+             const project = await storage.getProject(projectId);
+             if (project) {
+                 // Generate thumbnail from first slide
+                 let thumbnail = project.thumbnail;
+                 const firstSlide = slides[0];
+                 if (firstSlide && firstSlide.background) {
+                     if (firstSlide.background.type === 'image') {
+                         thumbnail = firstSlide.background.value;
+                     } else if (firstSlide.elements) {
+                         // Find first image element
+                         const imgParams = firstSlide.elements.find(e => e.type === 'image');
+                         if (imgParams) thumbnail = imgParams.content;
+                     }
+                 }
+
+                 const updatedProject: Project = {
+                     ...project,
+                     name: projectName,
+                     description: globalPrompt || project.description,
+                     updatedAt: Date.now(),
+                     data: {
+                         ...project.data,
+                         slides,
+                         globalPrompt,
+                         themeId: visualStyle
+                     },
+                     thumbnail
+                 };
+                 await storage.saveProject(updatedProject);
+                 setLastSaved(Date.now());
+                 console.log('Project auto-saved');
+             }
+        }, 1000); // Debounce 1s
+
+        return () => clearTimeout(saveTimeout);
+    }, [slides, globalPrompt, projectId, projectName]);
+
     useEffect(() => {
         if (slides.length > 0) {
             console.log('--- DASHBOARD STATE UPDATE ---');
@@ -45,9 +115,8 @@ const Dashboard: React.FC = () => {
         }
     }, [slides, generationStatus, selectedElementIds, selectedSlideId, globalPrompt]);
 
-    // History Helper
     const saveToHistory = () => {
-        setHistory(prev => [...prev.slice(-19), JSON.parse(JSON.stringify(slides))]); // Max 20 steps
+        setHistory(prev => [...prev.slice(-19), JSON.parse(JSON.stringify(slides))]);
     };
 
     const handleUndo = () => {
@@ -57,22 +126,18 @@ const Dashboard: React.FC = () => {
         setSlides(previous);
     };
 
-    // Keyboard Shortcuts
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Guard: don't trigger if user is typing in an input or textarea
             const activeTag = document.activeElement?.tagName.toLowerCase();
             if (activeTag === 'input' || activeTag === 'textarea' || (document.activeElement as HTMLElement)?.isContentEditable) {
                 return;
             }
 
-            // Undo: Ctrl+Z
             if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
                 e.preventDefault();
                 handleUndo();
             }
 
-            // Delete: Delete or Backspace (if something is selected)
             if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElementIds.length > 0 && selectedSlideId) {
                 e.preventDefault();
                 saveToHistory();
@@ -97,7 +162,7 @@ const Dashboard: React.FC = () => {
             type: 'default',
             props: {},
             duration: 90,
-            background: { type: 'color', value: '#18181b' }, // Default Zinc-900
+            background: { type: 'color', value: '#18181b' },
             elements: []
         };
         setSlides([...slides, newSlide]);
@@ -113,7 +178,6 @@ const Dashboard: React.FC = () => {
         }
     };
 
-    // Toggle Selection with Shift Key
     const handleSelectElement = (elementId: string | null, multi: boolean = false) => {
         if (!elementId) {
             setSelectedElementIds([]);
@@ -138,7 +202,7 @@ const Dashboard: React.FC = () => {
         saveToHistory();
         setSlides(prev => prev.map(s => {
             if (s.id !== slideId) return s;
-            const newDuration = Math.max(30, s.duration + deltaFrames); // Min 1 sec
+            const newDuration = Math.max(30, s.duration + deltaFrames); 
             return { ...s, duration: newDuration };
         }));
     };
@@ -152,7 +216,6 @@ const Dashboard: React.FC = () => {
     };
 
     const handleRegenerateSlide = (slideId: string) => {
-        // Trigger generic refresh to replay animations
         setRefreshKey(prev => prev + 1);
     };
 
@@ -235,7 +298,6 @@ const Dashboard: React.FC = () => {
             fontWeight: 'normal',
             textAlign: 'left',
             verticalAlign: (type === 'headline' || type === 'subheadline' || type === 'text') ? 'center' : undefined,
-            // Default props for new types
             borderRadius: (type === 'shape' || type === 'image' || type === 'video') ? 20 : undefined,
             chartType: type === 'chart' ? 'bar' : undefined,
             chartProps: type === 'chart' ? { showGrid: true, showLegend: true } : undefined,
@@ -265,41 +327,212 @@ const Dashboard: React.FC = () => {
                 elements: s.elements?.filter(e => e.id !== elementId)
             };
         }));
-        setSelectedElementIds([]); // Clear selection
+        setSelectedElementIds([]);
     };
 
     const [generationLog, setGenerationLog] = useState<string>('');
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
         if (generationStatus === 'generating') return;
         
         setGenerationStatus('generating');
         setRenderStatus('idle');
+        setRenderedVideoUrl(null);
         setSelectedSlideId(null);
         setViewMode('sequence');
-        setSlides([]);
-        setGenerationLog('Initializing Hyper-Drive system...');
+        setSlides([{ id: 'skeleton-1', type: 'skeleton', props: {}, duration: 90, elements: [] }]);
+        setGenerationLog('Initializing AI pipeline...');
 
-        const templateSlides = hyperDrive.slides as unknown as Slide[];
+        try {
+            const response = await fetch('/api/generate/slides', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    prompt: globalPrompt,
+                    context: contextFiles.map(f => ({ name: f.name, content: f.content }))
+                })
+            });
 
-        setTimeout(() => {
-            setGenerationLog('Loading template configuration...');
+            if (!response.ok) throw new Error('Generation failed');
+
+            const data = await response.json();
             
-            setTimeout(() => {
-                 setGenerationLog('Generating slides from schema...');
-                 setSlides(templateSlides);
-                 setGenerationStatus('done');
-                 setGenerationLog('');
-            }, 800);
-
-        }, 800);
+            if (data.slides && Array.isArray(data.slides)) {
+                setSlides(data.slides);
+                setGenerationStatus('done');
+                setGenerationLog('');
+            } else {
+                throw new Error('Invalid response format');
+            }
+        } catch (error) {
+            console.error('Generation error:', error);
+            setGenerationStatus('idle');
+            setGenerationLog('');
+            setSlides([]);
+        }
     };
 
-    const handleRender = () => {
+    const handleRender = async (options: RenderOptions) => {
+        if (slides.length === 0) return;
+        
         setRenderStatus('rendering');
-        setTimeout(() => {
-            setRenderStatus('done');
-        }, 3000); // Simulate rendering
+        setRenderProgress(0);
+        setRenderPhase('Initializing...');
+        setRenderedVideoUrl(null);
+
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
+        try {
+            const templateData = {
+                name: globalPrompt || 'Untitled',
+                slides: slides.map(s => ({
+                    ...s,
+                    elements: s.elements || []
+                }))
+            };
+
+            const response = await fetch('/api/tmp/fromJson/stream', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...templateData, options }),
+                signal: controller.signal
+            });
+
+            if (!response.ok) throw new Error('Render failed');
+
+            const reader = response.body?.getReader();
+            if (!reader) throw new Error('No reader');
+
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (line.startsWith('event:')) {
+                        const eventMatch = line.match(/event: (\w+)/);
+                        const dataMatch = line.match(/data: ([\s\S]+)/);
+                        
+                        if (eventMatch && dataMatch) {
+                            const event = eventMatch[1];
+                            const data = JSON.parse(dataMatch[1]);
+
+                            if (event === 'progress') {
+                                setRenderProgress(data.percent);
+                                setRenderPhase(data.phase || '');
+                            } else if (event === 'complete') {
+                                setRenderedVideoUrl(data.videoUrl);
+                                setRenderFileName(data.fileName);
+                                setRenderStatus('done');
+                            } else if (event === 'error') {
+                                throw new Error(data.message);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (error: any) {
+            if (error.name === 'AbortError') {
+                console.log('Render aborted');
+            } else {
+                console.error('Render error:', error);
+            }
+            setRenderStatus('idle');
+            setRenderProgress(0);
+            setRenderPhase('');
+        } finally {
+            abortControllerRef.current = null;
+        }
+    };
+
+    const handleAbortRender = () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            setRenderStatus('idle');
+            setRenderProgress(0);
+            setRenderPhase('');
+        }
+    };
+
+    const handleExport = () => {
+        const totalDurationFrames = slides.reduce((acc, s) => acc + (s.duration || 90), 0);
+        const fps = 30;
+        
+        const templateData = {
+            name: globalPrompt || 'Untitled Export',
+            version: '1.0',
+            createdAt: new Date().toISOString(),
+            canvas: {
+                width: 1000,
+                height: 563,
+            },
+            fps,
+            totalDuration: {
+                frames: totalDurationFrames,
+                seconds: Math.round(totalDurationFrames / fps * 100) / 100,
+            },
+            slideCount: slides.length,
+            slides: slides.map(s => ({
+                ...s,
+                elements: s.elements || []
+            }))
+        };
+
+        const blob = new Blob([JSON.stringify(templateData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${templateData.name.replace(/[^a-z0-9]/gi, '_')}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImport = (file: File) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const content = e.target?.result as string;
+                const parsed = JSON.parse(content);
+                
+                const result = validateTemplate(parsed);
+                if (!result.success) {
+                    alert('Invalid template format: ' + result.error);
+                    return;
+                }
+
+                saveToHistory();
+                setSlides(result.data.slides.map(s => ({ ...s, props: {}, type: s.type || 'default', duration: s.duration || 90 })) as Slide[]);
+                setGlobalPrompt(result.data.name || '');
+                setViewMode('sequence');
+                setSelectedSlideId(null);
+            } catch (err) {
+                alert('Failed to parse JSON file');
+            }
+        };
+        reader.readAsText(file);
+    };
+
+    const handleDownload = () => {
+        if (renderedVideoUrl) {
+            const a = document.createElement('a');
+            a.href = renderedVideoUrl;
+            a.download = renderFileName || 'video.mp4';
+            a.click();
+        }
+    };
+
+    const handleResetRender = () => {
+        setRenderStatus('idle');
+        setRenderedVideoUrl(null);
+        setRenderProgress(0);
+        setRenderPhase('');
     };
 
     return (
@@ -329,13 +562,18 @@ const Dashboard: React.FC = () => {
                 onAddContextFile={handleAddContextFile}
                 onRemoveContextFile={handleRemoveContextFile}
                 renderStatus={renderStatus}
+                renderProgress={renderProgress}
+                renderPhase={renderPhase}
                 onRender={handleRender}
+                onAbort={handleAbortRender}
+                visualStyle={visualStyle}
+                setVisualStyle={setVisualStyle}
             />
             
             <RightPanel 
                 slides={slides}
                 selectedSlideId={selectedSlideId}
-                selectedElementId={selectedElementIds[0] || null} // Primary Selection for props
+                selectedElementId={selectedElementIds[0] || null}
                 selectedElementIds={selectedElementIds}
                 generationStatus={generationStatus}
                 log={generationLog}
@@ -350,8 +588,16 @@ const Dashboard: React.FC = () => {
                 onUpdateSlide={handleUpdateSlide}
                 onAddElement={handleAddElement}
                 onPreview={() => setShowPreview(true)}
+                onImport={handleImport}
+                onExport={handleExport}
                 refreshKey={refreshKey}
                 renderStatus={renderStatus}
+                renderedVideoUrl={renderedVideoUrl}
+                renderFileName={renderFileName}
+                onDownload={handleDownload}
+                onResetRender={handleResetRender}
+                projectName={projectName}
+                setProjectName={setProjectName}
             />
             
             {showPreview && slides.length > 0 && (

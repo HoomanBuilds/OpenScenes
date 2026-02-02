@@ -47,18 +47,12 @@ const SlideSequence: React.FC<SlideSequenceProps> = ({
             </div>
 
             <div className="relative">
-                {/* Vertical Timeline Track - Hard Line */}
-                <div className="absolute left-8 top-10 bottom-20 w-0.5 bg-zinc-900 pointer-events-none" />
+                <div className="absolute top-10 bottom-20 w-0.5 bg-zinc-900 pointer-events-none" style={{ left: '48px' }} />
 
                 <Reorder.Group axis="y" values={slides} onReorder={onReorder} className="space-y-0">
                     {slides.map((slide, index) => (
                         <Reorder.Item key={slide.id} value={slide}>
                             <div className="relative pl-20 group">
-                                {/* Slide Number - Hex/Square Tag */}
-                                <div className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-zinc-950 border-2 border-zinc-800 text-[10px] font-black text-zinc-500 font-mono z-20 shadow-xl group-hover:border-purple-600 group-hover:text-purple-400 transition-all">
-                                    {String(index + 1).padStart(2, '0')}
-                                </div>
-
                             <div 
                                 onClick={() => onSelect(slide.id)}
                                 className={`
@@ -69,6 +63,9 @@ const SlideSequence: React.FC<SlideSequenceProps> = ({
                                     }
                                 `}
                             >
+                                <div className="absolute top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-zinc-950 border-2 border-zinc-800 text-[10px] font-black text-zinc-500 font-mono z-20 shadow-xl group-hover:border-purple-600 group-hover:text-purple-400 transition-all" style={{ left: '-52px' }}>
+                                    {String(index + 1).padStart(2, '0')}
+                                </div>
                                 {slide.type === 'skeleton' ? (
                                     /* --- SKELETON STATE --- */
                                     <div className="flex gap-0 animate-pulse select-none pointer-events-none p-4">
@@ -91,15 +88,12 @@ const SlideSequence: React.FC<SlideSequenceProps> = ({
                                 ) : (
                                     /* --- REAL STATE --- */
                                     <div className="flex">
-                                        {/* --- RICH PREVIEW THUMBNAIL --- */}
                                         <div className="w-48 aspect-video bg-black border-r-2 border-zinc-900 relative overflow-hidden shrink-0 group-hover/thumb:opacity-90 transition-opacity">
                                             <SlidePreview slide={slide} scale={0.15} />
-                                            {/* Corner Accents */}
                                             <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/20 pointer-events-none" />
                                             <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white/20 pointer-events-none" />
                                         </div>
 
-                                        {/* Slide Info */}
                                         <div className="flex-1 p-4 flex flex-col justify-between bg-zinc-950/40">
                                             <div className="flex justify-between items-start">
                                                 <div>
@@ -112,7 +106,6 @@ const SlideSequence: React.FC<SlideSequenceProps> = ({
                                                 </div>
                                             </div>
 
-                                            {/* Meta Stats */}
                                             <div className="flex items-center space-x-4">
                                                 <div className="flex items-center space-x-2 text-[9px] font-bold uppercase tracking-wider text-zinc-500">
                                                     <span className="w-1.5 h-1.5 bg-zinc-800 rounded-sm"></span>
@@ -125,7 +118,6 @@ const SlideSequence: React.FC<SlideSequenceProps> = ({
                                             </div>
                                         </div>
                                         
-                                        {/* Drag Handle - Industrial Grip */}
                                         <div className="w-8 border-l-2 border-zinc-900 flex items-center justify-center bg-zinc-950 group-hover:bg-zinc-900 transition-colors text-zinc-700 hover:text-zinc-400">
                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8h16M4 12h16M4 16h16"/></svg>
                                         </div>
@@ -133,16 +125,12 @@ const SlideSequence: React.FC<SlideSequenceProps> = ({
                                 )}
                             </div>
                             
-                            {/* --- INTER-SLIDE CONTROLS (Timer | Transition) --- */}
                             {index !== slides.length - 1 && (
                                 <div className="flex items-center justify-center py-6 relative z-10">
-                                    {/* Horizontal connection line */}
                                     <div className="absolute left-8 right-0 top-1/2 -translate-y-1/2 border-t-2 border-zinc-900"></div>
                                     
-                                    {/* Controls Container - Block Module */}
                                     <div className="relative flex items-center space-x-0 bg-zinc-950 px-0 py-0 border-2 border-zinc-800 shadow-xl">
                                         
-                                        {/* Timer (Duration) */}
                                         <div className="flex items-center bg-zinc-900 px-2 py-1 border-r-2 border-zinc-800 space-x-2">
                                             <span className="text-[9px] font-black text-zinc-500 uppercase">Dur</span>
                                             <button 
@@ -160,7 +148,6 @@ const SlideSequence: React.FC<SlideSequenceProps> = ({
                                             </button>
                                         </div>
 
-                                        {/* Transition Selector */}
                                         <div className="flex items-center px-2 py-1 bg-zinc-950 space-x-2 min-w-[100px] justify-between">
                                             <span className="text-[9px] text-zinc-600 uppercase font-bold">FX</span>
                                             <select 
@@ -193,7 +180,6 @@ const SlideSequence: React.FC<SlideSequenceProps> = ({
                 </Reorder.Group>
             </div>
             
-            {/* Empty State */}
             {slides.length === 0 && (
                 <div className="text-center py-20 border-2 border-dashed border-zinc-800 bg-zinc-900/10">
                     <p className="text-zinc-600 font-black uppercase tracking-widest text-sm mb-2">Sequence Buffer Empty</p>

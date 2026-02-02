@@ -1,4 +1,4 @@
-# Clarity AI Video Pipeline — System Architecture
+# OpenScenes Video Pipeline — System Architecture
 
 This document provides a detailed visual overview of the SaaS-level architecture for AI-driven video generation.
 
@@ -8,7 +8,7 @@ This document provides a detailed visual overview of the SaaS-level architecture
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                          CLARITY VIDEO GENERATION PLATFORM                                    │
+│                                          OpenScenes VIDEO GENERATION PLATFORM                                    │
 ├───────────────────────┬───────────────────────────────────────────────────┬───────────────────────────────────┤
 │       FRONTEND        │                  BACKEND (AI CORE)                │           OUTPUT LAYER            │
 │      (Next.js)        │               (Node.js / FastAPI)                 │           (Remotion)              │
