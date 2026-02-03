@@ -57,6 +57,10 @@ export async function processVideoGeneration({
     quality,
     abortSignal
 }: RenderOptions): Promise<RenderResult> {
+    // HARDCODED OVERRIDES FOR SMOOTHNESS & QUALITY
+    fps = 60; 
+    quality = 'ultra';
+    scale = Math.max(scale, 2); 
     const logger = new LogBuffer();
     const startTime = Date.now();
     let bundleLocation: string | null = null;
@@ -101,12 +105,58 @@ export async function processVideoGeneration({
         logger.log('-'.repeat(40));
 
         const entryPoint = path.join(process.cwd(), 'remotion', 'index.tsx');
+        const rootDir = process.cwd();
+        
         if (!fs.existsSync(entryPoint)) {
             throw new Error(`Remotion entry point not found at: ${entryPoint}`);
         }
 
-        logger.log('📦 Bundling Remotion composition...');
-        bundleLocation = await bundle({ entryPoint });
+        logger.log('📦 Bundling Remotion composition (Cache Busting v2)...');
+        bundleLocation = await bundle({ 
+            entryPoint,
+            rootDir,
+            enableCaching: false, 
+            webpackOverride: (config: any) => {
+                const cssPath = path.resolve(rootDir, 'remotion', 'style.css');
+                
+                // Add absolute CSS path to entry to ensure it's picked up
+                if (typeof config.entry === 'string') {
+                    config.entry = [cssPath, config.entry];
+                } else if (Array.isArray(config.entry)) {
+                    config.entry.unshift(cssPath);
+                }
+
+                return {
+                    ...config,
+                    module: {
+                        ...config.module,
+                        rules: [
+                            ...(config.module?.rules ?? []).filter((rule: any) => {
+                                const isCss = rule && rule.test && rule.test.toString().includes('css');
+                                return !isCss;
+                            }),
+                            {
+                                test: /\.css$/i,
+                                use: [
+                                    eval('require.resolve')('style-loader'),
+                                    eval('require.resolve')('css-loader'),
+                                    {
+                                        loader: eval('require.resolve')('postcss-loader'),
+                                        options: {
+                                            postcssOptions: {
+                                                plugins: [
+                                                    eval('require')('@tailwindcss/postcss'),
+                                                ],
+                                            },
+                                        },
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                };
+            },
+        });
 
         const composition = await selectComposition({
             serveUrl: bundleLocation,
@@ -119,7 +169,7 @@ export async function processVideoGeneration({
             durationInFrames: totalDurationFrames,
             fps,
             width: Math.round(1000 * effectiveScale),
-            height: Math.round(562 * effectiveScale),
+            height: Math.round(563 * effectiveScale),
         };
 
         const tmpDir = os.tmpdir();

@@ -1,0 +1,175 @@
+{
+    "name": "Browser Interaction Demo",
+    "description": "A simulated user interaction flow: Text Intro -> Browser Reveal -> Cursor Click -> Popup Interaction.",
+    "slides": [
+      {
+        "id": "slide-browser-1",
+        "type": "default",
+        "duration": 800,
+        "background": {
+          "type": "color",
+          "value": "#09090b"
+        },
+        "elements": [
+          {
+            "id": "el-browser-demo",
+            "type": "custom",
+            "x": 0,
+            "y": 0,
+            "width": 1000,
+            "height": 562.5,
+            "zIndex": 10,
+            "content": {
+                "layout": {
+                    "tag": "div",
+                    "className": "w-full h-full flex items-center justify-center relative overflow-hidden font-sans",
+                    "children": [
+                        {
+                            "id": "intro-text",
+                            "tag": "div",
+                            "className": "absolute z-50 flex flex-col items-center",
+                            "children": [
+                                { "tag": "h1", "className": "text-5xl font-bold text-white mb-2", "text": "AI AUTOMATION" },
+                                { "tag": "p", "className": "text-zinc-400 text-lg", "text": "Watching the invisible work." }
+                            ]
+                        },
+                        {
+                            "id": "browser-window",
+                            "tag": "div",
+                            "className": "w-[800px] h-[500px] bg-zinc-900 rounded-xl border border-zinc-700 shadow-2xl flex flex-col overflow-hidden relative",
+                            "children": [
+                                {
+                                    "tag": "div",
+                                    "className": "h-10 bg-zinc-800 border-b border-zinc-700 flex items-center px-4 gap-4",
+                                    "children": [
+                                        {
+                                            "tag": "div", "className": "flex gap-2",
+                                            "children": [
+                                                { "tag": "div", "className": "w-3 h-3 rounded-full bg-red-500" },
+                                                { "tag": "div", "className": "w-3 h-3 rounded-full bg-yellow-500" },
+                                                { "tag": "div", "className": "w-3 h-3 rounded-full bg-green-500" }
+                                            ]
+                                        },
+                                        {
+                                            "tag": "div", "className": "flex-1 h-6 bg-zinc-900 rounded flex items-center px-3 text-xs text-zinc-500",
+                                            "text": "dashboard.internal/analytics/v2"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "tag": "img",
+                                    "className": "w-full h-full object-cover opacity-90",
+                                    "props": {
+                                        "src": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop"
+                                    }
+                                },
+                                {
+                                    "id": "popup-modal",
+                                    "tag": "div",
+                                    "className": "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 bg-zinc-950 border border-zinc-700 rounded-lg p-6 shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col gap-4 z-20",
+                                    "children": [
+                                        { "tag": "div", "className": "text-white font-bold text-center", "text": "Confirm Action?" },
+                                        {
+                                            "id": "popup-btn",
+                                            "tag": "div",
+                                            "className": "h-8 bg-blue-600 rounded flex items-center justify-center text-xs text-white cursor-pointer hover:bg-blue-500",
+                                            "text": "Yes, Proceed"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "id": "cursor",
+                            "tag": "div",
+                            "className": "absolute z-[60] text-white opacity-0",
+                            "children": [
+                                {
+                                    "tag": "svg",
+                                    "props": { 
+                                        "width": "24", "height": "24", "viewBox": "0 0 24 24", "fill": "white", "stroke": "black", "strokeWidth": "2" 
+                                    },
+                                    "children": [
+                                        { "tag": "path", "props": { "d": "M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" } }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "animations": {
+                    "intro-text": { "initial": { "scale": 0, "opacity": 0, "y": 0 } },
+                    "browser-window": { "initial": { "scale": 0.8, "opacity": 0, "y": 50 } },
+                    "popup-modal": { "initial": { "scale": 0, "opacity": 0 } },
+                    "cursor": { "initial": { "x": 0, "y": 0, "opacity": 0 } }
+                },
+                "timeline": [
+                    { "label": "Start" },
+                    { 
+                        "id": "intro-text", 
+                        "animate": { "scale": 1, "opacity": 1 }, 
+                        "transition": { "duration": 0.5, "type": "spring" } 
+                    },
+                    { "delay": 1 },
+                    { 
+                        "id": "intro-text", 
+                        "animate": { "y": -220, "scale": 0.6 }, 
+                        "transition": { "duration": 0.8, "ease": "easeInOut" } 
+                    },
+                    { 
+                        "id": "browser-window", 
+                        "animate": { "scale": 1, "opacity": 1, "y": 0 }, 
+                        "transition": { "duration": 0.8, "ease": "backOut" },
+                        "parallel": true 
+                    },
+                    { "delay": 0.5 },
+                    {
+                         "id": "cursor",
+                         "animate": { "opacity": 1, "x": 100, "y": 100 },
+                         "transition": { "duration": 0.3 }
+                    },
+                    {
+                        "id": "cursor",
+                        "animate": { "x": 350, "y": -200 },
+                        "transition": { "duration": 1, "ease": "easeInOut" }
+                    },
+                    {
+                        "id": "cursor",
+                        "animate": { "scale": 0.8 },
+                        "transition": { "duration": 0.1, "yoyo": 1 }
+                    },
+                    { "delay": 0.1 },
+                    {
+                        "id": "popup-modal",
+                        "animate": { "scale": 1, "opacity": 1 },
+                        "transition": { "duration": 0.3, "type": "spring" }
+                    },
+                    { "delay": 0.5 },
+                    {
+                        "id": "cursor",
+                        "animate": { "x": 0, "y": 20 },
+                        "transition": { "duration": 0.6 }
+                    },
+                    {
+                        "id": "cursor",
+                        "animate": { "scale": 0.8 },
+                        "transition": { "duration": 0.1, "yoyo": 1 }
+                    },
+                    { "delay": 0.2 },
+                    {
+                        "id": "popup-modal",
+                        "animate": { "scale": 0, "opacity": 0 },
+                        "transition": { "duration": 0.3 }
+                    },
+                     {
+                        "id": "cursor",
+                        "animate": { "opacity": 0 },
+                        "transition": { "duration": 0.5 }
+                    }
+                ]
+            }
+          }
+        ]
+      }
+    ]
+}

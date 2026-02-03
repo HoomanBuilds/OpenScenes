@@ -130,14 +130,16 @@ const AnimatedElement: React.FC<{ element: SlideElement; slideKey: string }> = (
                 borderWidth: (el.type === 'shape' || el.type === 'image') ? (el.strokeWidth || 0) : undefined,
                 borderColor: (el.type === 'shape' || el.type === 'image') ? (el.strokeColor || 'transparent') : undefined,
                 borderStyle: ((el.strokeWidth || 0) > 0) ? 'solid' : 'none',
-                whiteSpace: 'pre-wrap',
+                whiteSpace: el.type === 'custom' ? 'normal' : 'pre-wrap',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: el.verticalAlign === 'center' ? 'center' : el.verticalAlign === 'bottom' ? 'flex-end' : 'flex-start',
                 alignItems: (el.textAlign as any) === 'center' ? 'center' : (el.textAlign as any) === 'right' ? 'flex-end' : 'flex-start',
             }}
         >
-            {renderContent()}
+            <div style={{ width: '100%', height: '100%' }}>
+                {renderContent()}
+            </div>
         </motion.div>
     );
 };
@@ -248,14 +250,12 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] bg-zinc-950 flex flex-col font-mono"
         >
-            {/* Retro Boxed Background Grid */}
             <div className="absolute inset-0 z-0 opacity-[0.03]" 
                 style={{ 
                     backgroundImage: `linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)`,
                     backgroundSize: '40px 40px'
                 }} 
             />
-            {/* Fixed Boxed Header */}
             <div className="h-16 border-b-2 border-zinc-800 bg-[#09090b] flex items-center justify-between px-6 z-20 relative">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center space-x-3 bg-zinc-900 border-2 border-zinc-800 px-3 py-1.5 shadow-[4px_4px_0_0_rgba(24,24,27,1)]">

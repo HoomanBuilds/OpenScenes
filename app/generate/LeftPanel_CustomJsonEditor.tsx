@@ -17,15 +17,27 @@ export const LeftPanel_CustomJsonEditor: React.FC<CustomJsonEditorProps> = ({ va
     // Initial Parse & Sync
     useEffect(() => {
         try {
-            // Check if current parsed matches value to avoid unnecessary re-renders/loops
-            const currentString = JSON.stringify(parsed, null, 2);
-            if (currentString === value) return;
+            if (mode !== 'json' && mode !== 'visual') return; 
+
+            // Explicitly handle non-JSON string values to avoid crashing
+            if (value && typeof value === 'string' && !value.trim().startsWith('{') && !value.trim().startsWith('[')) {
+                // If value is a plain string (like a URL), wrapping it might be safer or just setting parsed to null
+                 // BUT better to just catch it in the existing try-catch?
+                 // The existing try-catch SHOULD work. 
+                 // However, let's allow "fail fast" for URLs
+                 // If it looks like a URL, don't parse.
+                 if (value.startsWith('http')) {
+                      // It's a URL, not JSON.
+                      setParsed(null);
+                      setError("Content is a URL, not JSON");
+                      return;
+                 }
+            }
 
             const p = JSON.parse(value);
             setParsed(p);
             setError(null);
         } catch (e) {
-            // Only set error if we aren't in json mode (to avoid aggressive erroring while typing)
             if (mode !== 'json') {
                 setError("Invalid JSON - Please fix syntax");
             }
@@ -41,6 +53,14 @@ export const LeftPanel_CustomJsonEditor: React.FC<CustomJsonEditorProps> = ({ va
     const handleTextUpdate = (text: string) => {
         onChange(text);
         try {
+            if (text && !text.trim().startsWith('{') && !text.trim().startsWith('[')) {
+                 if (text.startsWith('http')) {
+                      setParsed(null);
+                      setError("Content is a URL");
+                      return;
+                 }
+            }
+
             const p = JSON.parse(text);
             setParsed(p);
             setError(null);

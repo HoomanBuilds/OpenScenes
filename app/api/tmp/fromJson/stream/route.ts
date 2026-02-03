@@ -56,11 +56,15 @@ export async function POST(req: NextRequest) {
             }
             
             const { searchParams } = new URL(req.url);
-            const fps = parseInt(searchParams.get('fps') || '30', 10);
-            const scale = parseFloat(searchParams.get('scale') || '1');
+            const qualityInput = (searchParams.get('quality') || 'high') as 'low' | 'medium' | 'high' | 'ultra';
             const format = searchParams.get('format') === 'webm' ? 'webm' : 'mp4';
             const speed = parseFloat(searchParams.get('speed') || '1');
-            const quality = (searchParams.get('quality') || 'high') as 'low' | 'medium' | 'high' | 'ultra';
+            
+            // HARDCODED OVERRIDES FOR SMOOTHNESS & QUALITY
+            const fps = 60;
+            const quality = 'ultra';
+            const scaleInput = parseFloat(searchParams.get('scale') || '1');
+            const scale = Math.max(scaleInput, 2);
             
             if (speed !== 1) {
                 templateData.slides = templateData.slides.map(slide => ({
@@ -104,11 +108,56 @@ export async function POST(req: NextRequest) {
                 currentCpu = usage;
             });
             
-            log('📦 Bundling Remotion composition...');
+            log('📦 Bundling Remotion composition (with Tailwind v4 support)...');
             await sendEvent('progress', { phase: 'bundling', percent: 0, cpu: 0 });
             
             const entryPoint = path.join(process.cwd(), 'remotion', 'index.tsx');
-            const bundleLocation = await bundle({ entryPoint });
+            const rootDir = process.cwd();
+            const cssPath = path.resolve(rootDir, 'remotion', 'style.css');
+
+            const bundleLocation = await bundle({ 
+                entryPoint,
+                rootDir,
+                enableCaching: false,
+                webpackOverride: (config: any) => {
+                    // Prepend CSS to entry point
+                    if (typeof config.entry === 'string') {
+                        config.entry = [cssPath, config.entry];
+                    } else if (Array.isArray(config.entry)) {
+                        config.entry.unshift(cssPath);
+                    }
+
+                    return {
+                        ...config,
+                        module: {
+                            ...config.module,
+                            rules: [
+                                ...(config.module?.rules ?? []).filter((rule: any) => {
+                                    return !(rule && rule.test && rule.test.toString().includes('css'));
+                                }),
+                                {
+                                    test: /\.css$/i,
+                                    use: [
+                                        eval('require.resolve')('style-loader'),
+                                        eval('require.resolve')('css-loader'),
+                                        {
+                                            loader: eval('require.resolve')('postcss-loader'),
+                                            options: {
+                                                postcssOptions: {
+                                                    plugins: [
+                                                        // Using dynamic require to hide it from Next.js bundler
+                                                        eval('require')('@tailwindcss/postcss'),
+                                                    ],
+                                                },
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    };
+                }
+            });
             
             await sendEvent('progress', { phase: 'composing', percent: 5, cpu: currentCpu });
             

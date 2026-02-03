@@ -729,7 +729,12 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
 
         case 'custom':
             return (
-                <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+                <div style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    overflow: 'hidden',
+                    position: 'relative'
+                }}>
                     <CustomComponentRenderer content={element.content} scale={1} />
                 </div>
             );
@@ -893,22 +898,30 @@ export const SlideComposition: React.FC<SlideCompositionProps> = ({ templateData
                 
                 const zIndex = isInTransitionOut ? 1 : 2;
                 
+                const scale = useVideoConfig().width / 1000;
                 return (
-                    <div key={slide.id} style={{ position: 'absolute', inset: 0, zIndex }}>
-                        <Sequence
-                            from={fromFrame}
-                            durationInFrames={toFrame - fromFrame + transitionFrames}
-                            layout="none"
-                        >
-                            <TransitionWrapper
-                                slide={slide}
-                                isOutgoing={isInTransitionOut}
-                                transitionProgress={isInTransitionOut ? transitionOutProgress : transitionInProgress}
+                    <AbsoluteFill key={slide.id} style={{ zIndex, backgroundColor: '#000' }}>
+                        <div style={{ 
+                            width: 1000, 
+                            height: 563,
+                            transform: `scale(${scale})`,
+                            transformOrigin: 'top left',
+                        }}>
+                             <Sequence
+                                from={fromFrame}
+                                durationInFrames={toFrame - fromFrame + transitionFrames}
+                                layout="none"
                             >
-                                <SingleSlideRenderer slide={slide} />
-                            </TransitionWrapper>
-                        </Sequence>
-                    </div>
+                                <TransitionWrapper
+                                    slide={slide}
+                                    isOutgoing={isInTransitionOut}
+                                    transitionProgress={isInTransitionOut ? transitionOutProgress : transitionInProgress}
+                                >
+                                    <SingleSlideRenderer slide={slide} />
+                                </TransitionWrapper>
+                            </Sequence>
+                        </div>
+                    </AbsoluteFill>
                 );
             })}
         </AbsoluteFill>

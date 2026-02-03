@@ -1,0 +1,60 @@
+{
+    "name": "Alignment Test",
+    "description": "A simple test to check boundary alignment and animations.",
+    "slides": [
+      {
+        "id": "slide-test-1",
+        "type": "default",
+        "duration": 500,
+        "background": {
+          "type": "color",
+          "value": "#18181b"
+        },
+        "elements": [
+          {
+            "id": "el-test-1",
+            "type": "custom",
+            "x": 0,
+            "y": 0,
+            "width": 1000,
+            "height": 562.5,
+            "zIndex": 10,
+            "content": {
+                "layout": {
+                    "tag": "div",
+                    "className": "w-full h-full border-[10px] border-green-500 flex items-center justify-center relative",
+                    "children": [
+                        { "tag": "div", "className": "absolute top-0 left-0 w-10 h-10 bg-red-500 text-[10px] flex items-center justify-center text-white", "text": "TL" },
+                        { "tag": "div", "className": "absolute top-0 right-0 w-10 h-10 bg-red-500 text-[10px] flex items-center justify-center text-white", "text": "TR" },
+                        { "tag": "div", "className": "absolute bottom-0 left-0 w-10 h-10 bg-red-500 text-[10px] flex items-center justify-center text-white", "text": "BL" },
+                        { "tag": "div", "className": "absolute bottom-0 right-0 w-10 h-10 bg-red-500 text-[10px] flex items-center justify-center text-white", "text": "BR" },
+                        {
+                            "id": "center-box",
+                            "tag": "div",
+                            "className": "w-[500px] h-[300px] bg-blue-500/30 border-2 border-blue-400 flex items-center justify-center text-white flex-col gap-2",
+                            "children": [
+                                { "tag": "h2", "className": "text-2xl font-bold", "text": "CENTER" },
+                                { "tag": "p", "className": "text-sm", "text": "If this is centered, flex is working." }
+                            ]
+                        }
+                    ]
+                },
+                "animations": {
+                    "center-box": {
+                        "initial": { "scale": 0, "opacity": 0, "rotate": -10 },
+                        "animate": { "scale": 1, "opacity": 1, "rotate": 0 },
+                        "transition": { "duration": 0.5, "type": "spring" }
+                    }
+                },
+                "timeline": [
+                     { "label": "Start" },
+                     { "delay": 1 },
+                     { "id": "center-box", "animate": { "scale": 1.2 }, "transition": { "duration": 0.3 } },
+                     { "id": "center-box", "animate": { "scale": 1 }, "transition": { "duration": 0.3 } }
+                ]
+            }
+          }
+        ]
+      }
+    ]
+}

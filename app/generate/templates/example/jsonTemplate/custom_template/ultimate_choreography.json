@@ -113,47 +113,31 @@
               ]
             },
             "animations": {
-              "grid-floor": {
-                "initial": { "opacity": 0, "rotateX": 90 },
-                "animate": { "opacity": 0.3, "rotateX": 60 },
-                "transition": { "duration": 3 }
-              },
-              "card-left": {
-                "initial": { "x": -100, "opacity": 0 },
-                "animate": { "x": 0, "opacity": 1 },
-                "transition": { "delay": 1, "duration": 1, "type": "spring" }
-              },
-              "card-right": {
-                "initial": { "x": 100, "opacity": 0 },
-                "animate": { "x": 0, "opacity": 1 },
-                "transition": { "delay": 1.5, "duration": 1, "type": "spring" }
-              },
-              "card-bottom": {
-                "initial": { "y": 100, "opacity": 0 },
-                "animate": { "y": 0, "opacity": 1 },
-                "transition": { "delay": 2, "duration": 1 }
-              },
-              "node-center": {
-                "initial": { "scale": 0 },
-                "animate": { "scale": 1 },
-                "transition": { "delay": 3, "type": "spring", "stiffness": 200 }
-              },
-              "line-1": {
-                "initial": { "pathLength": 0, "opacity": 0 },
-                "animate": { "pathLength": 1, "opacity": 1 },
-                "transition": { "delay": 3.5, "duration": 1 }
-              },
-              "line-2": {
-                "initial": { "pathLength": 0, "opacity": 0 },
-                "animate": { "pathLength": 1, "opacity": 1 },
-                "transition": { "delay": 3.7, "duration": 1 }
-              },
-              "line-3": {
-                "initial": { "pathLength": 0, "opacity": 0 },
-                "animate": { "pathLength": 1, "opacity": 1 },
-                "transition": { "delay": 3.9, "duration": 1 }
-              }
-            }
+              "grid-floor": { "initial": { "opacity": 0, "rotateX": 90 } },
+              "card-left": { "initial": { "x": -100, "opacity": 0 } },
+              "card-right": { "initial": { "x": 100, "opacity": 0 } },
+              "card-bottom": { "initial": { "y": 100, "opacity": 0 } },
+              "node-center": { "initial": { "scale": 0 } },
+              "line-1": { "initial": { "pathLength": 0, "opacity": 0 } },
+              "line-2": { "initial": { "pathLength": 0, "opacity": 0 } },
+              "line-3": { "initial": { "pathLength": 0, "opacity": 0 } }
+            },
+            "timeline": [
+                { "label": "Start" },
+                { "id": "grid-floor", "animate": { "opacity": 0.3, "rotateX": 60 }, "transition": { "duration": 3 } },
+                { "delay": 1 },
+                { "id": "card-left", "animate": { "x": 0, "opacity": 1 }, "transition": { "duration": 1, "type": "spring" } },
+                { "delay": 0.5 },
+                { "id": "card-right", "animate": { "x": 0, "opacity": 1 }, "transition": { "duration": 1, "type": "spring" } },
+                { "delay": 0.5 },
+                { "id": "card-bottom", "animate": { "y": 0, "opacity": 1 }, "transition": { "duration": 1 } },
+                { "delay": 1 },
+                { "id": "node-center", "animate": { "scale": 1 }, "transition": { "duration": 1, "type": "spring", "stiffness": 200 } },
+                { "delay": 0.5 },
+                { "id": "line-1", "animate": { "pathLength": 1, "opacity": 1 }, "transition": { "duration": 1 } },
+                { "id": "line-2", "animate": { "pathLength": 1, "opacity": 1 }, "transition": { "duration": 1 } },
+                { "id": "line-3", "animate": { "pathLength": 1, "opacity": 1 }, "transition": { "duration": 1 } }
+            ]
           }
         }
       ]

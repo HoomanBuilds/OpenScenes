@@ -88,7 +88,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                             borderWidth: (el.type === 'shape' || el.type === 'image') ? (el.strokeWidth || 0) : undefined,
                             borderColor: (el.type === 'shape' || el.type === 'image') ? (el.strokeColor || 'transparent') : undefined,
                             borderStyle: (el.strokeWidth && el.strokeWidth > 0) ? 'solid' : 'none',
-                            whiteSpace: 'pre-wrap'
+                            whiteSpace: el.type === 'custom' ? 'normal' : 'pre-wrap'
                         }}
                     >
                          {el.type === 'headline' && <h1 className="leading-tight drop-shadow-md">{el.content as string}</h1>}

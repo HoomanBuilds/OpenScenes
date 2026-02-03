@@ -178,7 +178,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontS
             );
         case 'custom':
             return (
-                <div style={{ width: '1000px', height: '563px', overflow: 'hidden' }}>
+                <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
                     <CustomComponentRenderer content={element.content} scale={1} />
                 </div>
             );

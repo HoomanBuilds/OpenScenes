@@ -15,6 +15,8 @@ export const VideoRenderer: React.FC<{ plan: ExecutionPlan }> = ({ plan }) => {
         const from = currentFrameOffset;
         currentFrameOffset += duration;
 
+        const scale = useVideoConfig().width / 1000;
+
         return (
           <Sequence 
             key={slide.id} 
@@ -22,18 +24,17 @@ export const VideoRenderer: React.FC<{ plan: ExecutionPlan }> = ({ plan }) => {
             durationInFrames={duration}
             layout="none"
           >
-             <div style={{ 
-                 width: 1000, 
-                 height: 563,
-                 position: 'absolute',
-                 top: 0,
-                 left: 0,
-                 transform: `scale(${useVideoConfig().width / 1000})`, 
-                 transformOrigin: 'top left',
-                 overflow: 'hidden'
-             }}>
-                <Component slide={slide} />
-             </div>
+             <AbsoluteFill>
+                <div style={{ 
+                    width: 1000, 
+                    height: 563,
+                    transform: `scale(${scale})`, 
+                    transformOrigin: 'top left',
+                    overflow: 'hidden'
+                }}>
+                    <Component slide={slide} />
+                </div>
+             </AbsoluteFill>
           </Sequence>
         );
       })}

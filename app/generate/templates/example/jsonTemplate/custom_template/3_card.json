@@ -14,14 +14,81 @@
           {
             "id": "el-smart-demo",
             "type": "custom",
-            "x": 100,
-            "y": 100,
-            "width": 800,
-            "height": 400,
+            "x": 0,
+            "y": 0,
+            "width": 1000,
+            "height": 562.5,
             "zIndex": 10,
-            "content": "{\"layout\":{\"tag\":\"div\",\"className\":\"w-full h-full flex items-center justify-center gap-8 perspective-[1000px]\",\"children\":[{\"id\":\"card-left\",\"tag\":\"div\",\"className\":\"w-60 h-80 bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-col justify-between\",\"children\":[{\"tag\":\"div\",\"className\":\"w-10 h-10 bg-red-500/20 rounded-full mb-4\"},{\"tag\":\"h2\",\"className\":\"text-xl font-bold text-white\",\"text\":\"Design\"},{\"tag\":\"p\",\"className\":\"text-zinc-500 text-sm\",\"text\":\"Structure your layout cleanly.\"}]},{\"id\":\"card-center\",\"tag\":\"div\",\"className\":\"w-60 h-80 bg-zinc-900 border border-zinc-700 rounded-xl p-6 flex flex-col justify-between shadow-2xl relative z-20\",\"children\":[{\"tag\":\"div\",\"className\":\"w-10 h-10 bg-blue-500/20 rounded-full mb-4\"},{\"tag\":\"h2\",\"className\":\"text-xl font-bold text-white\",\"text\":\"Animate\"},{\"tag\":\"p\",\"className\":\"text-zinc-500 text-sm\",\"text\":\"Define behavior separately from content.\"}]},{\"id\":\"card-right\",\"tag\":\"div\",\"className\":\"w-60 h-80 bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-col justify-between\",\"children\":[{\"tag\":\"div\",\"className\":\"w-10 h-10 bg-green-500/20 rounded-full mb-4\"},{\"tag\":\"h2\",\"className\":\"text-xl font-bold text-white\",\"text\":\"Deploy\"},{\"tag\":\"p\",\"className\":\"text-zinc-500 text-sm\",\"text\":\"Ship faster with AI.\"}]}]},\"animations\":{\"card-left\":{\"initial\":{\"opacity\":0,\"x\":-50,\"rotateY\":-15},\"animate\":{\"opacity\":1,\"x\":0,\"rotateY\":0},\"transition\":{\"duration\":1,\"delay\":0.5}},\"card-center\":{\"initial\":{\"opacity\":0,\"y\":50,\"scale\":0.9},\"animate\":{\"opacity\":1,\"y\":0,\"scale\":1.1},\"transition\":{\"duration\":1,\"delay\":1,\"type\":\"spring\"}},\"card-right\":{\"initial\":{\"opacity\":0,\"x\":50,\"rotateY\":15},\"animate\":{\"opacity\":1,\"x\":0,\"rotateY\":0},\"transition\":{\"duration\":1,\"delay\":1.5}}}}"
+            "content": {
+                "layout": {
+                    "tag": "div",
+                    "className": "w-full h-full flex items-center justify-center gap-8 perspective-[1000px] overflow-hidden",
+                    "children": [
+                        {
+                            "id": "card-left",
+                            "tag": "div",
+                            "className": "w-60 h-80 bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-col justify-between",
+                            "children": [
+                                { "tag": "div", "className": "w-10 h-10 bg-red-500/20 rounded-full mb-4" },
+                                { "tag": "h2", "className": "text-xl font-bold text-white", "text": "Design" },
+                                { "tag": "p", "className": "text-zinc-500 text-sm", "text": "Structure your layout cleanly." }
+                            ]
+                        },
+                        {
+                            "id": "card-center",
+                            "tag": "div",
+                            "className": "w-60 h-80 bg-zinc-900 border border-zinc-700 rounded-xl p-6 flex flex-col justify-between shadow-2xl relative z-20",
+                            "children": [
+                                { "tag": "div", "className": "w-10 h-10 bg-blue-500/20 rounded-full mb-4" },
+                                { "tag": "h2", "className": "text-xl font-bold text-white", "text": "Animate" },
+                                { "tag": "p", "className": "text-zinc-500 text-sm", "text": "Define behavior separately from content." }
+                            ]
+                        },
+                        {
+                            "id": "card-right",
+                            "tag": "div",
+                            "className": "w-60 h-80 bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-col justify-between",
+                            "children": [
+                                { "tag": "div", "className": "w-10 h-10 bg-green-500/20 rounded-full mb-4" },
+                                { "tag": "h2", "className": "text-xl font-bold text-white", "text": "Deploy" },
+                                { "tag": "p", "className": "text-zinc-500 text-sm", "text": "Ship faster with AI." }
+                            ]
+                        }
+                    ]
+                },
+                "animations": {
+                    "card-left": {
+                        "initial": { "opacity": 0, "x": -50, "rotateY": -15 }
+                    },
+                    "card-center": {
+                        "initial": { "opacity": 0, "y": 50, "scale": 0.9 }
+                    },
+                    "card-right": {
+                        "initial": { "opacity": 0, "x": 50, "rotateY": 15 }
+                    }
+                },
+                "timeline": [
+                    { "label": "Start" },
+                    { "delay": 0.5 },
+                    { 
+                        "id": "card-left", 
+                        "animate": { "opacity": 1, "x": 0, "rotateY": 0 }, 
+                        "transition": { "duration": 0.8, "ease": "backOut" } 
+                    },
+                    { 
+                        "id": "card-center", 
+                        "animate": { "opacity": 1, "y": 0, "scale": 1.1 }, 
+                        "transition": { "duration": 0.8, "type": "spring", "bounce": 0.4 } 
+                    },
+                    { 
+                        "id": "card-right", 
+                        "animate": { "opacity": 1, "x": 0, "rotateY": 0 }, 
+                        "transition": { "duration": 0.8, "ease": "backOut" } 
+                    }
+                ]
+            }
           }
         ]
       }
     ]
-  }
+}

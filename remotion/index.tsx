@@ -1,10 +1,10 @@
+import './style.css';
 import { registerRoot } from 'remotion';
 import { Composition } from 'remotion';
 import { VideoRenderer } from './VideoRenderer';
 import { SlideComposition, SlideCompositionProps } from './SlideRenderer';
 import { ExecutionPlan } from '@/registry/schema';
 import React from 'react';
-import './style.css';
 import './fonts';
 
 const DEFAULT_PLAN: ExecutionPlan = {
