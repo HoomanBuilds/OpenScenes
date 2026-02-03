@@ -28,31 +28,39 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
+        e.dataTransfer.dropEffect = 'copy'; // Changed from 'move' to match source effect
     };
 
     const handleDropOnCanvas = (e: React.DragEvent) => {
         e.preventDefault();
-        const data = e.dataTransfer.getData('application/json');
+        let data = e.dataTransfer.getData('application/json');
+        if (!data) data = e.dataTransfer.getData('text/plain'); // Fallback
+        
         if (!data) return;
 
         try {
             const parsed = JSON.parse(data);
+            const rect = e.currentTarget.getBoundingClientRect();
+            
+            // Calculate coordinates scaled to 1000px width canvas
+            const scale = rect.width / 1000;
+            const x = (e.clientX - rect.left) / scale;
+            const y = (e.clientY - rect.top) / scale;
+
             if (parsed.type === 'component') {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const x = e.clientX - rect.left - 200; // Center offset roughly
-                const y = e.clientY - rect.top - 30;
-                
+                // Adjust for component width/height (approx centering)
+                const finalX = x - (parsed.componentType === 'text' ? 200 : 150);
+                const finalY = y - (parsed.componentType === 'text' ? 30 : 100);
+
                 if (onAddElement) {
-                    onAddElement(slide.id, parsed.componentType, { x, y }, parsed.preset);
+                    onAddElement(slide.id, parsed.componentType, { x: finalX, y: finalY }, parsed.preset);
                 }
             } else if (parsed.type === 'asset' && (parsed.assetType === 'image' || parsed.assetType === 'video')) {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const x = e.clientX - rect.left - 150; // Offset for asset
-                const y = e.clientY - rect.top - 100;
+                const finalX = x - 150;
+                const finalY = y - 100;
                 
                 if (onAddElement) {
-                    onAddElement(slide.id, parsed.assetType, { x, y }, undefined, parsed.url);
+                    onAddElement(slide.id, parsed.assetType, { x: finalX, y: finalY }, undefined, parsed.url);
                 }
             }
         } catch (err) {
@@ -61,30 +69,35 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
     };
 
     const handleDropOnElement = (e: React.DragEvent, elementId: string) => {
-        e.preventDefault();
-        e.stopPropagation();
+        let data = e.dataTransfer.getData('application/json');
+        if (!data) data = e.dataTransfer.getData('text/plain');
         
-        const data = e.dataTransfer.getData('application/json');
         if (!data) return;
 
         try {
             const parsed = JSON.parse(data);
             if (parsed.type === 'asset' && (parsed.assetType === 'image' || parsed.assetType === 'video')) {
+                // If it's an asset drop on an existing element, we handle it and stop propagation
+                e.preventDefault();
+                e.stopPropagation();
                 onUpdateElement(slide.id, elementId, 0, 0, { content: parsed.url });
             }
+            // If it's a 'component' drop, we DON'T preventDefault or stopPropagation
+            // so it bubbles up to the canvas handleDropOnCanvas
         } catch (err) {
             console.error("Asset drop failed:", err);
         }
     };
 
     const handlePointerDownBackground = (e: React.PointerEvent) => {
-        if (e.target === e.currentTarget) {
-            onSelectElement(null);
-        }
+        onSelectElement(null);
     };
 
     return (
-        <div className="h-full w-full flex items-center justify-center p-12 bg-[#09090b]/95 backdrop-blur-md relative overflow-hidden">
+        <div 
+            className="h-full w-full flex items-center justify-center p-12 bg-[#09090b]/95 backdrop-blur-md relative overflow-hidden"
+            onPointerDown={handlePointerDownBackground}
+        >
             
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-6 left-6 w-16 h-16 border-l-[3px] border-t-[3px] border-zinc-600 rounded-tl-sm opacity-50"></div>
@@ -95,17 +108,9 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
                 <div className="absolute top-10 left-1/2 -translate-x-1/2 flex items-center space-x-4">
                     <div className="flex items-center space-x-1.5 bg-zinc-900 border border-zinc-700 px-2 py-0.5 rounded-sm">
                         <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-[9px] font-mono font-bold text-zinc-400 tracking-widest">LIVE EDITOR</span>
                     </div>
                 </div>
 
-                <div className="absolute top-8 left-8 font-mono text-[9px] text-zinc-600 tracking-[0.2em] opacity-80">
-                    CAM-204 [HQ]
-                </div>
-
-                <div className="absolute bottom-8 right-8 font-mono text-[9px] text-zinc-600 tracking-[0.2em] opacity-80">
-                    ISO 800 | 24FPS
-                </div>
             </div>
 
             <div 

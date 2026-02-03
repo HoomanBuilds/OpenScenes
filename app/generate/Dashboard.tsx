@@ -62,23 +62,23 @@ const Dashboard: React.FC = () => {
         loadProject();
     }, [projectId]);
 
-    // Auto-Save Project
+    
     useEffect(() => {
         if (!projectId || slides.length === 0) return;
 
         const saveTimeout = setTimeout(async () => {
              const project = await storage.getProject(projectId);
              if (project) {
-                 // Generate thumbnail from first slide
+                 
                  let thumbnail = project.thumbnail;
                  const firstSlide = slides[0];
                  if (firstSlide && firstSlide.background) {
                      if (firstSlide.background.type === 'image') {
                          thumbnail = firstSlide.background.value;
                      } else if (firstSlide.elements) {
-                         // Find first image element
+                         
                          const imgParams = firstSlide.elements.find(e => e.type === 'image');
-                         if (imgParams) thumbnail = imgParams.content;
+                         if (imgParams) thumbnail = imgParams.content as string;
                      }
                  }
 
@@ -283,6 +283,22 @@ const Dashboard: React.FC = () => {
                      type === 'video' ? 'https://www.w3schools.com/html/mov_bbb.mp4' :
                      type === 'shape' ? '' :
                      type === 'chart' ? 'Jan 400 240\nFeb 300 139\nMar 200 980\nApr 278 390\nMay 189 480' : 
+                     type === 'custom' ? {
+                        layout: {
+                            tag: "div",
+                            className: "w-full h-full flex items-center justify-center bg-zinc-900/50 border border-zinc-700 rounded-xl backdrop-blur-sm shadow-xl",
+                            children: [
+                                { id: "icon", tag: "div", className: "w-12 h-12 bg-purple-500 rounded-full mb-4 flex items-center justify-center shadow-lg hover:bg-purple-400 transition-colors" },
+                                { id: "title", tag: "h2", className: "text-xl font-bold text-white", text: "Smart UI" },
+                                { id: "desc", tag: "p", className: "text-zinc-400 text-xs mt-2", text: "Drag me. Edit me." }
+                            ]
+                        },
+                        animations: {
+                            icon: { initial: { scale: 0 }, animate: { scale: 1 }, transition: { type: "spring" } },
+                            title: { initial: { opacity: 0, x: -20 }, animate: { opacity: 1, x: 0 }, transition: { delay: 0.2 } },
+                            desc: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { delay: 0.4 } }
+                        }
+                     } :
                      'New Content'
             ),
             x: position.x,

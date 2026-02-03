@@ -12,6 +12,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
 import { markdownComponents } from './markdownConfig';
 import { resolveElementValues } from './valueKeywords';
+import { CustomComponentRenderer } from './renderers/CustomComponentRenderer';
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088FE', '#00C49F'];
 
@@ -24,8 +25,6 @@ interface SlidePreviewProps {
 const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className = '' }) => {
     if (!slide) return <div className="w-full h-full bg-zinc-900" />;
 
-    // Base resolution for the slide canvas
-    // Base resolution matching the InteractiveSlidePreview max-width
     const BASE_WIDTH = 1000;
     const BASE_HEIGHT = 562.5;
 
@@ -46,7 +45,6 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                     flexShrink: 0
                 }}
             >
-             {/* Background Image Rendering */}
              {slide.background?.type === 'image' && (
                 <div className="absolute inset-0 z-0" style={{
                     backgroundImage: `url(${slide.background.value})`,
@@ -64,7 +62,6 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                             '#18181b'
              }} />
 
-            {/* Elements Rendering */}
             <div className="absolute inset-0 z-10 overflow-hidden">
                 {slide.elements?.map(rawEl => {
                     const el = resolveElementValues(rawEl);
@@ -94,15 +91,15 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                             whiteSpace: 'pre-wrap'
                         }}
                     >
-                         {el.type === 'headline' && <h1 className="leading-tight drop-shadow-md">{el.content}</h1>}
-                         {el.type === 'subheadline' && <p className="leading-snug drop-shadow-sm">{el.content}</p>}
+                         {el.type === 'headline' && <h1 className="leading-tight drop-shadow-md">{el.content as string}</h1>}
+                         {el.type === 'subheadline' && <p className="leading-snug drop-shadow-sm">{el.content as string}</p>}
                          {el.type === 'text' && (
                              <div className="leading-normal prose prose-invert prose-sm max-w-none">
                                  {el.textFormat === 'markdown' ? (
                                      <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkBreaks]}>
-                                         {el.content}
+                                         {el.content as string}
                                      </ReactMarkdown>
-                                 ) : el.content}
+                                 ) : (el.content as string)}
                              </div>
                          )}
                          
@@ -110,11 +107,11 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                              <div className="text-left w-full h-full">
                                 {el.listType === 'decimal' ? (
                                     <ol className="list-decimal list-inside" style={{ display: 'flex', flexDirection: 'column', gap: (el.listSpacing || 4), textAlign: el.textAlign }}>
-                                        {el.content.split('\n').map((item, i) => <li key={i} style={{ fontWeight: el.fontWeight }}>{item}</li>)}
+                                        {(el.content as string).split('\n').map((item, i) => <li key={i} style={{ fontWeight: el.fontWeight }}>{item}</li>)}
                                     </ol>
                                 ) : (
                                     <ul className="list-disc list-inside" style={{ display: 'flex', flexDirection: 'column', gap: (el.listSpacing || 4), textAlign: el.textAlign }}>
-                                        {el.content.split('\n').map((item, i) => <li key={i} style={{ fontWeight: el.fontWeight }}>{item}</li>)}
+                                        {(el.content as string).split('\n').map((item, i) => <li key={i} style={{ fontWeight: el.fontWeight }}>{item}</li>)}
                                     </ul>
                                 )}
                             </div>
@@ -122,7 +119,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
 
                          {el.type === 'image' && (
                             <img 
-                                src={(el.content && (el.content.startsWith('http') || el.content.startsWith('blob:'))) ? el.content : 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80'} 
+                                src={(el.content && ((el.content as string).startsWith('http') || (el.content as string).startsWith('blob:'))) ? (el.content as string) : 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80'} 
                                 className="w-full h-full" 
                                 style={{ objectFit: el.objectFit || 'cover' }}
                                 alt="Slide Asset"
@@ -132,7 +129,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                         {el.type === 'icon' && (
                              <div className="w-full h-full flex items-center justify-center">
                                  {(() => {
-                                     const iconName = el.content
+                                     const iconName = (el.content as string)
                                          .split('-')
                                          .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
                                          .join('');
@@ -158,7 +155,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                              }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     {(() => {
-                                         const data = parseChartData(el.content);
+                                         const data = parseChartData(el.content as string);
                                          const conf = el.chartProps || {};
                                          
                                          if (el.chartType === 'pie') {
@@ -206,6 +203,10 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                                     })()}
                                 </ResponsiveContainer>
                             </div>
+                        )}
+
+                        {el.type === 'custom' && (
+                             <CustomComponentRenderer content={el.content} scale={scale} />
                         )}
                     </div>
                     );

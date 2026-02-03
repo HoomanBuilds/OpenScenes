@@ -108,6 +108,18 @@ export const LeftPanel_ElementStyle: React.FC<LeftPanel_ElementStyleProps> = ({ 
                                  <option value="900">HEAVY</option>
                              </select>
                         </div>
+                        <div>
+                            <label className="text-[9px] text-zinc-600 uppercase tracking-wider font-bold mb-1 block">Line Spacing</label>
+                            <div className="flex items-center space-x-2 border-2 border-zinc-900 bg-zinc-950 px-2 h-[34px]">
+                                <input 
+                                    type="range" min="0.8" max="2.5" step="0.1"
+                                    value={element.lineHeight || 1.5}
+                                    onChange={(e) => onUpdate({ lineHeight: parseFloat(e.target.value) })}
+                                    className="flex-1 accent-purple-600 h-1 bg-zinc-800 rounded-none appearance-none cursor-pointer"
+                                />
+                                <span className="text-[9px] font-mono text-zinc-400 w-6 text-right">{element.lineHeight || 1.5}</span>
+                            </div>
+                        </div>
                         <div className="col-span-2">
                              <label className="text-[9px] text-zinc-600 uppercase tracking-wider font-bold mb-1 block">Family</label>
                              <select 

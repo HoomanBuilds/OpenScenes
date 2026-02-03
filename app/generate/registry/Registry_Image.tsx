@@ -10,7 +10,7 @@ interface RegistryImageProps {
 export const Registry_Image: React.FC<RegistryImageProps> = ({ element, scale }) => {
     return (
         <motion.img
-            src={(element.content && (element.content.startsWith('http') || element.content.startsWith('blob:'))) ? element.content : 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80'}
+            src={(element.content && (element.content.startsWith('http') || element.content.startsWith('blob:'))) ? element.content.toString() : 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80'}
             alt="slide-asset"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: element.opacity ?? 1, scale: 1 }}

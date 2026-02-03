@@ -8,29 +8,29 @@ const darkTheme = {
     h1: {
         fontSize: '2.5em',
         fontWeight: '700',
-        marginTop: '1rem',
-        marginBottom: '0.5rem',
+        marginTop: '0.5rem',
+        marginBottom: '0.25rem',
         color: '#ffffff',
         lineHeight: '1.2',
     },
     h2: {
         fontSize: '1.5em',
         fontWeight: '700',
-        marginTop: '0.75rem',
-        marginBottom: '0.5rem',
+        marginTop: '0.4rem',
+        marginBottom: '0.2rem',
         color: '#ffffff',
         lineHeight: '1.25',
     },
     h3: {
         fontSize: '1.25em',
         fontWeight: '700',
-        marginTop: '0.5rem',
-        marginBottom: '0.25rem',
+        marginTop: '0.3rem',
+        marginBottom: '0.15rem',
         color: '#ffffff',
         lineHeight: '1.3',
     },
     paragraph: {
-        marginBottom: '0.5rem',
+        marginBottom: '0.2rem',
         color: '#e4e4e7',
         lineHeight: '1.5',
     },
@@ -105,29 +105,29 @@ const lightTheme = {
     h1: {
         fontSize: '2.5em',
         fontWeight: '700',
-        marginTop: '1rem',
-        marginBottom: '0.5rem',
+        marginTop: '0.5rem',
+        marginBottom: '0.25rem',
         color: '#18181b',
         lineHeight: '1.2',
     },
     h2: {
         fontSize: '1.5em',
         fontWeight: '700',
-        marginTop: '0.75rem',
-        marginBottom: '0.5rem',
+        marginTop: '0.4rem',
+        marginBottom: '0.2rem',
         color: '#18181b',
         lineHeight: '1.25',
     },
     h3: {
         fontSize: '1.25em',
         fontWeight: '700',
-        marginTop: '0.5rem',
-        marginBottom: '0.25rem',
+        marginTop: '0.3rem',
+        marginBottom: '0.15rem',
         color: '#27272a',
         lineHeight: '1.3',
     },
     paragraph: {
-        marginBottom: '0.5rem',
+        marginBottom: '0.2rem',
         color: '#3f3f46',
         lineHeight: '1.5',
     },
@@ -204,9 +204,10 @@ export const getMarkdownConfig = (theme: MarkdownTheme = 'dark') => {
     return theme === 'light' ? lightTheme : darkTheme;
 };
 
-export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', overrideFont?: string) => {
+export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', overrideFont?: string, overrideColor?: string) => {
     const config = getMarkdownConfig(theme);
     const fontStyle = overrideFont ? { fontFamily: overrideFont } : { fontFamily: 'inherit' };
+    const textColor = overrideColor || undefined;
     
     return {
         h1: ({ children }: any) => (
@@ -215,7 +216,7 @@ export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', override
                 fontWeight: config.h1.fontWeight,
                 marginTop: config.h1.marginTop,
                 marginBottom: config.h1.marginBottom,
-                color: config.h1.color,
+                color: textColor || config.h1.color,
                 lineHeight: config.h1.lineHeight,
                 ...fontStyle,
             }}>{children}</h1>
@@ -226,7 +227,7 @@ export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', override
                 fontWeight: config.h2.fontWeight,
                 marginTop: config.h2.marginTop,
                 marginBottom: config.h2.marginBottom,
-                color: config.h2.color,
+                color: textColor || config.h2.color,
                 lineHeight: config.h2.lineHeight,
                 ...fontStyle,
             }}>{children}</h2>
@@ -237,7 +238,7 @@ export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', override
                 fontWeight: config.h3.fontWeight,
                 marginTop: config.h3.marginTop,
                 marginBottom: config.h3.marginBottom,
-                color: config.h3.color,
+                color: textColor || config.h3.color,
                 lineHeight: config.h3.lineHeight,
                 ...fontStyle,
             }}>{children}</h3>
@@ -245,7 +246,7 @@ export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', override
         p: ({ children }: any) => (
             <p style={{
                 marginBottom: config.paragraph.marginBottom,
-                color: config.paragraph.color,
+                color: textColor || config.paragraph.color,
                 lineHeight: config.paragraph.lineHeight,
                 ...fontStyle,
             }}>{children}</p>
@@ -253,14 +254,14 @@ export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', override
         strong: ({ children }: any) => (
             <strong style={{
                 fontWeight: config.bold.fontWeight,
-                color: config.bold.color,
+                color: textColor || config.bold.color,
                 ...fontStyle,
             }}>{children}</strong>
         ),
         em: ({ children }: any) => (
             <em style={{
                 fontStyle: config.italic.fontStyle,
-                color: config.italic.color,
+                color: textColor || config.italic.color,
                 ...fontStyle,
             }}>{children}</em>
         ),
@@ -319,7 +320,7 @@ export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', override
                 marginTop: config.blockquote.marginY,
                 marginBottom: config.blockquote.marginY,
                 backgroundColor: config.blockquote.backgroundColor,
-                color: config.blockquote.color,
+                color: textColor || config.blockquote.color,
                 fontStyle: config.blockquote.fontStyle,
                 ...fontStyle,
             }}>{children}</blockquote>
@@ -352,11 +353,11 @@ export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', override
                     width: config.bulletPoint.width,
                     height: config.bulletPoint.height,
                     borderRadius: config.bulletPoint.borderRadius,
-                    backgroundColor: config.bulletPoint.backgroundColor,
+                    backgroundColor: textColor || config.bulletPoint.backgroundColor,
                     flexShrink: 0,
                     display: 'block',
                 }} />
-                <span style={{ ...fontStyle }}>{children}</span>
+                <span style={{ ...fontStyle, color: textColor }}>{children}</span>
             </li>
         ),
     };

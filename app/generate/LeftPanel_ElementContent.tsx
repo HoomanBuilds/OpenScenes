@@ -1,6 +1,7 @@
 import React from 'react';
 import { SlideElement } from './types';
 import * as LucideIcons from 'lucide-react';
+import { LeftPanel_CustomJsonEditor } from './LeftPanel_CustomJsonEditor';
 
 interface LeftPanel_ElementContentProps {
     element: SlideElement;
@@ -36,7 +37,7 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
                     <label className="text-xs font-semibold text-zinc-400 mb-2 block">Text Content</label>
                     <textarea 
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-300 focus:border-purple-500/50 focus:outline-none resize-y min-h-[120px]"
-                        value={element.content}
+                        value={element.content as string}
                         onChange={(e) => onUpdate({ content: e.target.value })}
                         placeholder={element.textFormat === 'markdown' ? 'Use "- item" for bullets...' : 'Type your text here...'}
                     />
@@ -52,7 +53,7 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
                     <label className="text-xs font-semibold text-zinc-400 mb-2 block">{element.type === 'video' ? 'Video' : 'Image'} Source URL</label>
                     <input 
                         className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-sm text-zinc-300 focus:border-purple-500/50 focus:outline-none"
-                        value={element.content}
+                        value={element.content as string}
                         onChange={(e) => onUpdate({ content: e.target.value })}
                         placeholder={element.type === 'video' ? 'https://example.com/video.mp4' : 'https://example.com/image.jpg'}
                     />
@@ -82,7 +83,7 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
                     <label className="text-xs font-semibold text-zinc-400 mb-2 block">Data (Name Value1 Value2...)</label>
                     <textarea 
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-xs font-mono text-zinc-300 focus:border-purple-500/50 focus:outline-none resize-y min-h-[150px]"
-                        value={element.content}
+                        value={element.content as string}
                         onChange={(e) => onUpdate({ content: e.target.value })}
                         placeholder="Jan 400 240&#10;Feb 300 139&#10;Mar 200 980"
                     />
@@ -111,7 +112,7 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
                     <label className="text-xs font-semibold text-zinc-400 mb-2 block">Resource URL</label>
                     <input 
                         className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-sm text-zinc-300 focus:border-purple-500/50 focus:outline-none"
-                        value={element.content}
+                        value={element.content as string}
                         onChange={(e) => onUpdate({ content: e.target.value })}
                         placeholder="https://github.com/remotion-dev/remotion"
                     />
@@ -131,12 +132,49 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
                     <label className="text-xs font-semibold text-zinc-400 mb-2 block">Inner Text (Optional)</label>
                     <input 
                         className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-sm text-zinc-300 focus:border-purple-500/50 focus:outline-none"
-                        value={element.content}
+                        value={element.content as string}
                         onChange={(e) => onUpdate({ content: e.target.value })}
                         placeholder="Type text to show inside shape..."
                     />
                     <p className="text-[10px] text-zinc-600 mt-1 italic text-center">Perfect for badges or labels</p>
                 </div>
+            </div>
+        );
+    }
+    
+    if (element.type === 'custom') {
+        // Helper to get string representation for editing
+        const getContentString = (): string => {
+             if (typeof element.content === 'object') {
+                 return JSON.stringify(element.content, null, 2);
+             }
+             return element.content as string;
+        };
+
+
+
+        // Important: If we want to SAVE as object, we need a way to signal that.
+        // For now, let's allow the renderer to be flexible, but the editor usually writes strings.
+        // To strictly "Save as Object", we would parse during onUpdate.
+        
+        const handleChange = (val: string) => {
+            onUpdate({ content: val });
+        }
+
+        return (
+            <div className="h-[500px] flex flex-col">
+                <div className="flex justify-between items-center mb-2">
+                     <label className="text-xs font-semibold text-zinc-400 block">Component Architecture</label>
+                </div>
+                <div className="flex-1 overflow-hidden">
+                    <LeftPanel_CustomJsonEditor 
+                        value={getContentString()} 
+                        onChange={handleChange} 
+                    />
+                </div>
+                <p className="text-[10px] text-zinc-600 italic mt-2">
+                    Advanced Editor enabled. Switch to JSON tab for raw access.
+                </p>
             </div>
         );
     }
@@ -148,7 +186,7 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
                 <label className="text-xs font-semibold text-zinc-400 mb-2 block">Content</label>
                 <input 
                     className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-sm text-zinc-300 focus:border-purple-500/50 focus:outline-none"
-                    value={element.content}
+                    value={element.content as string}
                     onChange={(e) => onUpdate({ content: e.target.value })}
                 />
             </div>

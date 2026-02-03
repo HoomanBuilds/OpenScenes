@@ -22,7 +22,7 @@ interface RightPanelProps {
     onUpdateElement: (slideId: string, elementId: string, newX: number, newY: number, changes?: Partial<SlideElement>) => void;
     onDurationChange: (slideId: string, delta: number) => void;
     onUpdateSlide: (slideId: string, changes: Partial<Slide>) => void;
-    onAddElement: (slideId: string, type: SlideElement['type'], position: { x: number, y: number }) => void;
+    onAddElement: (slideId: string, type: SlideElement['type'], position: { x: number, y: number }, preset?: string, content?: string) => void;
     onPreview?: () => void;
     onImport?: (file: File) => void;
     refreshKey: number;

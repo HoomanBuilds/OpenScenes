@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 import { getFontFamily } from './fonts';
 import * as LucideIcons from 'lucide-react';
+import { CustomComponentRenderer } from '../app/generate/renderers/CustomComponentRenderer';
 
 type AnimationType = 'none' | 'fade' | 'slide' | 'pop' | 'scale';
 type AnimationDirection = 'up' | 'down' | 'left' | 'right';
@@ -28,7 +29,7 @@ type ElementAnimation = {
 
 type SlideElement = {
     id: string;
-    type: 'headline' | 'subheadline' | 'text' | 'image' | 'video' | 'chart' | 'shape' | 'link-preview' | 'list' | 'icon';
+    type: 'headline' | 'subheadline' | 'text' | 'image' | 'video' | 'chart' | 'shape' | 'link-preview' | 'list' | 'icon' | 'custom';
     content: string;
     textFormat?: 'normal' | 'markdown';
     x: number;
@@ -724,6 +725,13 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                         </li>
                     ))}
                 </ListTag>
+            );
+
+        case 'custom':
+            return (
+                <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+                    <CustomComponentRenderer content={element.content} scale={1} />
+                </div>
             );
             
         default:

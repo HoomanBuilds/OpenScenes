@@ -73,11 +73,14 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
     const selectionCount = selectedElementIds.length;
 
     const handleDragStartComponent = (e: React.DragEvent, type: SlideElement['type'], preset?: string) => {
-         e.dataTransfer.setData('application/json', JSON.stringify({
+        const payload = JSON.stringify({
             type: 'component',
             componentType: type,
             preset
-        }));
+        });
+        e.dataTransfer.setData('application/json', payload);
+        e.dataTransfer.setData('text/plain', payload); // Fallback
+        e.dataTransfer.effectAllowed = 'copy';
     };
 
     return (

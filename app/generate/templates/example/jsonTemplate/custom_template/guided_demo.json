@@ -1,0 +1,207 @@
+{
+  "name": "Scene Loops Demo",
+  "version": "2.1",
+  "slides": [
+    {
+      "id": "slide-scenes",
+      "type": "default",
+      "duration": 9999, 
+      "background": { "type": "color", "value": "#050505" },
+      "elements": [
+        {
+          "id": "el-scenes-ui",
+          "type": "custom",
+          "x": 50,
+          "y": 30,
+          "width": 900,
+          "height": 500,
+          "zIndex": 10,
+          "content": {
+            "layout": {
+              "tag": "div",
+              "className": "w-full h-full bg-zinc-950 border border-zinc-800 flex flex-col shadow-2xl overflow-hidden font-sans rounded-lg relative cursor-none select-none",
+              "children": [
+                {
+                  "tag": "header",
+                  "className": "h-14 flex items-center justify-between px-6 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm z-20",
+                  "children": [
+                    {
+                      "tag": "div", "className": "flex items-center gap-3",
+                      "children": [
+                        { "tag": "div", "className": "w-8 h-8 bg-purple-600 rounded flex items-center justify-center shadow-lg" },
+                        { "tag": "h2", "className": "text-white font-semibold text-sm", "text": "Cloud Console" }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "main",
+                  "className": "flex-1 grid grid-cols-12 gap-0 relative",
+                  "children": [
+                    {
+                      "tag": "aside",
+                      "className": "col-span-3 bg-zinc-900/30 border-r border-zinc-800 p-4 flex flex-col gap-2 relative z-10",
+                      "children": [
+                        { "tag": "div", "className": "text-zinc-500 text-[10px] font-bold uppercase tracking-wider mb-2", "text": "NAV" },
+                        { "tag": "div", "className": "text-zinc-400 text-sm p-2 rounded", "text": "Dashboard" },
+                        { 
+                          "id": "nav-item-api", 
+                          "tag": "div", 
+                          "className": "text-zinc-300 text-sm p-2 rounded flex items-center justify-between overflow-hidden relative",
+                          "children": [
+                             { "tag": "span", "text": "API Keys", "className": "z-10 relative" },
+                             { "id": "nav-highlight", "tag": "div", "className": "absolute inset-0 bg-purple-500/20 opacity-0" } 
+                          ]
+                        },
+                        { "tag": "div", "className": "text-zinc-400 text-sm p-2 rounded", "text": "Settings" }
+                      ]
+                    },
+                    {
+                      "tag": "section",
+                      "className": "col-span-9 bg-[#050505] relative flex items-center justify-center overflow-hidden p-8",
+                      "children": [
+                        { "tag": "div", "className": "absolute inset-0 opacity-10", "style": { "backgroundImage": "radial-gradient(#fff 1px, transparent 1px)", "backgroundSize": "20px 20px" } },
+                        
+                        {
+                          "id": "view-initial",
+                          "tag": "div",
+                          "className": "absolute w-full max-w-md p-6 border border-dashed border-zinc-700 rounded-xl flex flex-col items-center gap-4 text-center",
+                          "children": [
+                            { "tag": "div", "className": "w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center border border-zinc-700", "children": [{ "tag": "span", "text": "👋", "className": "text-2xl" }] },
+                            { "tag": "h3", "className": "text-zinc-300 font-medium", "text": "Welcome Back" }
+                          ]
+                        },
+
+                        {
+                          "id": "view-api",
+                          "tag": "div",
+                          "className": "absolute w-full max-w-2xl h-[300px] border border-zinc-800 bg-zinc-900/50 rounded-xl flex flex-col backdrop-blur-sm shadow-xl opacity-0",
+                          "children": [
+                            {
+                              "tag": "div", "className": "h-12 border-b border-zinc-800 flex items-center justify-between px-4",
+                              "children": [
+                                { "tag": "span", "className": "text-sm text-zinc-300 font-bold", "text": "Active Keys" },
+                                { 
+                                  "id": "btn-create", "tag": "button", "className": "px-3 py-1 bg-white text-black text-xs font-bold rounded hover:bg-zinc-200 transition-colors flex items-center gap-1", 
+                                  "children": [{ "tag": "span", "text": "+" }, { "tag": "span", "text": "Create Key" }] 
+                                }
+                              ]
+                            },
+                            {
+                               "tag": "div", "className": "p-4 space-y-2",
+                               "children": [
+                                   { "tag": "div", "className": "h-10 bg-zinc-800/50 rounded w-full animate-pulse" },
+                                   { "tag": "div", "className": "h-10 bg-zinc-800/50 rounded w-full animate-pulse", "style": { "opacity": 0.5 } }
+                               ]
+                            }
+                          ]
+                        },
+
+                        {
+                          "id": "modal-overlay",
+                          "tag": "div",
+                          "className": "absolute inset-0 bg-black/60 backdrop-blur-sm z-40 flex items-center justify-center opacity-0 pointer-events-none",
+                          "children": [
+                            {
+                              "id": "modal-card",
+                              "tag": "div",
+                              "className": "w-96 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl p-6 flex flex-col gap-4 transform scale-90",
+                              "children": [
+                                { "tag": "h3", "className": "text-white font-bold", "text": "New API Key Created" },
+                                { 
+                                  "tag": "div", "className": "bg-black border border-zinc-800 rounded p-3 font-mono text-xs text-green-400 flex items-center justify-between", 
+                                  "children": [
+                                    { "tag": "span", "text": "sk_live_948f...8j29" },
+                                    { "id": "btn-copy", "tag": "div", "className": "text-zinc-500 hover:text-white cursor-pointer", "text": "COPY" }
+                                  ]
+                                },
+                                { "tag": "p", "className": "text-zinc-500 text-[10px]", "text": "Make sure to copy your key now. You won’t be able to see it again!" }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+
+                    {
+                        "id": "cursor",
+                        "tag": "div",
+                        "className": "absolute top-0 left-0 w-6 h-6 z-50 pointer-events-none drop-shadow-xl",
+                        "children": [
+                            {
+                                "tag": "svg", "props": { "viewBox": "0 0 24 24", "fill": "white", "stroke": "black", "strokeWidth": "1.5" },
+                                "children": [
+                                    { "tag": "path", "props": { "d": "M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" } }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "toast-success",
+                        "tag": "div",
+                        "className": "absolute bottom-10 right-10 bg-white text-black px-4 py-2 rounded-lg shadow-xl text-xs font-bold flex items-center gap-2 z-50 opacity-0 translate-y-10",
+                        "children": [
+                            { "tag": "div", "className": "w-2 h-2 bg-green-500 rounded-full" },
+                            { "tag": "span", "text": "Key Copied to Clipboard" }
+                        ]
+                    }
+                  ]
+                }
+              ]
+            },
+
+            "animations": {
+                "cursor": { "initial": { "x": 450, "y": 500 } }
+            },
+
+            "timeline": [
+                { "label": "Start" },
+
+                { "id": "cursor", "animate": { "x": "target:nav-item-api", "y": "target:nav-item-api" }, "transition": { "duration": 0.8, "ease": "easeInOut" } },
+                { "id": "cursor", "animate": { "scale": 0.8 }, "transition": { "duration": 0.1 } },
+                { "id": "cursor", "animate": { "scale": 1 }, "transition": { "duration": 0.1 } },
+                
+                { "id": "el-scenes-ui", "animate": { "scale": 1.5, "x": "camera:nav-item-api", "y": "camera:nav-item-api" }, "transition": { "duration": 0.8, "ease": "easeInOut" }, "parallel": true },
+                { "id": "view-initial", "animate": { "opacity": 0, "scale": 0.98 }, "transition": { "duration": 0.3 }, "parallel": true },
+                { "id": "view-api", "animate": { "opacity": 1, "scale": 1 }, "transition": { "duration": 0.4 } },
+
+                { "delay": 0.5 },
+
+                { "id": "cursor", "animate": { "x": "target:btn-create", "y": "target:btn-create" }, "transition": { "duration": 0.8, "ease": "easeInOut" } },
+                { "id": "cursor", "animate": { "scale": 0.8 }, "transition": { "duration": 0.1 } },
+                { "id": "cursor", "animate": { "scale": 1 }, "transition": { "duration": 0.1 } },
+                { "id": "btn-create", "animate": { "scale": 0.95 }, "transition": { "duration": 0.1 }, "parallel": true },
+                { "id": "btn-create", "animate": { "scale": 1 }, "transition": { "duration": 0.1 } },
+                
+                { "id": "el-scenes-ui", "animate": { "scale": 1.8, "x": "camera:btn-create", "y": "camera:btn-create" }, "transition": { "duration": 0.8, "ease": "easeInOut" }, "parallel": true },
+                { "id": "modal-overlay", "animate": { "opacity": 1 }, "transition": { "duration": 0.3 }, "parallel": true },
+                { "id": "modal-card", "animate": { "scale": 1 }, "transition": { "duration": 0.4, "type": "spring" } },
+
+                { "delay": 0.8 },
+
+                { "id": "cursor", "animate": { "x": "target:btn-copy", "y": "target:btn-copy" }, "transition": { "duration": 0.8, "ease": "easeInOut" } },
+                { "id": "cursor", "animate": { "scale": 0.8 }, "transition": { "duration": 0.1 } },
+                { "id": "cursor", "animate": { "scale": 1 }, "transition": { "duration": 0.1 } },
+                { "id": "btn-copy", "animate": { "color": "#22c55e", "scale": 1.1 }, "transition": { "duration": 0.2 }, "parallel": true },
+                
+                { "id": "el-scenes-ui", "animate": { "scale": 2.2, "x": "camera:btn-copy", "y": "camera:btn-copy" }, "transition": { "duration": 0.8, "ease": "easeInOut" }, "parallel": true },
+                { "id": "toast-success", "animate": { "opacity": 1, "y": 0 }, "transition": { "duration": 0.4, "type": "spring" } },
+
+                { "delay": 2 },
+
+                { "id": "el-scenes-ui", "animate": { "scale": 1, "x": 50, "y": 30 }, "transition": { "duration": 1.2, "ease": "easeInOut" } },
+                { "id": "cursor", "animate": { "x": 450, "y": 500, "scale": 1 }, "transition": { "duration": 1 }, "parallel": true },
+                { "id": "modal-overlay", "animate": { "opacity": 0 }, "transition": { "duration": 0.5 }, "parallel": true },
+                { "id": "view-api", "animate": { "opacity": 0, "scale": 0.95 }, "transition": { "duration": 0.5 }, "parallel": true },
+                { "id": "view-initial", "animate": { "opacity": 1, "scale": 1 }, "transition": { "duration": 0.5 }, "parallel": true },
+                { "id": "toast-success", "animate": { "opacity": 0, "y": 10 }, "transition": { "duration": 0.5 }, "parallel": true },
+                { "id": "btn-copy", "animate": { "color": "#71717a", "scale": 1 }, "transition": { "duration": 0 } },
+                { "goto": "Start" }
+            ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+  

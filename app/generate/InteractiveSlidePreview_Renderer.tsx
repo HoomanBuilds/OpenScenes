@@ -13,6 +13,7 @@ import { COLORS } from './InteractiveSlidePreview_Utils';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
 import { createMarkdownComponents } from './markdownConfig';
+import { CustomComponentRenderer } from './renderers/CustomComponentRenderer';
 
 interface ElementRendererProps {
     element: SlideElement;
@@ -22,28 +23,28 @@ interface ElementRendererProps {
 export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontSizeValue }) => {
     switch (element.type) {
         case 'headline':
-            return <motion.h1 className="leading-tight drop-shadow-md whitespace-pre-wrap w-full min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue }}>{element.content}</motion.h1>;
+            return <motion.h1 className="leading-tight drop-shadow-md whitespace-pre-wrap w-full min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight }}>{element.content as string}</motion.h1>;
         case 'subheadline':
-            return <motion.p className="leading-snug drop-shadow-sm whitespace-pre-wrap w-full min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue }}>{element.content}</motion.p>;
+            return <motion.p className="leading-snug drop-shadow-sm whitespace-pre-wrap w-full min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight }}>{element.content as string}</motion.p>;
         case 'text':
             return (
-                <motion.div className="leading-normal w-full max-w-none min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue }}>
+                <motion.div className="leading-normal w-full max-w-none min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight }}>
                     {element.textFormat === 'markdown' ? (
                         <ReactMarkdown 
-                            components={useMemo(() => createMarkdownComponents('dark', element.fontFamily), [element.fontFamily])} 
+                            components={useMemo(() => createMarkdownComponents('dark', element.fontFamily, element.textColor || element.color), [element.fontFamily, element.textColor, element.color])} 
                             remarkPlugins={[remarkBreaks]}
                         >
-                            {element.content}
+                            {element.content as string}
                         </ReactMarkdown>
                     ) : (
-                        <div className="whitespace-pre-wrap">{element.content}</div>
+                        <div className="whitespace-pre-wrap">{element.content as string}</div>
                     )}
                 </motion.div>
             );
         case 'image':
             return (
                 <img 
-                    src={(element.content && (element.content.startsWith('http') || element.content.startsWith('blob:'))) ? element.content : 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80'}
+                    src={(element.content && (element.content.startsWith('http') || element.content.startsWith('blob:'))) ? element.content.toString() : 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80'}
                     alt="slide-asset"
                     draggable={false}
                     className="w-full h-full select-none pointer-events-none"
@@ -55,7 +56,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontS
                 <div className="w-full h-full overflow-hidden" style={{ borderRadius: element.borderRadius ? `${element.borderRadius}px` : '12px' }}>
                     {element.content ? (
                         <video 
-                            src={element.content}
+                            src={element.content as string}
                             autoPlay
                             muted
                             loop
@@ -73,12 +74,12 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontS
             return (
                 <div className="w-full h-full flex items-center justify-center p-4 text-center break-words select-none pointer-events-none">
                     <motion.span style={{ fontSize: fontSizeValue }}>
-                        {['rect', 'circle', 'square'].includes(element.content.toLowerCase()) ? '' : element.content}
+                        {['rect', 'circle', 'square'].includes(element.content.toLowerCase()) ? '' : element.content as string}
                     </motion.span>
                 </div>
             );
         case 'chart':
-            const data = parseChartData(element.content);
+            const data = parseChartData(element.content as string);
             const conf = element.chartProps || {};
             const ChartComp = element.chartType === 'line' ? LineChart : 
                                 element.chartType === 'area' ? AreaChart : 
@@ -144,7 +145,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontS
                     <div className="flex-1 p-3 flex flex-col justify-between">
                         <div>
                             <div className="text-sm font-bold text-white truncate mb-1">
-                                {element.content || "Awesome Resource Name"}
+                                {element.content as string || "Awesome Resource Name"}
                             </div>
                             <div className="text-[10px] text-zinc-400 line-clamp-2 leading-relaxed opacity-80">
                                 This is a simulated preview of the link provided. It includes metadata, a cover image, and description extracted from the URL.
@@ -163,16 +164,22 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontS
             );
         case 'list':
             return (
-                <div className="text-left w-full h-full">
+                <div className="text-left w-full h-full" style={{ color: element.textColor || element.color }}>
                     {element.listType === 'decimal' ? (
                         <ol className="list-decimal list-inside" style={{ display: 'flex', flexDirection: 'column', gap: (element.listSpacing || 4), textAlign: (element.textAlign as any), fontFamily: 'inherit' }}>
-                            {element.content.split('\n').map((item: string, i: number) => <li key={i} style={{ fontWeight: element.fontWeight, fontFamily: 'inherit' }}>{item}</li>)}
+                            {element.content.split('\n').map((item: string, i: number) => <li key={i} style={{ fontWeight: element.fontWeight, fontFamily: 'inherit', color: 'inherit' }}>{item}</li>)}
                         </ol>
                     ) : (
                         <ul className="list-disc list-inside" style={{ display: 'flex', flexDirection: 'column', gap: (element.listSpacing || 4), textAlign: (element.textAlign as any), fontFamily: 'inherit' }}>
-                            {element.content.split('\n').map((item: string, i: number) => <li key={i} style={{ fontWeight: element.fontWeight, fontFamily: 'inherit' }}>{item}</li>)}
+                            {element.content.split('\n').map((item: string, i: number) => <li key={i} style={{ fontWeight: element.fontWeight, fontFamily: 'inherit', color: 'inherit' }}>{item}</li>)}
                         </ul>
                     )}
+                </div>
+            );
+        case 'custom':
+            return (
+                <div style={{ width: '1000px', height: '563px', overflow: 'hidden' }}>
+                    <CustomComponentRenderer content={element.content} scale={1} />
                 </div>
             );
         default:

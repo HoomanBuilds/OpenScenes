@@ -21,8 +21,8 @@ export type ElementAnimation = {
 
 export type SlideElement = {
     id: string;
-    type: 'headline' | 'subheadline' | 'text' | 'image' | 'video' | 'chart' | 'shape' | 'link-preview' | 'list' | 'icon';
-    content: string;
+    type: 'headline' | 'subheadline' | 'text' | 'image' | 'video' | 'chart' | 'shape' | 'link-preview' | 'list' | 'icon' | 'custom';
+    content: string | Record<string, any>;
     textFormat?: 'normal' | 'markdown';
     x: number;
     y: number;

@@ -1,0 +1,180 @@
+{
+  "name": "Production Login Guide (Nested Cursor)",
+  "version": "7.0",
+  "slides": [
+    {
+      "id": "slide-login-nested",
+      "type": "default",
+      "duration": 300,
+      "background": { "type": "color", "value": "#020617" },
+      "elements": [
+        {
+          "id": "app-root",
+          "type": "custom",
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 720,
+          "zIndex": 10,
+          "content": {
+            "layout": {
+              "tag": "div",
+              "className": "w-full h-full relative overflow-hidden flex items-center justify-center",
+              "children": [
+                 {
+                     "id": "el-scenes-ui",
+                     "tag": "div",
+                     "className": "w-[900px] h-[550px] bg-zinc-950 rounded-lg shadow-2xl border border-zinc-800 relative overflow-hidden",
+                     "children": [
+                        {
+                            "tag": "nav",
+                            "className": "h-14 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/80 backdrop-blur z-20 absolute top-0 w-full",
+                            "children": [
+                                { 
+                                    "tag": "img", 
+                                    "className": "w-5 h-5 mr-3 opacity-80", 
+                                    "props": { "src": "/vercel.svg", "alt": "Logo" } 
+                                },
+                                { "tag": "div", "className": "font-bold text-sm tracking-widest text-zinc-400 uppercase", "text": "Nexus_Platform" },
+                                { 
+                                    "id": "btn-login",
+                                    "tag": "button", 
+                                    "className": "px-4 py-1.5 bg-white text-black text-[11px] font-bold rounded hover:bg-zinc-200 transition-colors",
+                                    "text": "LOGIN"
+                                }
+                            ]
+                        },
+                        {
+                            "tag": "main",
+                            "className": "w-full h-full pt-14 flex",
+                            "children": [
+                                { 
+                                    "tag": "aside", "className": "w-48 border-r border-zinc-800 bg-zinc-900/30 p-4 space-y-2",
+                                    "children": [
+                                        { "tag": "div", "className": "h-2 w-12 bg-zinc-800 rounded mb-4" },
+                                        { "tag": "div", "className": "h-8 w-full bg-zinc-800/50 rounded" },
+                                        { "tag": "div", "className": "h-8 w-full bg-zinc-800/50 rounded" },
+                                        { "tag": "div", "className": "h-8 w-full bg-zinc-800/50 rounded" }
+                                    ]
+                                },
+                                {
+                                    "tag": "div", "className": "flex-1 p-8",
+                                    "children": [
+                                        { "tag": "h1", "className": "text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-white to-zinc-600 mb-4", "text": "Build for Scale." },
+                                        { "tag": "div", "className": "flex gap-4 mt-8", "children": [
+                                            { "tag": "div", "className": "h-32 w-48 bg-zinc-900 border border-zinc-800 rounded-lg" },
+                                            { "tag": "div", "className": "h-32 w-48 bg-zinc-900 border border-zinc-800 rounded-lg" }
+                                        ]}
+                                    ]
+                                }
+                            ]
+                        },
+
+                        {
+                            "id": "modal-overlay",
+                            "tag": "div",
+                            "className": "absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center opacity-0 pointer-events-none z-40",
+                            "children": [
+                                {
+                                    "id": "modal-login",
+                                    "tag": "div",
+                                    "className": "w-72 bg-zinc-900 border border-zinc-800 rounded-xl p-5 shadow-2xl scale-95 opacity-0 ring-1 ring-white/10",
+                                    "children": [
+                                        { "tag": "div", "className": "text-white font-bold text-lg mb-4 text-center", "text": "Welcome Back" },
+                                        { 
+                                            "tag": "div", "className": "space-y-3",
+                                            "children": [
+                                                { "id": "input-email", "tag": "div", "className": "h-8 bg-zinc-950 border border-zinc-800 rounded px-2 text-xs flex items-center text-zinc-500", "text": "user@example.com" },
+                                                { "id": "input-pass", "tag": "div", "className": "h-8 bg-zinc-950 border border-zinc-800 rounded px-2 text-xs flex items-center text-zinc-500", "text": "••••••••" },
+                                                { 
+                                                    "id": "btn-submit", "tag": "button", 
+                                                    "className": "w-full h-8 bg-white text-black text-xs font-bold rounded mt-2 hover:bg-zinc-200", 
+                                                    "text": "Sign In" 
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "id": "cursor",
+                            "tag": "div",
+                            "className": "absolute top-0 left-0 w-8 h-8 z-[100] pointer-events-none drop-shadow-xl",
+                            "children": [
+                                {
+                                    "tag": "svg", "props": { "viewBox": "0 0 24 24", "fill": "white", "stroke": "black", "strokeWidth": "1.5" },
+                                    "children": [ { "tag": "path", "props": { "d": "M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" } } ]
+                                }
+                            ]
+                        }
+                     ]
+                 }
+              ]
+            },
+
+            "animations": {
+                "cursor": { "initial": { "x": 600, "y": 400 } }
+            },
+
+            "timeline": [
+                { "label": "Start" },
+
+                { "comment": "---- STEP 1: APPROACH (PARALLAX + SYNC) ----" },
+                { "guide": { "target": "btn-login", "zoom": 1.5, "duration": 2.2 }, "wait": true },
+
+                { "comment": "Show Guide Card (positioned relative to button)" },
+                { "id": "guide-card", "animate": { "opacity": 1, "x": "target:btn-login", "y": "target:btn-login" }, "transition": { "duration": 0.8 } },
+                { "id": "guide-card", "animate": { "x": -140 }, "parallel": true, "transition": { "duration": 0 } },
+                
+                { "delay": 1.5 },
+                { "id": "guide-card", "animate": { "opacity": 0 }, "transition": { "duration": 0.4 } },
+
+                { "comment": "---- STEP 2: LOGIN CLICK ----" },
+                { "id": "cursor", "animate": { "scale": 0.8 }, "transition": { "duration": 0.15 } },
+                { "id": "btn-login", "animate": { "scale": 0.9 }, "transition": { "duration": 0.15 }, "parallel": true },
+                { "id": "cursor", "animate": { "scale": 1 }, "transition": { "duration": 0.15 } },
+                { "id": "btn-login", "animate": { "scale": 1 }, "transition": { "duration": 0.15 }, "parallel": true },
+
+                { "id": "modal-overlay", "animate": { "opacity": 1 }, "transition": { "duration": 0.6 }, "parallel": true },
+                { "id": "modal-login", "animate": { "opacity": 1, "scale": 1 }, "transition": { "duration": 0.8, "type": "spring" }, "parallel": true },
+                
+                { "comment": "RESET VIEW" },
+                { "id": "el-scenes-ui", "animate": { "scale": 1, "x": 0, "y": 0 }, "transition": { "duration": 1.2, "ease": "easeInOut" }, "parallel": true },
+
+                { "delay": 0.8 },
+
+                { "comment": "---- STEP 3: FORM FILL ----" },
+                { "id": "cursor", "animate": { "x": "target:input-email", "y": "target:input-email" }, "transition": { "duration": 0.8 } },
+                { "id": "input-email", "animate": { "color": "#fff", "borderColor": "#3f3f46" }, "transition": { "duration": 0.3 } },
+                
+                { "delay": 0.4 },
+                { "id": "cursor", "animate": { "x": "target:input-pass", "y": "target:input-pass" }, "transition": { "duration": 0.6 } },
+                { "id": "input-pass", "animate": { "color": "#fff", "borderColor": "#3f3f46" }, "transition": { "duration": 0.3 } },
+
+                { "delay": 0.5 },
+
+                { "comment": "---- STEP 4: FLASH ZOOM SUBMIT ----" },
+                { "id": "cursor", "animate": { "x": "target:btn-submit", "y": "target:btn-submit" }, "transition": { "duration": 0.8 } },
+                
+                { "comment": "Click + Flash Zoom" },
+                { "id": "cursor", "animate": { "scale": 0.8 }, "transition": { "duration": 0.05 } },
+                { "id": "btn-submit", "animate": { "scale": 0.95 }, "transition": { "duration": 0.05 }, "parallel": true },
+                
+                { "id": "el-scenes-ui", "animate": { "scale": 1.25, "x": "camera:btn-submit", "y": "camera:btn-submit" }, "transition": { "duration": 0.15, "ease": "easeOut" }, "parallel": true },
+
+                { "delay": 0.18 },
+
+                { "comment": "Release & Zoom Out" },
+                { "id": "cursor", "animate": { "scale": 1 }, "transition": { "duration": 0.1 } },
+                { "id": "el-scenes-ui", "animate": { "scale": 1, "x": 0, "y": 0 }, "transition": { "duration": 0.8, "ease": "easeOut" }, "parallel": true },
+                { "id": "modal-overlay", "animate": { "opacity": 0 }, "transition": { "duration": 0.4 }, "parallel": true },
+                
+                { "delay": 2 }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
