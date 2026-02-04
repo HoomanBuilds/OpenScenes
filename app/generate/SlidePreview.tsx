@@ -125,21 +125,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                                 alt="Slide Asset"
                             />
                         )}
-                        
-                        {el.type === 'icon' && (
-                             <div className="w-full h-full flex items-center justify-center">
-                                 {(() => {
-                                     const iconName = (el.content as string)
-                                         .split('-')
-                                         .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-                                         .join('');
-                                     
-                                     const Icon = (LucideIcons as any)[iconName] || LucideIcons.HelpCircle;
-                                     return <Icon size={(el.fontSize || 48) * scale} color={el.color || 'currentColor'} strokeWidth={2} />;
-                                 })()}
-                             </div>
-                         )}
-
+                    
                         {el.type === 'shape' && (
                             <div className="w-full h-full"></div>
                         )}

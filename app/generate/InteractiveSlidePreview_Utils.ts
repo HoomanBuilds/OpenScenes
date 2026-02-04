@@ -38,7 +38,7 @@ export const getAnimationVariants = (anim: SlideElement['animation'], targetOpac
                 anim.direction === 'left' ? { x: dist } :
                 anim.direction === 'right' ? { x: -dist } :
                 anim.direction === 'down' ? { y: -dist } :
-                { y: dist }; // default up
+                { y: dist };
             return {
                 initial: { opacity: 0, ...initial },
                 animate: { opacity: targetOpacity, x: 0, y: 0, transition },

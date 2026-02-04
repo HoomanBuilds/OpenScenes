@@ -116,7 +116,6 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
                         ))}
                     </select>
 
-                    {/* Theme Preview */}
                     {(() => {
                         const currentTheme = getAllThemes().find(t => t.prompt_injection === visualStyle);
                         if (currentTheme) {
@@ -296,7 +295,6 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
                             )}
                         </div>
 
-                        {/* Progress Bar */}
                         {renderStatus === 'rendering' && (
                             <div className="mt-2 space-y-1">
                                 <div className="h-2 bg-zinc-900 border border-zinc-800 overflow-hidden">

@@ -134,14 +134,14 @@ const SlideSequence: React.FC<SlideSequenceProps> = ({
                                         <div className="flex items-center bg-zinc-900 px-2 py-1 border-r-2 border-zinc-800 space-x-2">
                                             <span className="text-[9px] font-black text-zinc-500 uppercase">Dur</span>
                                             <button 
-                                                onClick={(e) => { e.stopPropagation(); onDurationChange(slide.id, -15); }}
+                                                onClick={(e) => { e.stopPropagation(); onDurationChange(slide.id, -500); }}
                                                 className="w-4 h-4 flex items-center justify-center bg-zinc-950 border border-zinc-700 hover:border-white text-zinc-400 hover:text-white transition-colors text-[10px]"
                                             >
                                                 -
                                             </button>
-                                            <span className="text-[10px] font-mono w-8 text-center text-zinc-300">{(slide.duration / 30).toFixed(1)}s</span>
+                                            <span className="text-[10px] font-mono w-8 text-center text-zinc-300">{(slide.duration / 1000).toFixed(1)}s</span>
                                             <button 
-                                                onClick={(e) => { e.stopPropagation(); onDurationChange(slide.id, 15); }}
+                                                onClick={(e) => { e.stopPropagation(); onDurationChange(slide.id, 500); }}
                                                 className="w-4 h-4 flex items-center justify-center bg-zinc-950 border border-zinc-700 hover:border-white text-zinc-400 hover:text-white transition-colors text-[10px]"
                                             >
                                                 +

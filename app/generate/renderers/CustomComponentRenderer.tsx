@@ -22,7 +22,6 @@ export const CustomComponentRenderer: React.FC<CustomComponentRendererProps> = (
         try {
             if (typeof content === 'string') {
                 const trimmed = content.trim();
-                // Only attempt to parse if it looks like a JSON object or array
                 if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
                     return JSON.parse(content);
                 }
@@ -93,24 +92,20 @@ export const CustomComponentRenderer: React.FC<CustomComponentRendererProps> = (
                  }
 
 
-                  // --- Guide Logic ---
                   if (step.guide) {
                       const { target, zoom = 1.5, duration = 0.8, cursor = true, camera = true, opacity = 1 } = step.guide;
                       const targetEl = registry.current[target];
                       
                       if (targetEl && rootRef.current) {
-                           // 1. Focus ID
                            setFocusedId(target);
                            animate(focusOpacity, opacity, { duration: duration * 0.5 });
 
-                           // 2. Calculations
                            const rootRect = rootRef.current.getBoundingClientRect();
                            const targetRect = targetEl.getBoundingClientRect();
                            
                            const anims: any[] = [];
                            const trans: any = { duration, ease: "easeInOut" };
 
-                           // 3. Camera (Zoom & Pan)
                            if (camera) {
                                 const targetInRootX = targetRect.left - rootRect.left;
                                 const targetInRootY = targetRect.top - rootRect.top;

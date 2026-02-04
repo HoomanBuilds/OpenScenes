@@ -94,7 +94,6 @@ export const LeftPanel_Assets: React.FC<LeftPanel_AssetsProps> = ({
                                 </div>
                             )}
                             
-                            {/* Asset Overlay Label */}
                             <div className="absolute top-0 left-0 bg-black/80 px-1.5 py-0.5 border-b border-r border-zinc-800">
                                 <span className="text-[8px] font-mono text-zinc-500">{asset.type.toUpperCase()}</span>
                             </div>

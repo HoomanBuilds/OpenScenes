@@ -15,9 +15,10 @@ interface RenderNodeProps {
     tokens?: DesignTokens;
     mouse?: { x: any, y: any };
     focusedId?: string | null;
+    overrides?: Record<string, any>;
 }
 
-export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, registry, rootRef, onInteraction, tokens, mouse, focusedId }) => {
+export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, registry, rootRef, onInteraction, tokens, mouse, focusedId, overrides }) => {
     const { id, tag, className, style, text, children, props, states, a11y, effects, typing } = node;
     const controls = useAnimation();
     const elementRef = React.useRef<HTMLElement | null>(null);
@@ -47,6 +48,44 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
     if (initialAnimProps.transition && initialAnimProps.transition.repeat === 'Infinity') {
         initialAnimProps.transition.repeat = Infinity;
     }
+
+    const myOverrides = (id && overrides) ? overrides[id] : null;
+    const resolvedOverrides = React.useMemo(() => {
+        if (!myOverrides) return null;
+        
+        const resolveValue = (key: string, val: any) => {
+            if (typeof val === 'string' && val.startsWith('target:')) {
+                const targetId = val.split(':')[1];
+                const targetEl = registry.current[targetId];
+                const myEl = elementRef.current;
+                
+                if (targetEl && myEl && rootRef.current) {
+                     const parentEl = myEl.offsetParent || document.body;
+                     const targetRect = targetEl.getBoundingClientRect();
+                     const parentRect = parentEl.getBoundingClientRect();
+                     const myRect = myEl.getBoundingClientRect();
+                     const rootDOM = rootRef.current;
+    
+                     const scaleX = rootDOM.getBoundingClientRect().width / rootDOM.offsetWidth;
+                     const scale = scaleX || 1;
+                     
+                     if (key === 'x') {
+                         return ((targetRect.left - parentRect.left + (targetRect.width / 2)) - (myRect.width / 2)) / scale;
+                     } else if (key === 'y') {
+                         return ((targetRect.top - parentRect.top + (targetRect.height / 2)) - (myRect.height / 2)) / scale;
+                     }
+                }
+                return 0; 
+            }
+            return val;
+        };
+
+        const resolved = { ...myOverrides };
+        Object.keys(resolved).forEach(key => {
+            resolved[key] = resolveValue(key, resolved[key]);
+        });
+        return resolved;
+    }, [myOverrides, registry, rootRef, elementRef.current]); 
 
     React.useEffect(() => {
         if (!typing || !text) {
@@ -79,6 +118,8 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
              if (id && elementRef.current) {
                 registry.current[id] = elementRef.current;
             }
+            
+            if (myOverrides) return;
 
             if (!initialAnimProps.animate) return;
 
@@ -148,7 +189,7 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
         };
 
         resolveAndAnimate();
-    }, [id, initialAnimProps, registry]);
+    }, [id, initialAnimProps, registry, myOverrides]);  
 
     if (effects && mouse) {
         if (effects.parallax) {
@@ -177,13 +218,13 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
     }
 
     const childElements = children?.map((child, index) => (
-        <RenderNode key={index} node={child} animationMap={animationMap} registry={registry} rootRef={rootRef} onInteraction={onInteraction} tokens={tokens} mouse={mouse} focusedId={focusedId} />
+        <RenderNode key={index} node={child} animationMap={animationMap} registry={registry} rootRef={rootRef} onInteraction={onInteraction} tokens={tokens} mouse={mouse} focusedId={focusedId} overrides={overrides} />
     ));
 
     let Component: any = tag;
     if (COMPONENT_MAP[tag]) {
         Component = COMPONENT_MAP[tag];
-    } else if (initialAnimProps.initial || initialAnimProps.animate || states || effects) {
+    } else if (initialAnimProps.initial || initialAnimProps.animate || states || effects || myOverrides) {
         Component = (motion as any)[tag] || (motion as any).div;
     }
 
@@ -222,9 +263,9 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
         ...sanitizeProps(props),
         ...interactionProps,
         ...a11yProps,
-        initial: initialAnimProps.initial,
-        animate: controls, 
-        transition: initialAnimProps.transition,
+        initial: resolvedOverrides ? false : initialAnimProps.initial, // Disable initial if overrides active
+        animate: resolvedOverrides || controls, 
+        transition: resolvedOverrides ? { duration: 0 } : initialAnimProps.transition, // Snap if override
         ref: (el: HTMLElement | null) => {
             elementRef.current = el;
             if (id && el) registry.current[id] = el;

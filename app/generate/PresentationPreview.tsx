@@ -53,7 +53,6 @@ const AnimatedElement: React.FC<{ element: SlideElement; slideKey: string }> = (
         const duration = Number(anim?.duration) || 0.6;
         const delay = Number(anim?.delay) || 0;
         
-        // Use linear easing to match Remotion's interpolate behavior
         const ease = 'linear';
         
         switch (type) {
@@ -77,7 +76,6 @@ const AnimatedElement: React.FC<{ element: SlideElement; slideKey: string }> = (
                     animate: { opacity: el.opacity ?? 1, scale: 1, transition: { duration, delay, ease } }
                 };
             case 'pop':
-                // Match Remotion's pop with overshoot using keyframes
                 return {
                     initial: { opacity: 0, scale: 0.3 },
                     animate: { 
@@ -151,10 +149,10 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
     const [slideKey, setSlideKey] = useState(0);
     
     const currentSlide = slides[currentIndex];
-    const durationRef = useRef((currentSlide?.duration || 150) / 30 * 1000);
+    const durationRef = useRef((currentSlide?.duration || 5000));
     
     useEffect(() => {
-        durationRef.current = (currentSlide?.duration || 150) / 30 * 1000;
+        durationRef.current = (currentSlide?.duration || 5000);
     }, [currentSlide]);
 
     const goToNext = useCallback(() => {
@@ -264,7 +262,7 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
                         </span>
                         <div className="w-px h-3 bg-zinc-700"></div>
                         <span className="text-[10px] text-zinc-500 font-mono">
-                            {((currentSlide?.duration || 150) / 30).toFixed(1)}s
+                            {((currentSlide?.duration || 5000) / 1000).toFixed(1)}s
                         </span>
                     </div>
                 </div>
@@ -304,7 +302,6 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
                             style={{
                                 background: currentSlide.background?.type === 'gradient' ? bgValue : undefined,
                                 backgroundColor: currentSlide.background?.type !== 'gradient' ? bgValue : undefined,
-                                // Remove shadow from here as it's on the container
                             }}
                         >
                             {currentSlide.background?.type === 'image' && (

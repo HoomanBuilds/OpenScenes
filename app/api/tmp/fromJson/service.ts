@@ -25,6 +25,7 @@ interface RenderResult {
     fileSizeMB: string;
     sizeBytes: number;
     renderId: number;
+    durationSeconds: number;
 }
 
 class LogBuffer {
@@ -57,10 +58,10 @@ export async function processVideoGeneration({
     quality,
     abortSignal
 }: RenderOptions): Promise<RenderResult> {
-    // HARDCODED OVERRIDES FOR SMOOTHNESS & QUALITY
-    fps = 60; 
-    quality = 'ultra';
-    scale = Math.max(scale, 2); 
+    // fps, quality, and scale are passed from parameters, do not override them
+    // fps = 30; 
+    // quality = 'ultra';
+    // scale = Math.max(scale, 2); 
     const logger = new LogBuffer();
     const startTime = Date.now();
     let bundleLocation: string | null = null;
@@ -75,20 +76,20 @@ export async function processVideoGeneration({
             currentCpu = usage;
         });
 
-        if (speed !== 1) {
-            templateData.slides = templateData.slides.map(slide => ({
-                ...slide,
-                duration: Math.round(slide.duration / speed)
-            }));
-        }
+        // if (speed !== 1) {
+        //     templateData.slides = templateData.slides.map(slide => ({
+        //         ...slide,
+        //         duration: Math.round(slide.duration / speed)
+        //     }));
+        // }
 
-        const totalDurationFrames = calculateTotalDuration(templateData.slides);
+        const totalDurationMs = calculateTotalDuration(templateData.slides);
+        const totalDurationFrames = Math.ceil(totalDurationMs / 1000 * fps);
         const durationSec = (totalDurationFrames / fps).toFixed(1);
 
-        const crfMap = { ultra: 10, high: 18, medium: 23, low: 28 }; // Lower CRF = Higher quality
+        const crfMap = { ultra: 10, high: 18, medium: 23, low: 28 };
         const crf = crfMap[quality] || 18;
         
-        // Auto-scale up for ultra quality if scale is default
         const effectiveScale = quality === 'ultra' && scale === 1 ? 2 : scale;
 
         logger.log('\n' + '='.repeat(60));
@@ -119,7 +120,6 @@ export async function processVideoGeneration({
             webpackOverride: (config: any) => {
                 const cssPath = path.resolve(rootDir, 'remotion', 'style.css');
                 
-                // Add absolute CSS path to entry to ensure it's picked up
                 if (typeof config.entry === 'string') {
                     config.entry = [cssPath, config.entry];
                 } else if (Array.isArray(config.entry)) {
@@ -236,7 +236,8 @@ export async function processVideoGeneration({
             totalDurationFrames,
             fileSizeMB,
             sizeBytes: stats.size,
-            renderId
+            renderId,
+            durationSeconds: parseFloat(durationSec)
         };
 
     } catch (error: any) {

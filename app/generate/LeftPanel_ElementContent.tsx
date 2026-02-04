@@ -10,7 +10,6 @@ interface LeftPanel_ElementContentProps {
 
 export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> = ({ element, onUpdate }) => {
     
-    // Helper inputs based on type
     if (['headline', 'subheadline', 'text'].includes(element.type)) {
         return (
             <div className="space-y-4">
@@ -143,7 +142,6 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
     }
     
     if (element.type === 'custom') {
-        // Helper to get string representation for editing
         const getContentString = (): string => {
              if (typeof element.content === 'object') {
                  return JSON.stringify(element.content, null, 2);
@@ -151,12 +149,6 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
              return element.content as string;
         };
 
-
-
-        // Important: If we want to SAVE as object, we need a way to signal that.
-        // For now, let's allow the renderer to be flexible, but the editor usually writes strings.
-        // To strictly "Save as Object", we would parse during onUpdate.
-        
         const handleChange = (val: string) => {
             onUpdate({ content: val });
         }
@@ -172,14 +164,10 @@ export const LeftPanel_ElementContent: React.FC<LeftPanel_ElementContentProps> =
                         onChange={handleChange} 
                     />
                 </div>
-                <p className="text-[10px] text-zinc-600 italic mt-2">
-                    Advanced Editor enabled. Switch to JSON tab for raw access.
-                </p>
             </div>
         );
     }
 
-    // Default fallback
     return (
          <div className="space-y-4">
              <div>

@@ -10,8 +10,8 @@ import { RenderOptions } from './LeftPanel_Global';
 
 import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation, ContextFile } from './types';
 import { useSearchParams } from 'next/navigation';
-import { storage } from '@/lib/storage/adapter';
-import { Project } from '@/lib/storage/types';
+import { useProjectPersistence } from './hooks/useProjectPersistence';
+import { useEditorHistory } from './hooks/useEditorHistory';
 
 const Dashboard: React.FC = () => {
     const searchParams = useSearchParams();
@@ -23,7 +23,7 @@ const Dashboard: React.FC = () => {
     const [slides, setSlides] = useState<Slide[]>([]);
     const [globalAssets, setGlobalAssets] = useState<Asset[]>([]);
     const [selectedSlideId, setSelectedSlideId] = useState<string | null>(null);
-    
+
     const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
     const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -34,9 +34,9 @@ const Dashboard: React.FC = () => {
     const [contextFiles, setContextFiles] = useState<ContextFile[]>([]);
 
     const [history, setHistory] = useState<Slide[][]>([]);
-    
+
     const [showPreview, setShowPreview] = useState(false);
-    
+
     const [renderProgress, setRenderProgress] = useState(0);
     const [renderPhase, setRenderPhase] = useState<string>('');
     const [renderedVideoUrl, setRenderedVideoUrl] = useState<string | null>(null);
@@ -45,116 +45,45 @@ const Dashboard: React.FC = () => {
 
     const [projectName, setProjectName] = useState('Untitled Project');
     const [lastSaved, setLastSaved] = useState<number | null>(null);
+    const [generationLog, setGenerationLog] = useState<string>('');
 
-    // Load Project Data
-    useEffect(() => {
-        if (!projectId) return;
-
-        const loadProject = async () => {
-            const project = await storage.getProject(projectId);
-            if (project) {
-                if (project.data.slides) setSlides(project.data.slides);
-                if (project.data.globalPrompt) setGlobalPrompt(project.data.globalPrompt);
-                if (project.name) setProjectName(project.name);
-                if (project.data.themeId) setVisualStyle(project.data.themeId);
-            }
-        };
-        loadProject();
-    }, [projectId]);
-
-    
-    useEffect(() => {
-        if (!projectId || slides.length === 0) return;
-
-        const saveTimeout = setTimeout(async () => {
-             const project = await storage.getProject(projectId);
-             if (project) {
-                 
-                 let thumbnail = project.thumbnail;
-                 const firstSlide = slides[0];
-                 if (firstSlide && firstSlide.background) {
-                     if (firstSlide.background.type === 'image') {
-                         thumbnail = firstSlide.background.value;
-                     } else if (firstSlide.elements) {
-                         
-                         const imgParams = firstSlide.elements.find(e => e.type === 'image');
-                         if (imgParams) thumbnail = imgParams.content as string;
-                     }
-                 }
-
-                 const updatedProject: Project = {
-                     ...project,
-                     name: projectName,
-                     description: globalPrompt || project.description,
-                     updatedAt: Date.now(),
-                     data: {
-                         ...project.data,
-                         slides,
-                         globalPrompt,
-                         themeId: visualStyle
-                     },
-                     thumbnail
-                 };
-                 await storage.saveProject(updatedProject);
-                 setLastSaved(Date.now());
-                 console.log('Project auto-saved');
-             }
-        }, 1000); // Debounce 1s
-
-        return () => clearTimeout(saveTimeout);
-    }, [slides, globalPrompt, projectId, projectName]);
+    useProjectPersistence({
+        projectId,
+        slides,
+        globalPrompt,
+        projectName,
+        visualStyle,
+        setSlides,
+        setGlobalPrompt,
+        setProjectName,
+        setVisualStyle,
+        setLastSaved,
+    });
 
     useEffect(() => {
-        if (slides.length > 0) {
-            console.log('--- DASHBOARD STATE UPDATE ---');
-            console.log('Global Prompt:', globalPrompt);
-            console.log('Selection:', selectedElementIds);
-            const selSlide = slides.find(s => s.id === selectedSlideId);
-            if (selSlide) console.log('Current Slide BG:', selSlide.background);
-            console.log('------------------------------');
-        }
+        if (process.env.NODE_ENV !== 'development') return;
+        if (slides.length === 0) return;
+
+        console.log('--- DASHBOARD STATE UPDATE ---');
+        console.log('Global Prompt:', globalPrompt);
+        console.log('Selection:', selectedElementIds);
+        const selSlide = slides.find(s => s.id === selectedSlideId);
+        if (selSlide) console.log('Current Slide BG:', selSlide.background);
+        console.log('------------------------------');
     }, [slides, generationStatus, selectedElementIds, selectedSlideId, globalPrompt]);
 
-    const saveToHistory = () => {
-        setHistory(prev => [...prev.slice(-19), JSON.parse(JSON.stringify(slides))]);
-    };
 
-    const handleUndo = () => {
-        if (history.length === 0) return;
-        const previous = history[history.length - 1];
-        setHistory(prev => prev.slice(0, -1));
-        setSlides(previous);
-    };
+    const { saveToHistory, undo } = useEditorHistory({
+        slides,
+        setSlides,
+        history,
+        setHistory,
+        selectedSlideId,
+        selectedElementIds,
+        setSelectedElementIds,
+    });
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const activeTag = document.activeElement?.tagName.toLowerCase();
-            if (activeTag === 'input' || activeTag === 'textarea' || (document.activeElement as HTMLElement)?.isContentEditable) {
-                return;
-            }
 
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-                e.preventDefault();
-                handleUndo();
-            }
-
-            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElementIds.length > 0 && selectedSlideId) {
-                e.preventDefault();
-                saveToHistory();
-                setSlides(prev => prev.map(s => {
-                    if (s.id !== selectedSlideId) return s;
-                    return {
-                        ...s,
-                        elements: s.elements?.filter(el => !selectedElementIds.includes(el.id))
-                    };
-                }));
-                setSelectedElementIds([]);
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [slides, history, selectedElementIds, selectedSlideId]);
     const handleAddSlide = () => {
         saveToHistory();
         const newSlide: Slide = {
@@ -185,7 +114,7 @@ const Dashboard: React.FC = () => {
         }
 
         if (multi) {
-            setSelectedElementIds(prev => 
+            setSelectedElementIds(prev =>
                 prev.includes(elementId) ? prev.filter(id => id !== elementId) : [...prev, elementId]
             );
         } else {
@@ -202,7 +131,7 @@ const Dashboard: React.FC = () => {
         saveToHistory();
         setSlides(prev => prev.map(s => {
             if (s.id !== slideId) return s;
-            const newDuration = Math.max(30, s.duration + deltaFrames); 
+            const newDuration = Math.max(30, s.duration + deltaFrames);
             return { ...s, duration: newDuration };
         }));
     };
@@ -272,34 +201,34 @@ const Dashboard: React.FC = () => {
     const handleAddElement = (slideId: string, type: SlideElement['type'], position: { x: number, y: number }, preset?: string, content?: string) => {
         saveToHistory();
         const isHollow = preset === 'Hollow';
-        
+
         const newElement: SlideElement = {
             id: `el-${Date.now()}`,
             type,
             content: content || (
-                     (type === 'headline' || type === 'subheadline' || type === 'text') ? 
-                     (type === 'headline' ? 'New Headline' : type === 'subheadline' ? 'New Subtitle' : 'New Text') :
-                     type === 'image' ? 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80' : 
-                     type === 'video' ? 'https://www.w3schools.com/html/mov_bbb.mp4' :
-                     type === 'shape' ? '' :
-                     type === 'chart' ? 'Jan 400 240\nFeb 300 139\nMar 200 980\nApr 278 390\nMay 189 480' : 
-                     type === 'custom' ? {
-                        layout: {
-                            tag: "div",
-                            className: "w-full h-full flex items-center justify-center bg-zinc-900/50 border border-zinc-700 rounded-xl backdrop-blur-sm shadow-xl",
-                            children: [
-                                { id: "icon", tag: "div", className: "w-12 h-12 bg-purple-500 rounded-full mb-4 flex items-center justify-center shadow-lg hover:bg-purple-400 transition-colors" },
-                                { id: "title", tag: "h2", className: "text-xl font-bold text-white", text: "Smart UI" },
-                                { id: "desc", tag: "p", className: "text-zinc-400 text-xs mt-2", text: "Drag me. Edit me." }
-                            ]
-                        },
-                        animations: {
-                            icon: { initial: { scale: 0 }, animate: { scale: 1 }, transition: { type: "spring" } },
-                            title: { initial: { opacity: 0, x: -20 }, animate: { opacity: 1, x: 0 }, transition: { delay: 0.2 } },
-                            desc: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { delay: 0.4 } }
-                        }
-                     } :
-                     'New Content'
+                (type === 'headline' || type === 'subheadline' || type === 'text') ?
+                    (type === 'headline' ? 'New Headline' : type === 'subheadline' ? 'New Subtitle' : 'New Text') :
+                    type === 'image' ? 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80' :
+                        type === 'video' ? 'https://www.w3schools.com/html/mov_bbb.mp4' :
+                            type === 'shape' ? '' :
+                                type === 'chart' ? 'Jan 400 240\nFeb 300 139\nMar 200 980\nApr 278 390\nMay 189 480' :
+                                    type === 'custom' ? {
+                                        layout: {
+                                            tag: "div",
+                                            className: "w-full h-full flex items-center justify-center bg-zinc-900/50 border border-zinc-700 rounded-xl backdrop-blur-sm shadow-xl",
+                                            children: [
+                                                { id: "icon", tag: "div", className: "w-12 h-12 bg-purple-500 rounded-full mb-4 flex items-center justify-center shadow-lg hover:bg-purple-400 transition-colors" },
+                                                { id: "title", tag: "h2", className: "text-xl font-bold text-white", text: "Smart UI" },
+                                                { id: "desc", tag: "p", className: "text-zinc-400 text-xs mt-2", text: "Drag me. Edit me." }
+                                            ]
+                                        },
+                                        animations: {
+                                            icon: { initial: { scale: 0 }, animate: { scale: 1 }, transition: { type: "spring" } },
+                                            title: { initial: { opacity: 0, x: -20 }, animate: { opacity: 1, x: 0 }, transition: { delay: 0.2 } },
+                                            desc: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { delay: 0.4 } }
+                                        }
+                                    } :
+                                        'New Content'
             ),
             x: position.x,
             y: position.y,
@@ -318,7 +247,7 @@ const Dashboard: React.FC = () => {
             chartType: type === 'chart' ? 'bar' : undefined,
             chartProps: type === 'chart' ? { showGrid: true, showLegend: true } : undefined,
             lineHeight: 1.5,
-            
+
             opacity: 1,
             zIndex: 10,
             rotation: 0,
@@ -346,11 +275,9 @@ const Dashboard: React.FC = () => {
         setSelectedElementIds([]);
     };
 
-    const [generationLog, setGenerationLog] = useState<string>('');
-
     const handleGenerate = async () => {
         if (generationStatus === 'generating') return;
-        
+
         setGenerationStatus('generating');
         setRenderStatus('idle');
         setRenderedVideoUrl(null);
@@ -363,7 +290,7 @@ const Dashboard: React.FC = () => {
             const response = await fetch('/api/generate/slides', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     prompt: globalPrompt,
                     context: contextFiles.map(f => ({ name: f.name, content: f.content }))
                 })
@@ -372,7 +299,7 @@ const Dashboard: React.FC = () => {
             if (!response.ok) throw new Error('Generation failed');
 
             const data = await response.json();
-            
+
             if (data.slides && Array.isArray(data.slides)) {
                 setSlides(data.slides);
                 setGenerationStatus('done');
@@ -390,7 +317,7 @@ const Dashboard: React.FC = () => {
 
     const handleRender = async (options: RenderOptions) => {
         if (slides.length === 0) return;
-        
+
         setRenderStatus('rendering');
         setRenderProgress(0);
         setRenderPhase('Initializing...');
@@ -435,7 +362,7 @@ const Dashboard: React.FC = () => {
                     if (line.startsWith('event:')) {
                         const eventMatch = line.match(/event: (\w+)/);
                         const dataMatch = line.match(/data: ([\s\S]+)/);
-                        
+
                         if (eventMatch && dataMatch) {
                             const event = eventMatch[1];
                             const data = JSON.parse(dataMatch[1]);
@@ -480,7 +407,7 @@ const Dashboard: React.FC = () => {
     const handleExport = () => {
         const totalDurationFrames = slides.reduce((acc, s) => acc + (s.duration || 90), 0);
         const fps = 30;
-        
+
         const templateData = {
             name: globalPrompt || 'Untitled Export',
             version: '1.0',
@@ -516,7 +443,7 @@ const Dashboard: React.FC = () => {
             try {
                 const content = e.target?.result as string;
                 const parsed = JSON.parse(content);
-                
+
                 const result = validateTemplate(parsed);
                 if (!result.success) {
                     alert('Invalid template format: ' + result.error);
@@ -554,10 +481,10 @@ const Dashboard: React.FC = () => {
     return (
         <div className="flex h-screen w-full overflow-hidden bg-[#09090b] text-white font-sans relative selection:bg-purple-500/30">
             <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}></div>
-            
+
             <FontLoader slides={slides} />
 
-            <LeftPanel 
+            <LeftPanel
                 globalPrompt={globalPrompt}
                 setGlobalPrompt={setGlobalPrompt}
                 selectedSlideId={selectedSlideId}
@@ -585,8 +512,8 @@ const Dashboard: React.FC = () => {
                 visualStyle={visualStyle}
                 setVisualStyle={setVisualStyle}
             />
-            
-            <RightPanel 
+
+            <RightPanel
                 slides={slides}
                 selectedSlideId={selectedSlideId}
                 selectedElementId={selectedElementIds[0] || null}
@@ -615,9 +542,9 @@ const Dashboard: React.FC = () => {
                 projectName={projectName}
                 setProjectName={setProjectName}
             />
-            
+
             {showPreview && slides.length > 0 && (
-                <PresentationPreview 
+                <PresentationPreview
                     slides={slides}
                     onClose={() => setShowPreview(false)}
                 />

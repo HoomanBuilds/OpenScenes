@@ -99,6 +99,8 @@ export interface SmartCustomComponentData {
 }
 
 export interface CustomComponentRendererProps {
-    content: string | Record<string, any>; 
+    content: string | any; 
     scale: number;
+    frame?: number;
+    fps?: number;
 }

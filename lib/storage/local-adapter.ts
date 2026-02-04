@@ -55,7 +55,4 @@ class LocalStorageAdapter implements StorageAdapter {
   }
 }
 
-// Export a singleton instance
-// Note: This needs to be client-side only. 
-// For SSR safety in Next.js, we might need a wrapper or just ensure it's only called in useEffect/components.
 export const localStorageAdapter = new LocalStorageAdapter();

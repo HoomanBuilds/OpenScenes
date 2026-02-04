@@ -73,7 +73,8 @@ export async function POST(req: NextRequest) {
                 }));
             }
             
-            const totalDurationFrames = calculateTotalDuration(templateData.slides);
+            const totalDurationMs = calculateTotalDuration(templateData.slides);
+            const totalDurationFrames = Math.ceil(totalDurationMs / 1000 * fps);
             renderId = await storage.getNextRenderId();
             const crfMap = { ultra: 10, high: 18, medium: 23, low: 28 };
             const crf = crfMap[quality] || 18;

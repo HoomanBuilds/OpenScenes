@@ -7,292 +7,14 @@ import {
 import { getFontFamily } from './fonts';
 import * as LucideIcons from 'lucide-react';
 import { CustomComponentRenderer } from '../app/generate/renderers/CustomComponentRenderer';
-
-type AnimationType = 'none' | 'fade' | 'slide' | 'pop' | 'scale';
-type AnimationDirection = 'up' | 'down' | 'left' | 'right';
-
-type SlideBackground = {
-    type: 'color' | 'image' | 'gradient';
-    value: string;
-    props?: {
-        size?: 'cover' | 'contain' | 'auto';
-        position?: string;
-    };
-};
-
-type ElementAnimation = {
-    type: AnimationType;
-    duration: number;
-    delay: number;
-    direction?: AnimationDirection;
-};
-
-type SlideElement = {
-    id: string;
-    type: 'headline' | 'subheadline' | 'text' | 'image' | 'video' | 'chart' | 'shape' | 'link-preview' | 'list' | 'icon' | 'custom';
-    content: string;
-    textFormat?: 'normal' | 'markdown';
-    x: number;
-    y: number;
-    width?: number;
-    height?: number;
-    color?: string;
-    textColor?: string;
-    rotation?: number;
-    opacity?: number;
-    zIndex?: number;
-    fontSize?: number;
-    fontWeight?: string;
-    textAlign?: 'left' | 'center' | 'right';
-    verticalAlign?: 'top' | 'center' | 'bottom';
-    fontFamily?: string;
-    lineHeight?: number;
-    borderRadius?: number;
-    strokeWidth?: number;
-    strokeColor?: string;
-    chartType?: 'bar' | 'line' | 'pie' | 'area';
-    chartProps?: {
-        showGrid?: boolean;
-        showLegend?: boolean;
-        showXAxis?: boolean;
-        showYAxis?: boolean;
-        colors?: string[];
-        transparent?: boolean;
-    };
-    listType?: 'disc' | 'decimal';
-    listSpacing?: number;
-    animation?: ElementAnimation;
-    objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
-};
-
-type Slide = {
-    id: string;
-    type: string;
-    duration: number;
-    elements?: SlideElement[];
-    background?: SlideBackground;
-    transition?: {
-        type: 'none' | 'fade' | 'slide' | 'wipe';
-        duration?: number;
-    };
-};
-
-type TemplateData = {
-    name: string;
-    slides: Slide[];
-};
-
-const parseChartData = (content: string): any[] => {
-    if (!content) return [];
-    const lines = content.split('\n').filter(line => line.trim());
-    return lines.map(line => {
-        const parts = line.split(/\s+/);
-        const name = parts[0] || '';
-        const values: Record<string, number> = {};
-        for (let i = 1; i < parts.length; i++) {
-            const num = parseFloat(parts[i]);
-            if (!isNaN(num)) {
-                values[`value${i}`] = num;
-            }
-        }
-        return { name, ...values };
-    });
-};
-
-const useAnimatedChartData = (data: any[], animationFrames: number = 30) => {
-    const frame = useCurrentFrame();
-    const progress = interpolate(frame, [0, animationFrames], [0, 1], {
-        extrapolateRight: 'clamp',
-        easing: Easing.out(Easing.cubic),
-    });
-    
-    return data.map(item => {
-        const animated: any = { name: item.name };
-        Object.keys(item).forEach(key => {
-            if (key.startsWith('value')) {
-                animated[key] = item[key] * progress;
-            }
-        });
-        return animated;
-    });
-};
+import { AnimatedElementProps, ElementContentProps, Slide, SlideCompositionProps, SlideElement, SlideRendererProps, TemplateData } from './types';
+import { parseChartData, useAnimatedChartData } from './utils';
+import MarkdownRenderer from '../app/generate/renderers/MarkdownRenderer';
 
 const CHART_COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088FE', '#00C49F'];
 
-const MarkdownRenderer: React.FC<{ content: string; textColor?: string }> = ({ content, textColor = '#e4e4e7' }) => {
-    const parseInline = (text: string): React.ReactNode[] => {
-        const parts: React.ReactNode[] = [];
-        let remaining = text;
-        let key = 0;
-        
-        while (remaining.length > 0) {
-            const boldMatch = remaining.match(/^(\*\*|__)(.+?)\1/);
-            if (boldMatch) {
-                parts.push(<strong key={key++} style={{ fontWeight: 700, color: '#ffffff' }}>{parseInline(boldMatch[2])}</strong>);
-                remaining = remaining.slice(boldMatch[0].length);
-                continue;
-            }
-            
-            const italicMatch = remaining.match(/^(\*|_)(.+?)\1/);
-            if (italicMatch) {
-                parts.push(<em key={key++} style={{ fontStyle: 'italic' }}>{parseInline(italicMatch[2])}</em>);
-                remaining = remaining.slice(italicMatch[0].length);
-                continue;
-            }
-            
-            const codeMatch = remaining.match(/^`([^`]+)`/);
-            if (codeMatch) {
-                parts.push(
-                    <code key={key++} style={{
-                        backgroundColor: 'rgba(39, 39, 42, 0.8)',
-                        color: '#c084fc',
-                        padding: '0.125rem 0.375rem',
-                        borderRadius: '0.25rem',
-                        fontSize: '0.9em',
-                        fontFamily: 'ui-monospace, SFMono-Regular, monospace',
-                    }}>{codeMatch[1]}</code>
-                );
-                remaining = remaining.slice(codeMatch[0].length);
-                continue;
-            }
-            
-            // Regular character
-            const nextSpecial = remaining.slice(1).search(/[\*_`]/);
-            if (nextSpecial === -1) {
-                parts.push(remaining);
-                break;
-            }
-            parts.push(remaining.slice(0, nextSpecial + 1));
-            remaining = remaining.slice(nextSpecial + 1);
-        }
-        
-        return parts;
-    };
-    
-    const lines = content.split('\n');
-    const elements: React.ReactNode[] = [];
-    let inList = false;
-    let listItems: React.ReactNode[] = [];
-    let listType: 'ul' | 'ol' = 'ul';
-    
-    const flushList = () => {
-        if (listItems.length > 0) {
-            const ListTag = listType;
-            elements.push(
-                <ListTag key={elements.length} style={{
-                    listStyle: 'none',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5em',
-                    margin: '1em 0',
-                    padding: 0,
-                }}>
-                    {listItems}
-                </ListTag>
-            );
-            listItems = [];
-        }
-        inList = false;
-    };
-    
-    lines.forEach((line, i) => {
-        const h1Match = line.match(/^# (.+)$/);
-        if (h1Match) {
-            flushList();
-            elements.push(<h1 key={i} style={{ fontSize: '2em', fontWeight: 700, margin: '1.5em 0 0.5em 0', color: '#ffffff' }}>{parseInline(h1Match[1])}</h1>);
-            return;
-        }
-        
-        const h2Match = line.match(/^## (.+)$/);
-        if (h2Match) {
-            flushList();
-            elements.push(<h2 key={i} style={{ fontSize: '1.5em', fontWeight: 700, margin: '1.5em 0 0.5em 0', color: '#ffffff' }}>{parseInline(h2Match[1])}</h2>);
-            return;
-        }
-        
-        const h3Match = line.match(/^### (.+)$/);
-        if (h3Match) {
-            flushList();
-            elements.push(<h3 key={i} style={{ fontSize: '1.25em', fontWeight: 700, margin: '1.25em 0 0.5em 0', color: '#ffffff' }}>{parseInline(h3Match[1])}</h3>);
-            return;
-        }
-        
-        if (line.startsWith('> ')) {
-            flushList();
-            elements.push(
-                <blockquote key={i} style={{
-                    borderLeft: '4px solid #a855f7',
-                    paddingLeft: '1rem',
-                    margin: '1.25em 0',
-                    color: '#d4d4d8',
-                    fontStyle: 'italic',
-                }}>{parseInline(line.slice(2))}</blockquote>
-            );
-            return;
-        }
-        
-        // Unordered list
-        const ulMatch = line.match(/^[-*] (.+)$/);
-        if (ulMatch) {
-            if (!inList || listType !== 'ul') {
-                flushList();
-                listType = 'ul';
-            }
-            inList = true;
-            listItems.push(
-                <li key={listItems.length} style={{ display: 'flex', alignItems: 'flex-start' }}>
-                    <span style={{
-                        marginRight: '0.5rem',
-                        marginTop: '0.6em',
-                        width: '0.375rem',
-                        height: '0.375rem',
-                        borderRadius: '50%',
-                        backgroundColor: '#a855f7',
-                        flexShrink: 0,
-                    }} />
-                    <span>{parseInline(ulMatch[1])}</span>
-                </li>
-            );
-            return;
-        }
-        
-        const olMatch = line.match(/^(\d+)\. (.+)$/);
-        if (olMatch) {
-            if (!inList || listType !== 'ol') {
-                flushList();
-                listType = 'ol';
-            }
-            inList = true;
-            listItems.push(
-                <li key={listItems.length} style={{ display: 'flex', alignItems: 'flex-start' }}>
-                    <span style={{ marginRight: '0.5rem', color: '#a855f7', fontWeight: 600 }}>{olMatch[1]}.</span>
-                    <span>{parseInline(olMatch[2])}</span>
-                </li>
-            );
-            return;
-        }
-        
-        if (line.trim() === '') {
-            flushList();
-            elements.push(<div key={i} style={{ height: '0.5rem' }} />);
-            return;
-        }
-        
-        flushList();
-        elements.push(<p key={i} style={{ margin: '1em 0', color: textColor }}>{parseInline(line)}</p>);
-    });
-    
-    flushList();
-    
-    return <div>{elements}</div>;
-};
-
-interface AnimatedElementProps {
-    element: SlideElement;
-}
-
-const AnimatedElement: React.FC<AnimatedElementProps> = ({ element }) => {
-    const frame = useCurrentFrame();
+const AnimatedElement: React.FC<AnimatedElementProps> = ({ element, relativeFrame }) => {
+    const frame = relativeFrame;
     const { fps } = useVideoConfig();
     
     const anim = element.animation;
@@ -379,7 +101,7 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({ element }) => {
                 justifyContent: element.verticalAlign === 'center' ? 'center' : element.verticalAlign === 'bottom' ? 'flex-end' : 'flex-start',
                 alignItems: element.textAlign === 'center' ? 'center' : element.textAlign === 'right' ? 'flex-end' : 'flex-start',
             }}>
-                <ElementContent element={element} parentWidth={element.width || 400} parentHeight={element.height || 250} />
+                <ElementContent element={element} parentWidth={element.width || 400} parentHeight={element.height || 250} relativeFrame={frame} />
             </div>
         </div>
     );
@@ -390,14 +112,15 @@ const AnimatedChart: React.FC<{
     width: number; 
     height: number;
     colors: string[];
-}> = ({ element, width, height, colors }) => {
+    frame: number;
+}> = ({ element, width, height, colors, frame }) => {
     const rawData = parseChartData(element.content);
-    const data = useAnimatedChartData(rawData);
+    // Pass frame to useAnimatedChartData
+    const data = useAnimatedChartData(rawData, frame);
     const conf = element.chartProps || {};
     
     if (element.chartType === 'pie') {
         const pieRadius = Math.min(width, height) * 0.35;
-        const frame = useCurrentFrame();
         const scale = interpolate(frame, [0, 20], [0, 1], { 
             extrapolateRight: 'clamp',
             easing: Easing.out(Easing.cubic),
@@ -454,13 +177,6 @@ const AnimatedChart: React.FC<{
     );
 };
 
-interface ElementContentProps {
-    element: SlideElement;
-    parentWidth: number;
-    parentHeight: number;
-}
-
-
 
 const SafeImage: React.FC<{ src: string; style?: React.CSSProperties; alt?: string; objectFit?: any; borderRadius?: any }> = ({ src, style, alt, objectFit, borderRadius }) => {
     const [hasError, setHasError] = React.useState(false);
@@ -503,42 +219,11 @@ const SafeImage: React.FC<{ src: string; style?: React.CSSProperties; alt?: stri
     );
 };
 
-const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, parentHeight }) => {
+const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, parentHeight, relativeFrame }) => {
     const chartWidth = parentWidth || 400;
     const chartHeight = parentHeight || 250;
     
     switch (element.type) {
-        case 'headline':
-            return (
-                <h1 style={{ 
-                    margin: 0, 
-                    fontSize: element.fontSize || 60, 
-                    fontWeight: element.fontWeight || 'bold',
-                    textAlign: element.textAlign || 'left',
-                    fontFamily: getFontFamily(element.fontFamily || 'Inter'),
-                    lineHeight: 1.25,
-                    whiteSpace: 'pre-wrap',
-                    width: '100%'
-                }}>
-                    {element.content}
-                </h1>
-            );
-            
-        case 'subheadline':
-            return (
-                <p style={{ 
-                    margin: 0, 
-                    fontSize: element.fontSize || 32,
-                    textAlign: element.textAlign || 'left',
-                    fontFamily: getFontFamily(element.fontFamily || 'Inter'),
-                    lineHeight: 1.375,
-                    whiteSpace: 'pre-wrap',
-                    width: '100%'
-                }}>
-                    {element.content}
-                </p>
-            );
-            
         case 'text':
             if (element.textFormat === 'markdown') {
                 return (
@@ -612,6 +297,7 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                     width={chartWidth} 
                     height={chartHeight} 
                     colors={element.chartProps?.colors || CHART_COLORS}
+                    frame={relativeFrame}
                 />
             );
             
@@ -651,7 +337,7 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                     borderRadius: 12, 
                     overflow: 'hidden', 
                     display: 'flex', 
-                    flexDirection: 'column',
+                    flexDirection: 'column', 
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' 
                 }}>
                     <div style={{ height: '40%', backgroundColor: '#27272a', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -691,21 +377,6 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                 </div>
             );
 
-        case 'icon':
-            return (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {(() => {
-                        const iconName = element.content
-                            .split('-')
-                            .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-                            .join('');
-                        
-                        const Icon = (LucideIcons as any)[iconName] || LucideIcons.HelpCircle;
-                        return <Icon size={Math.min(parentWidth || 48, parentHeight || 48)} color={element.color || 'currentColor'} strokeWidth={2} />;
-                    })()}
-                </div>
-            );
-
         case 'list':
             const items = element.content.split('\n');
             const ListTag = element.listType === 'decimal' ? 'ol' : 'ul';
@@ -735,7 +406,7 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                     overflow: 'hidden',
                     position: 'relative'
                 }}>
-                    <CustomComponentRenderer content={element.content} scale={1} />
+                    <CustomComponentRenderer content={element.content} scale={1} frame={relativeFrame} fps={useVideoConfig().fps} />
                 </div>
             );
             
@@ -744,11 +415,8 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
     }
 };
 
-interface SlideRendererProps {
-    slide: Slide;
-}
 
-const SingleSlideRenderer: React.FC<SlideRendererProps> = ({ slide }) => {
+const SingleSlideRenderer: React.FC<SlideRendererProps> = ({ slide, relativeFrame }) => {
     const bg = slide.background;
     const bgValue = bg?.type === 'color'
         ? (bg.value === 'dark' ? '#18181b' : bg.value)
@@ -780,6 +448,7 @@ const SingleSlideRenderer: React.FC<SlideRendererProps> = ({ slide }) => {
                     <AnimatedElement
                         key={element.id}
                         element={element}
+                        relativeFrame={relativeFrame}
                     />
                 ))}
             </div>
@@ -787,9 +456,6 @@ const SingleSlideRenderer: React.FC<SlideRendererProps> = ({ slide }) => {
     );
 };
 
-export interface SlideCompositionProps {
-    templateData: TemplateData;
-}
 
 const TransitionWrapper: React.FC<{
     children: React.ReactNode;
@@ -858,7 +524,7 @@ export const SlideComposition: React.FC<SlideCompositionProps> = ({ templateData
     let currentFrameOffset = 0;
     
     templateData.slides.forEach((slide, index) => {
-        const durationFrames = slide.duration || 150;
+        const durationFrames = Math.ceil((slide.duration || 5000) / 1000 * fps);
         const nextSlide = templateData.slides[index + 1];
         const transitionDuration = nextSlide?.transition?.duration || 0.5;
         const transitionFrames = nextSlide?.transition?.type !== 'none' && nextSlide?.transition?.type 
@@ -881,6 +547,12 @@ export const SlideComposition: React.FC<SlideCompositionProps> = ({ templateData
                 const { slide, fromFrame, toFrame, transitionFrames } = range;
                 const nextRange = slideRanges[index + 1];
                 
+                const slideDuration = toFrame - fromFrame;
+                const relativeFrame = Math.min(
+                    Math.max(0, frame - fromFrame),
+                    slideDuration
+                );
+
                 const isInTransitionOut = nextRange && frame >= (toFrame - transitionFrames) && frame < toFrame;
                 const transitionOutProgress = isInTransitionOut 
                     ? (frame - (toFrame - transitionFrames)) / transitionFrames 
@@ -892,34 +564,37 @@ export const SlideComposition: React.FC<SlideCompositionProps> = ({ templateData
                     ? (frame - fromFrame) / prevRange.transitionFrames
                     : 0;
                 
-                const isVisible = frame >= fromFrame && frame < toFrame + transitionFrames;
+                const isVisible = frame >= fromFrame - 10 && frame < toFrame + transitionFrames + 10;
                 
-                if (!isVisible) return null;
+                const opacity = isVisible ? 1 : 0;
+                const pointerEvents = isVisible ? 'auto' : 'none';
                 
                 const zIndex = isInTransitionOut ? 1 : 2;
                 
                 const scale = useVideoConfig().width / 1000;
                 return (
-                    <AbsoluteFill key={slide.id} style={{ zIndex, backgroundColor: '#000' }}>
+                    <AbsoluteFill 
+                        key={slide.id} 
+                        style={{ 
+                            zIndex, 
+                            backgroundColor: '#000',
+                            opacity,
+                            pointerEvents: pointerEvents as any
+                        }}
+                    >
                         <div style={{ 
                             width: 1000, 
                             height: 563,
                             transform: `scale(${scale})`,
                             transformOrigin: 'top left',
                         }}>
-                             <Sequence
-                                from={fromFrame}
-                                durationInFrames={toFrame - fromFrame + transitionFrames}
-                                layout="none"
+                            <TransitionWrapper
+                                slide={slide}
+                                isOutgoing={isInTransitionOut}
+                                transitionProgress={isInTransitionOut ? transitionOutProgress : transitionInProgress}
                             >
-                                <TransitionWrapper
-                                    slide={slide}
-                                    isOutgoing={isInTransitionOut}
-                                    transitionProgress={isInTransitionOut ? transitionOutProgress : transitionInProgress}
-                                >
-                                    <SingleSlideRenderer slide={slide} />
-                                </TransitionWrapper>
-                            </Sequence>
+                                <SingleSlideRenderer slide={slide} relativeFrame={relativeFrame} />
+                            </TransitionWrapper>
                         </div>
                     </AbsoluteFill>
                 );

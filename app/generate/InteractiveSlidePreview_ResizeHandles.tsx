@@ -24,7 +24,6 @@ export const ResizeHandles: React.FC<ResizeHandlesProps> = ({ isSelected, onResi
         e.preventDefault();
         e.stopPropagation();
         
-        // Notify parent that resize is starting (to disable drag)
         onResizeStart?.();
 
         const startX = e.clientX;

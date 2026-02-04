@@ -8,7 +8,6 @@ import { motion } from 'framer-motion';
 export default function LoginPage() {
     return (
         <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center relative overflow-hidden font-sans selection:bg-purple-500/30">
-             {/* Background Noise & Gradient */}
              <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}></div>
              <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none"></div>
              <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none"></div>
@@ -19,7 +18,6 @@ export default function LoginPage() {
                 transition={{ duration: 0.6, ease: "easeOut" }}
                 className="w-full max-w-md p-8 relative z-10"
             >
-                {/* Logo Area */}
                 <div className="flex flex-col items-center mb-10">
                     <div className="w-12 h-12 bg-zinc-900 border-2 border-zinc-800 flex items-center justify-center mb-4 transform rotate-45">
                         <div className="w-6 h-6 bg-purple-600"></div>
@@ -27,7 +25,6 @@ export default function LoginPage() {
                     <h1 className="text-3xl font-black tracking-tighter text-white mb-1">OpenScenes</h1>
                 </div>
 
-                {/* Login Card */}
                 <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 p-8 shadow-2xl relative group">
                     <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-purple-500/50"></div>
                     <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-purple-500/50"></div>

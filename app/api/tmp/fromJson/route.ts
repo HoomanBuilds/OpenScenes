@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
                 'Content-Length': result.sizeBytes.toString(),
                 'X-Render-Time': `${result.renderTime}s`,
                 'X-Total-Frames': result.totalDurationFrames.toString(),
-                'X-Duration-Seconds': (result.totalDurationFrames / fps).toFixed(2),
+                'X-Duration-Seconds': result.durationSeconds.toFixed(2),
             },
         });
         
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
     return NextResponse.json({
-        name: 'OpenScenesi Video Generator - fromJson',
+        name: 'OpenScenes Video Generator - fromJson',
         version: '1.0.0',
         description: 'Generate videos from template JSON files',
         endpoints: {

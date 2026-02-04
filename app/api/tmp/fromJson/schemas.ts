@@ -49,7 +49,7 @@ export function validateTemplate(data: any): TemplateData {
             throw new Error(`Invalid template: slide ${i + 1} missing "id"`);
         }
         if (typeof slide.duration !== 'number' || slide.duration <= 0) {
-            data.slides[i].duration = 150;
+            data.slides[i].duration = 5000;
         }
     }
     

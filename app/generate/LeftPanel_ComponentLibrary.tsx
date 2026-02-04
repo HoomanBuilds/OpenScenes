@@ -39,7 +39,6 @@ export const LeftPanel_ComponentLibrary: React.FC<LeftPanel_ComponentLibraryProp
                     onDragStart={(e) => onDragStart(e, comp.type, comp.label)}
                     className="group relative h-14 bg-zinc-950 border-2 border-zinc-900 hover:border-zinc-500 hover:bg-zinc-900 transition-all cursor-grab active:cursor-grabbing flex items-center px-4 space-x-3 overflow-hidden"
                 >
-                    {/* Tech Decor */}
                     <div className="absolute top-0 right-0 w-2 h-2 bg-zinc-800 group-hover:bg-purple-500 transition-colors"></div>
                     <div className="absolute bottom-0 left-0 w-2 h-2 border-r border-t border-zinc-800"></div>
 
@@ -52,7 +51,6 @@ export const LeftPanel_ComponentLibrary: React.FC<LeftPanel_ComponentLibraryProp
                         <span className="text-xs font-bold text-zinc-300 group-hover:text-white uppercase tracking-tight">{comp.label}</span>
                     </div>
 
-                    {/* Drag indicator */}
                     <div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                          <svg className="w-3 h-3 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
                     </div>

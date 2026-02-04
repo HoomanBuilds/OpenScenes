@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
 
 interface CustomJsonEditorProps {
@@ -13,21 +12,12 @@ export const LeftPanel_CustomJsonEditor: React.FC<CustomJsonEditorProps> = ({ va
     const [parsed, setParsed] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // Initial Parse
-    // Initial Parse & Sync
     useEffect(() => {
         try {
             if (mode !== 'json' && mode !== 'visual') return; 
 
-            // Explicitly handle non-JSON string values to avoid crashing
             if (value && typeof value === 'string' && !value.trim().startsWith('{') && !value.trim().startsWith('[')) {
-                // If value is a plain string (like a URL), wrapping it might be safer or just setting parsed to null
-                 // BUT better to just catch it in the existing try-catch?
-                 // The existing try-catch SHOULD work. 
-                 // However, let's allow "fail fast" for URLs
-                 // If it looks like a URL, don't parse.
                  if (value.startsWith('http')) {
-                      // It's a URL, not JSON.
                       setParsed(null);
                       setError("Content is a URL, not JSON");
                       return;
@@ -44,7 +34,6 @@ export const LeftPanel_CustomJsonEditor: React.FC<CustomJsonEditorProps> = ({ va
         }
     }, [value, mode]);
 
-    // Sync from visual state to string
     const handleVisualUpdate = (newParsed: any) => {
         setParsed(newParsed);
         onChange(JSON.stringify(newParsed, null, 2));
@@ -71,7 +60,6 @@ export const LeftPanel_CustomJsonEditor: React.FC<CustomJsonEditorProps> = ({ va
 
     return (
         <div className="flex flex-col h-full bg-zinc-950 border border-zinc-900 rounded-lg overflow-hidden">
-            {/* Header / Toggles */}
             <div className="flex items-center justify-between p-2 border-b border-zinc-900 bg-zinc-900/50">
                 <div className="flex space-x-1">
                     <button
@@ -91,7 +79,6 @@ export const LeftPanel_CustomJsonEditor: React.FC<CustomJsonEditorProps> = ({ va
                 {error && <span className="text-[10px] text-red-500 font-mono animate-pulse">{error}</span>}
             </div>
 
-            {/* Content Area */}
             <div className="flex-1 overflow-hidden relative">
                 {mode === 'json' && (
                     <textarea
@@ -104,7 +91,6 @@ export const LeftPanel_CustomJsonEditor: React.FC<CustomJsonEditorProps> = ({ va
 
                 {mode === 'visual' && parsed && (
                     <div className="flex flex-col h-full">
-                        {/* Visual Tabs */}
                         <div className="flex border-b border-zinc-900">
                              <button
                                 onClick={() => setVisualTab('timeline')}
@@ -135,7 +121,6 @@ export const LeftPanel_CustomJsonEditor: React.FC<CustomJsonEditorProps> = ({ va
     );
 };
 
-// --- Sub-Components ---
 
 const TimelineEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any) => void }) => {
     const timeline = parsed.timeline || [];
@@ -161,11 +146,13 @@ const TimelineEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any) 
         onUpdate({ ...parsed, timeline: newTimeline });
     }
 
-    const addStep = (type: 'wait' | 'guide' | 'anim') => {
+    const addStep = (type: 'wait' | 'guide' | 'anim' | 'label' | 'goto') => {
         let newStep = {};
         if (type === 'wait') newStep = { comment: "Wait", delay: 1 };
         if (type === 'guide') newStep = { comment: "Move Cursor", guide: { target: "id", duration: 1 } };
         if (type === 'anim') newStep = { id: "hero", animate: { opacity: 1 }, transition: { duration: 0.5 } };
+        if (type === 'label') newStep = { label: "Start" };
+        if (type === 'goto') newStep = { goto: "Start" };
         
         onUpdate({ ...parsed, timeline: [...timeline, newStep] });
     };
@@ -173,27 +160,30 @@ const TimelineEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any) 
     return (
         <div className="space-y-4 pb-10">
             {timeline.map((step: any, i: number) => {
-                // Determine Type
                 const isGuide = !!step.guide;
                 const isAnim = !!step.id && !!step.animate;
-                const isWait = !isGuide && !isAnim && step.delay !== undefined;
+                const isLabel = !!step.label;
+                const isGoto = !!step.goto;
+                const isWait = !isGuide && !isAnim && !isLabel && !isGoto && step.delay !== undefined;
 
                 return (
                 <div key={i} className={`relative border rounded-r-lg p-3 transition-all group my-2 ${
                     isGuide ? 'border-l-4 border-l-purple-500 bg-zinc-950/50 border-y border-r border-zinc-900' : 
                     isAnim ? 'border-l-4 border-l-green-500 bg-zinc-950/50 border-y border-r border-zinc-900' :
+                    isLabel ? 'border-l-4 border-l-blue-500 bg-blue-900/10 border-y border-r border-zinc-900' :
+                    isGoto ? 'border-l-4 border-l-orange-500 bg-orange-900/10 border-y border-r border-zinc-900' :
                     'border-l-4 border-l-zinc-700 bg-zinc-950/50 border-y border-r border-zinc-900'
                 }`}>
-                    {/* Header: Actions & Label */}
                     <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
                         <div className="flex items-center space-x-2">
                             <span className="text-[9px] font-mono text-zinc-600">#{i + 1}</span>
                             {isGuide && <span className="text-[9px] font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1"><LucideIcons.MousePointer2 size={10} /> CRSR MOVE</span>}
                             {isAnim && <span className="text-[9px] font-bold text-green-400 uppercase tracking-wider flex items-center gap-1"><LucideIcons.Zap size={10} /> ANIMATE</span>}
+                            {isLabel && <span className="text-[9px] font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1"><LucideIcons.Flag size={10} /> ANCHOR</span>}
+                            {isGoto && <span className="text-[9px] font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1"><LucideIcons.Repeat size={10} /> LOOP / GOTO</span>}
                             {isWait && <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1"><LucideIcons.Clock size={10} /> DELAY</span>}
                         </div>
                         
-                        {/* Actions */}
                         <div className="flex items-center space-x-0.5 opacity-40 group-hover:opacity-100 transition-opacity">
                             <button onClick={() => moveStep(i, -1)} disabled={i === 0} className="p-1 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white disabled:opacity-0"><LucideIcons.ChevronUp size={12} /></button>
                             <button onClick={() => moveStep(i, 1)} disabled={i === timeline.length - 1} className="p-1 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white disabled:opacity-0"><LucideIcons.ChevronDown size={12} /></button>
@@ -202,9 +192,7 @@ const TimelineEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any) 
                         </div>
                     </div>
 
-                    {/* Inputs */}
                     <div className="grid grid-cols-2 gap-3">
-                        {/* Common Comment/Label */}
                         <div className="col-span-2">
                              <input 
                                 className="w-full bg-transparent border-b border-dotted border-zinc-700 text-[10px] text-zinc-500 focus:text-zinc-300 focus:border-zinc-500 focus:outline-none py-0.5"
@@ -214,7 +202,6 @@ const TimelineEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any) 
                             />
                         </div>
 
-                        {/* Guide Specifics */}
                         {isGuide && (
                              <>
                                 <div>
@@ -232,7 +219,6 @@ const TimelineEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any) 
                              </>
                         )}
 
-                        {/* Animation Specifics */}
                         {isAnim && (
                              <>
                                 <div>
@@ -258,26 +244,39 @@ const TimelineEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any) 
                              </>
                         )}
                         
-                        {/* Wait Specifics */}
-                        {(isWait || step.delay !== undefined) && !isGuide && (
+                        {(isWait || step.delay !== undefined) && !isGuide && !isLabel && !isGoto && !isAnim && (
                              <div className="col-span-1">
                                 <label className="text-[8px] text-zinc-600 uppercase font-bold block mb-1">Wait Duration (s)</label>
                                 <input type="number" step="0.1" className="w-full bg-zinc-950 border border-zinc-800 rounded px-2 py-1.5 text-[10px] text-zinc-300 focus:border-zinc-600 focus:outline-none"
                                     value={step.delay} onChange={(e) => updateStep(i, { delay: parseFloat(e.target.value) })} />
                             </div>
                         )}
+
+                        {isLabel && (
+                             <div className="col-span-2">
+                                <label className="text-[8px] text-blue-600 uppercase font-bold block mb-1">Label Name</label>
+                                <input className="w-full bg-zinc-950 border border-blue-900/50 rounded px-2 py-1.5 text-[10px] text-blue-300 focus:border-blue-500 focus:outline-none font-bold"
+                                    value={step.label} onChange={(e) => updateStep(i, { label: e.target.value })} />
+                            </div>
+                        )}
+
+                        {isGoto && (
+                             <div className="col-span-2">
+                                <label className="text-[8px] text-orange-600 uppercase font-bold block mb-1">Go to Label</label>
+                                <input className="w-full bg-zinc-950 border border-orange-900/50 rounded px-2 py-1.5 text-[10px] text-orange-300 focus:border-orange-500 focus:outline-none font-bold"
+                                    value={step.goto} onChange={(e) => updateStep(i, { goto: e.target.value })} />
+                            </div>
+                        )}
                     </div>
                 </div>
             )})}
             
-            {/* Empty State */}
             {timeline.length === 0 && (
                 <div className="text-center py-8 border-2 border-dashed border-zinc-800 rounded-lg">
                     <p className="text-zinc-500 text-[10px]">No animation steps yet</p>
                 </div>
             )}
 
-            {/* Add Actions */}
             <div className="grid grid-cols-3 gap-2 pt-2">
                 <button onClick={() => addStep('guide')} className="py-2.5 bg-zinc-900 border border-zinc-800 rounded text-[10px] font-bold text-zinc-400 hover:text-purple-400 hover:border-purple-500/30 transition-all flex items-center justify-center gap-1.5">
                     <LucideIcons.MousePointer2 size={12} />
@@ -291,6 +290,16 @@ const TimelineEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any) 
                     <LucideIcons.Clock size={12} />
                     + WAIT
                 </button>
+                <div className="col-span-3 grid grid-cols-2 gap-2 mt-1">
+                     <button onClick={() => addStep('label')} className="py-2 bg-zinc-900 border border-zinc-800 rounded text-[10px] font-bold text-blue-900 hover:text-blue-400 hover:border-blue-500/30 transition-all flex items-center justify-center gap-1.5">
+                        <LucideIcons.Flag size={12} />
+                        + ANCHOR
+                    </button>
+                    <button onClick={() => addStep('goto')} className="py-2 bg-zinc-900 border border-zinc-800 rounded text-[10px] font-bold text-orange-900 hover:text-orange-400 hover:border-orange-500/30 transition-all flex items-center justify-center gap-1.5">
+                        <LucideIcons.Repeat size={12} />
+                        + LOOP
+                    </button>
+                </div>
             </div>
         </div>
     );
@@ -299,7 +308,6 @@ const TimelineEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any) 
 const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any) => void }) => {
     const [selectedPath, setSelectedPath] = useState<string | null>(null);
 
-    // Derive selected node directly
     const selectedNode = useMemo(() => {
         if (!selectedPath) return null;
         let current = parsed;
@@ -316,25 +324,16 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
 
     const [dragOverPath, setDragOverPath] = useState<string | null>(null);
 
-    // Helpers
     const handleRemoveNode = () => {
         if (!selectedPath || selectedPath === 'layout') return; // Protect root
         
-        // Logic: find parent and remove index
-        // path: "layout.children[0].children[1]"
-        // Parent path: "layout.children[0]"
-        // Target index: 1 (from children[1])
         
-        // Regex catch: last children[\d+]
         const match = selectedPath.match(/(.*)\.children\[(\d+)\]$/);
         if (match) {
             const parentPath = match[1];
             const index = parseInt(match[2]);
             
-            // We reuse updateNode logic with a special splice op or manually do it here
-            // Manual approach for safety:
             const newParsed = JSON.parse(JSON.stringify(parsed));
-            // Locate parent
             let parent = newParsed;
             const parentParts = parentPath.replace(/\]/g, '').split(/[.\[]/);
              for (const part of parentParts) {
@@ -360,7 +359,6 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
             const index = parseInt(match[2]);
             const newIndex = index + direction;
 
-            // Manual deep clone & traversal
             const newParsed = JSON.parse(JSON.stringify(parsed));
             let parent = newParsed;
             const parentParts = parentPath.replace(/\]/g, '').split(/[.\[]/);
@@ -371,16 +369,13 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
             }
 
             if (parent && parent.children) {
-                // Bounds check
                 if (newIndex < 0 || newIndex >= parent.children.length) return;
 
-                // Swap
                 const temp = parent.children[index];
                 parent.children[index] = parent.children[newIndex];
                 parent.children[newIndex] = temp;
 
                 onUpdate(newParsed);
-                // Update selection to follow the node
                 setSelectedPath(`${parentPath}.children[${newIndex}]`);
             }
         }
@@ -390,7 +385,6 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
         if (!selectedPath) return;
         
         const newParsed = JSON.parse(JSON.stringify(parsed));
-        // Locate node
         let current = newParsed;
         const parts = selectedPath.replace(/\]/g, '').split(/[.\[]/);
          for (const part of parts) {
@@ -406,16 +400,13 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
         }
     };
 
-    // DnD Helpers
     const handleDropNode = (sourcePath: string, targetPath: string) => {
         if (!sourcePath || !targetPath) return;
         if (sourcePath === targetPath) return;
-        // Prevent dropping parent into its own child
         if (targetPath.startsWith(sourcePath)) return;
 
         const newParsed = JSON.parse(JSON.stringify(parsed));
         
-        // 1. Get Source Node
         let sourceParent = newParsed;
         let sourceIndex = -1;
         
@@ -432,26 +423,9 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
         if (!sourceParent || !sourceParent.children) return;
         const nodeToMove = sourceParent.children[sourceIndex];
         
-        // 2. Remove Source (This is risky if target relies on indices that shift)
-        // Better: Clone node, Insert at Target, Then Remove Source?
-        // But removing source changes indices for subsequent operations if we rely on paths?
-        // Actually, since we parse a fresh tree, target path is based on OLD tree.
-        // We must perform operations in a way that index shift doesn't break Target path.
         
-        // Strategy: 
-        // A. Extract Node (Copy)
-        // B. Insert into Target (using old path, this is safe because adding child doesn't shift existing parent paths usually, unless target is AFTER source in flattened sense? No, tree path is structural)
-        // C. Delete Source (using old path? No, we need to delete from the modified tree)
         
-        // WAIT: If we Modify Target first (add child), the structure changes.
-        // Then we go to Source Path to delete?
-        // If Target is INSIDE Source -> Blocked by check.
-        // If Target is ELSEWHERE -> Safe.
-        // If Target is PARENT of Source -> Safe (adding child to parent doesn't shift existing child index... wait. pushing to end? Yes safe).
-        // If Target is SIBLING?
         
-        // Let's do:
-        // 1. Find Target in New/Mutable Tree using Path.
         let tNode = newParsed;
         const targetParts = targetPath.replace(/\]/g, '').split(/[.\[]/);
         for (const part of targetParts) {
@@ -459,28 +433,11 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
         }
         
         if (tNode) {
-            // 2. Add Node to Target
             if (!tNode.children) tNode.children = [];
             tNode.children.push(nodeToMove);
             
-            // 3. Delete Source from New/Mutable Tree
-            // We need to re-traverse to source parent in the potentially modified tree.
-            // CAUTION: If we added to a node that is "before" source?
-            // Actually, we added a child DEEP in the tree.
-            // Source Parent Path should still be valid, unless Source Parent IS Target?
             
-            // If Source Parent === Target, we just added a child to it. 
-            // Indices might have shifted? No, we pushed to end.
-            // But Source Index `sourceIndex` is still valid for the *original* array part.
-            // So we can splice `sourceIndex` safely?
-            // YES, IF we assume we pushed to end.
             
-            // Edge Case: Dropping a node onto its own parent?
-            // sourcePath: p.children[i]
-            // targetPath: p
-            // We append child to p. 
-            // Then remove p.children[i]. 
-            // This effectively moves it to end of siblings. VALID.
             
             let sParent = newParsed;
             const sMatch = sourcePath.match(/(.*)\.children\[(\d+)\]$/);
@@ -494,20 +451,7 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
                 }
                 
                 if (sParent && sParent.children) {
-                    // Check if we are deleting the node we just added? (Cloned ref?)
-                    // nodeToMove is a Reference from the `newParsed` tree? 
-                    // No, `nodeToMove = sourceParent.children[sourceIndex]` was grabbed at step 1.
-                    // THIS IS THE SAME OBJECT REFERENCE if we didn't deep clone twice.
-                    // `const newParsed = JSON.parse(JSON.stringify(parsed))` -> Single clone.
-                    // So `nodeToMove` IS the object in the tree.
-                    // If we pushed it to `tNode.children`, it is now in two places in the tree structure (same ref).
-                    // We must remove it from the old place.
                     
-                    // IF `sParent` === `tNode`:
-                    // We have `[A, B, C, (moved A)]`.
-                    // We want to remove `A` at index 0.
-                    // `sIdx` is 0.
-                    // `splice(0, 1)` -> `[B, C, (moved A)]`. Correct.
                     
                     sParent.children.splice(sIdx, 1);
                     onUpdate(newParsed);
@@ -517,7 +461,6 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
         }
     };
 
-    // Recursive Tree Node
     const renderNode = (node: any, path: string) => {
         const isLeaf = !node.children || node.children.length === 0;
         const isSelected = path === selectedPath;
@@ -534,14 +477,14 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
                 onDragEnter={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (path !== 'layout' || true) { // Allow root drop
+                    if (path !== 'layout' || true) { 
                          setDragOverPath(path);
                     }
                 }}
                 onDragOver={(e) => {
                     e.preventDefault(); 
                     e.stopPropagation();
-                    e.dataTransfer.dropEffect = 'copy'; // Default to copy/move based on source?
+                    e.dataTransfer.dropEffect = 'copy';
                 }}
                 onDragEnd={(e) => {
                     setDragOverPath(null);
@@ -551,25 +494,21 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
                     e.stopPropagation();
                     setDragOverPath(null);
 
-                    // 1. Internal Move
                     const sourcePath = e.dataTransfer.getData('sourcePath');
                     if (sourcePath) {
                         handleDropNode(sourcePath, path);
                         return;
                     }
 
-                    // 2. External New Component
                     let remoteData = e.dataTransfer.getData('application/json');
                     if (!remoteData) remoteData = e.dataTransfer.getData('text/plain'); // Fallback
 
                     if (remoteData) {
                         try {
-                            // Check if it's our JSON payload
-                            if (!remoteData.startsWith('{')) return; // Ignore random text drops
+                            if (!remoteData.startsWith('{')) return;
                             
                             const data = JSON.parse(remoteData);
                             if (data.type === 'component') {
-                                // Create Node based on Type
                                 let newNode: any = { tag: 'div', className: 'p-4 bg-zinc-800', id: `el-${Date.now().toString().slice(-4)}` };
                                 
                                 switch (data.componentType) {
@@ -597,7 +536,6 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
                                          break;
                                 }
 
-                                // Add to Target
                                 const newParsed = JSON.parse(JSON.stringify(parsed));
                                 let tNode = newParsed;
                                 const targetParts = path.replace(/\]/g, '').split(/[.\[]/);
@@ -639,7 +577,6 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
         );
     };
 
-    // Helper to update deep nested object by path string
     const updateNode = (path: string, changes: any) => {
         const newParsed = JSON.parse(JSON.stringify(parsed));
         let current = newParsed;
@@ -660,16 +597,13 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
 
     return (
         <div className="flex flex-col h-full">
-            {/* Tree View */}
             <div className="flex-1 overflow-y-auto p-2 font-mono text-xs border-b border-zinc-900 bg-zinc-950/30">
                 {parsed.layout ? renderNode(parsed.layout, 'layout') : <div className="text-zinc-500">No layout found</div>}
             </div>
 
-            {/* Inspector Panel */}
             <div className="h-[220px] bg-zinc-900/80 backdrop-blur-sm p-3 border-t border-zinc-800 flex flex-col">
                 {selectedNode && selectedPath ? (
                     <div className="flex-1 overflow-y-auto space-y-3 animate-in slide-in-from-bottom-2 fade-in duration-200">
-                        {/* Header Actions */}
                         <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-2">
                              <div className="flex items-center space-x-2">
                                 <span className="text-[10px] font-black uppercase text-zinc-500">Edit Node</span>
@@ -699,7 +633,6 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
-                             {/* ID */}
                              <div className="col-span-1">
                                  <label className="text-[8px] text-zinc-600 uppercase font-black mb-1 block">ID</label>
                                  <input className="w-full bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-[10px] text-zinc-300 focus:border-purple-500 focus:outline-none focus:bg-zinc-900 transition-colors"
@@ -707,7 +640,6 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
                                     onChange={(e) => updateNode(selectedPath, { id: e.target.value })} 
                                 />
                              </div>
-                             {/* Text */}
                              <div className="col-span-1">
                                  <label className="text-[8px] text-zinc-600 uppercase font-black mb-1 block">Content</label>
                                  <input className="w-full bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-[10px] text-zinc-300 focus:border-purple-500 focus:outline-none focus:bg-zinc-900 transition-colors"
@@ -715,7 +647,6 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
                                     onChange={(e) => updateNode(selectedPath, { text: e.target.value })} 
                                 />
                              </div>
-                             {/* TailWind */}
                              <div className="col-span-2">
                                 <label className="text-[8px] text-zinc-600 uppercase font-black mb-1 block">Tailwind Classes</label>
                                  <textarea className="w-full bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-[10px] text-green-300 font-mono resize-y min-h-[40px] focus:border-purple-500 focus:outline-none focus:bg-zinc-900 transition-colors"
@@ -723,7 +654,6 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
                                     onChange={(e) => updateNode(selectedPath, { className: e.target.value })} 
                                 />
                              </div>
-                             {/* Style */}
                              <div className="col-span-2">
                                 <label className="text-[8px] text-zinc-600 uppercase font-black mb-1 block flex justify-between">
                                     <span>Inner Style (JSON)</span>

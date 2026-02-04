@@ -28,13 +28,13 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy'; // Changed from 'move' to match source effect
+        e.dataTransfer.dropEffect = 'copy';
     };
 
     const handleDropOnCanvas = (e: React.DragEvent) => {
         e.preventDefault();
         let data = e.dataTransfer.getData('application/json');
-        if (!data) data = e.dataTransfer.getData('text/plain'); // Fallback
+        if (!data) data = e.dataTransfer.getData('text/plain');
         
         if (!data) return;
 
@@ -42,13 +42,11 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
             const parsed = JSON.parse(data);
             const rect = e.currentTarget.getBoundingClientRect();
             
-            // Calculate coordinates scaled to 1000px width canvas
             const scale = rect.width / 1000;
             const x = (e.clientX - rect.left) / scale;
             const y = (e.clientY - rect.top) / scale;
 
             if (parsed.type === 'component') {
-                // Adjust for component width/height (approx centering)
                 const finalX = x - (parsed.componentType === 'text' ? 200 : 150);
                 const finalY = y - (parsed.componentType === 'text' ? 30 : 100);
 
@@ -77,13 +75,10 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
         try {
             const parsed = JSON.parse(data);
             if (parsed.type === 'asset' && (parsed.assetType === 'image' || parsed.assetType === 'video')) {
-                // If it's an asset drop on an existing element, we handle it and stop propagation
                 e.preventDefault();
                 e.stopPropagation();
                 onUpdateElement(slide.id, elementId, 0, 0, { content: parsed.url });
             }
-            // If it's a 'component' drop, we DON'T preventDefault or stopPropagation
-            // so it bubbles up to the canvas handleDropOnCanvas
         } catch (err) {
             console.error("Asset drop failed:", err);
         }

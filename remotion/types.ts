@@ -1,45 +1,44 @@
 
-export type AnimationType = 'none' | 'fade' | 'slide' | 'pop' | 'scale';
-export type AnimationDirection = 'up' | 'down' | 'left' | 'right';
+type AnimationType = 'none' | 'fade' | 'slide' | 'pop' | 'scale';
+type AnimationDirection = 'up' | 'down' | 'left' | 'right';
 
-export type SlideBackground = {
+type SlideBackground = {
     type: 'color' | 'image' | 'gradient';
     value: string;
     props?: {
         size?: 'cover' | 'contain' | 'auto';
-        repeat?: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y';
         position?: string;
     };
 };
 
-export type ElementAnimation = {
+type ElementAnimation = {
     type: AnimationType;
-    duration: number; // seconds
-    delay: number; // seconds
+    duration: number;
+    delay: number;
     direction?: AnimationDirection;
 };
 
-export type SlideElement = {
+type SlideElement = {
     id: string;
     type: 'headline' | 'subheadline' | 'text' | 'image' | 'video' | 'chart' | 'shape' | 'link-preview' | 'list' | 'icon' | 'custom';
-    content: string | Record<string, any>;
+    content: string;
     textFormat?: 'normal' | 'markdown';
     x: number;
     y: number;
-    width?: number; 
+    width?: number;
     height?: number;
     color?: string;
     textColor?: string;
-    rotation?: number; 
-    opacity?: number; 
+    rotation?: number;
+    opacity?: number;
     zIndex?: number;
-    fontSize?: number; 
-    fontWeight?: string; 
+    fontSize?: number;
+    fontWeight?: string;
     textAlign?: 'left' | 'center' | 'right';
     verticalAlign?: 'top' | 'center' | 'bottom';
-    fontFamily?: string; 
-    lineHeight?: number; 
-    borderRadius?: number; 
+    fontFamily?: string;
+    lineHeight?: number;
+    borderRadius?: number;
     strokeWidth?: number;
     strokeColor?: string;
     chartType?: 'bar' | 'line' | 'pie' | 'area';
@@ -55,35 +54,60 @@ export type SlideElement = {
     listSpacing?: number;
     animation?: ElementAnimation;
     objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
-    timeline?: any[];
 };
 
-export type Slide = {
+type Slide = {
     id: string;
     type: string;
-    props: Record<string, any>;
-    duration: number; // in frames
-    elements?: SlideElement[]; // Interactive elements
+    duration: number;
+    elements?: SlideElement[];
     background?: SlideBackground;
     transition?: {
         type: 'none' | 'fade' | 'slide' | 'wipe';
-        duration?: number; // seconds
+        duration?: number;
     };
 };
 
-export type Asset = {
-    id: string;
-    type: 'image' | 'audio' | 'video';
-    url: string;
+type TemplateData = {
     name: string;
+    slides: Slide[];
 };
 
-export type ContextFile = {
-    id: string;
-    name: string;
-    type: string;
-    content: string;
-};
 
-export type ViewMode = 'sequence' | 'focus';
-export type GenerationStatus = 'idle' | 'generating' | 'done';
+
+interface AnimatedElementProps {
+    element: SlideElement;
+    relativeFrame: number;
+}
+
+interface ElementContentProps {
+    element: SlideElement;
+    parentWidth: number;
+    parentHeight: number;
+    relativeFrame: number;
+}
+
+
+interface SlideRendererProps {
+    slide: Slide;
+    relativeFrame: number;
+}
+
+
+interface SlideCompositionProps {
+    templateData: TemplateData;
+}
+
+export type {
+    AnimationType,
+    AnimationDirection,
+    SlideBackground,
+    ElementAnimation,
+    SlideElement,
+    Slide,
+    TemplateData,
+    AnimatedElementProps,
+    ElementContentProps,
+    SlideRendererProps,
+    SlideCompositionProps
+};
