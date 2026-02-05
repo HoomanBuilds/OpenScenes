@@ -4,7 +4,7 @@
     {
       "id": "cover-slide",
       "type": "title",
-      "duration": 180,
+      "duration": 6000,
       "background": {
         "type": "color",
         "value": "#ffffff"
@@ -115,7 +115,7 @@
     {
       "id": "panel-slide",
       "type": "problem",
-      "duration": 200,
+      "duration": 6000,
       "background": {
         "type": "color",
         "value": "#171717"
@@ -240,7 +240,7 @@
     {
         "id": "character-slide",
         "type": "features",
-        "duration": 180,
+        "duration": 6000,
         "background": {
             "type": "color",
             "value": "#fcd34d"
@@ -340,7 +340,7 @@
     {
       "id": "action-slide",
       "type": "solution",
-      "duration": 180,
+      "duration": 5000,
       "background": {
         "type": "color",
         "value": "#ffffff"
@@ -419,7 +419,7 @@
     {
         "id": "chart-slide",
         "type": "metrics",
-        "duration": 180,
+        "duration": 6000,
         "background": {
             "type": "color",
             "value": "#171717"
@@ -501,7 +501,7 @@
     {
       "id": "end-slide",
       "type": "cta",
-      "duration": 180,
+      "duration": 6000,
       "background": {
         "type": "color",
         "value": "#dc2626"

@@ -8,7 +8,7 @@ export interface RenderJob {
   createdAt: number;
 }
 
-export type JobStatus = 'queued' | 'processing' | 'completed' | 'failed';
+export type JobStatus = 'queued' | 'processing' | 'completed' | 'failed' | 'cancelling' | 'cancelled';
 
 export interface JobRecord {
   jobId: string;

@@ -5,8 +5,10 @@ import * as LucideIcons from 'lucide-react';
 import { getAllThemes, themes } from '../lib/themes';
 
 export interface RenderOptions {
-    speed: number;
-    quality: 'low' | 'medium' | 'high' | 'ultra';
+    resolution: '720p' | '1080p' | '4k';
+    fps?: number;
+    scale?: number;
+    quality?: 'low' | 'medium' | 'high' | 'ultra';
 }
 
 interface LeftPanel_GlobalProps {
@@ -50,7 +52,7 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [showOptions, setShowOptions] = useState(false);
     const [renderOptions, setRenderOptions] = useState<RenderOptions>({
-        speed: 1,
+        resolution: '1080p',
         quality: 'high'
     });
 
@@ -325,29 +327,28 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
                                     exit={{ opacity: 0, y: -10, height: 0 }}
                                     className="mt-2 bg-zinc-900 border-2 border-zinc-800 p-4 space-y-4"
                                 >
-                                    {/* Speed Option */}
+                                    {/* Resolution Option */}
                                     <div>
                                         <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-2 block">
-                                            Speed (Playback Rate)
+                                            Resolution
                                         </label>
                                         <div className="flex gap-2">
-                                            {[0.5, 1, 1.5, 2].map(s => (
+                                            {(['720p', '1080p', '4k'] as const).map(r => (
                                                 <button
-                                                    key={s}
-                                                    onClick={() => setRenderOptions(prev => ({ ...prev, speed: s }))}
+                                                    key={r}
+                                                    onClick={() => setRenderOptions(prev => ({ ...prev, resolution: r }))}
                                                     className={`flex-1 py-2 text-[10px] font-black uppercase transition-all ${
-                                                        renderOptions.speed === s
+                                                        renderOptions.resolution === r
                                                             ? 'bg-purple-600 text-white'
                                                             : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
                                                     }`}
                                                 >
-                                                    {s}x
+                                                    {r}
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
 
-                                    {/* Quality Option */}
                                     <div>
                                         <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-2 block">
                                             Quality

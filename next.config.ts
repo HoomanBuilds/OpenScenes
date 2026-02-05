@@ -1,17 +1,16 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   serverExternalPackages: [
     "@remotion/renderer", 
     "@remotion/bundler", 
-    "sharp",
-    "@tailwindcss/postcss",
-    "tailwindcss",
-    "style-loader",
-    "css-loader",
-    "postcss-loader",
-    "lightningcss"
+    "sharp"
   ],
+  experimental: {
+    turbopack: {
+        root: process.cwd(),
+    }
+  }
 };
 
 export default nextConfig;

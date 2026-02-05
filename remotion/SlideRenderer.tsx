@@ -224,6 +224,40 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
     const chartHeight = parentHeight || 250;
     
     switch (element.type) {
+        case 'headline':
+            return (
+                <div style={{ 
+                    width: '100%', 
+                    fontSize: element.fontSize || 48,
+                    fontWeight: element.fontWeight || 'bold',
+                    fontFamily: getFontFamily(element.fontFamily || 'Inter'),
+                    lineHeight: element.lineHeight || 1.1,
+                    textAlign: element.textAlign || 'left',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    textShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                }}>
+                    {element.content}
+                </div>
+            );
+
+        case 'subheadline':
+            return (
+                <div style={{ 
+                    width: '100%', 
+                    fontSize: element.fontSize || 24,
+                    fontWeight: element.fontWeight || 'normal',
+                    fontFamily: getFontFamily(element.fontFamily || 'Inter'),
+                    lineHeight: element.lineHeight || 1.3,
+                    textAlign: element.textAlign || 'left',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    textShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                }}>
+                    {element.content}
+                </div>
+            );
+
         case 'text':
             if (element.textFormat === 'markdown') {
                 return (

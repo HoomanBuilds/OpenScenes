@@ -27,7 +27,7 @@ class MinioStorageAdapter implements ObjectStorageAdapter {
 
   async ensureBucket(bucket: string): Promise<void> {
     try {
-      console.log(`[MinIO] Checking bucket: ${bucket}`);
+
       const exists = await this.client.bucketExists(bucket);
       if (!exists) {
         console.log(`[MinIO] Bucket ${bucket} does not exist, creating...`);
@@ -61,7 +61,6 @@ class MinioStorageAdapter implements ObjectStorageAdapter {
 
   async uploadStream(bucket: string, key: string, stream: import('stream').Readable, contentType: string, size?: number): Promise<string> {
     try {
-      console.log(`[MinIO] Uploading stream to ${bucket}/${key} (${size ? (size / 1024 / 1024).toFixed(2) + 'MB' : 'unknown size'})`);
       await this.ensureBucket(bucket);
       await this.client.putObject(bucket, key, stream, size, {
         'Content-Type': contentType,

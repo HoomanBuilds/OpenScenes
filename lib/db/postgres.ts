@@ -10,6 +10,7 @@ export async function initDatabase(): Promise<void> {
     await client.query(`
       CREATE TABLE IF NOT EXISTS render_jobs (
         job_id VARCHAR(64) PRIMARY KEY,
+        project_id VARCHAR(64),
         status VARCHAR(20) NOT NULL DEFAULT 'queued',
         video_url TEXT,
         error TEXT,
@@ -22,6 +23,11 @@ export async function initDatabase(): Promise<void> {
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `);
+    
+    // Ensure project_id column exists for existing tables
+    await client.query(`
+      ALTER TABLE render_jobs ADD COLUMN IF NOT EXISTS project_id VARCHAR(64)
+    `);
   } finally {
     client.release();
   }
@@ -29,6 +35,7 @@ export async function initDatabase(): Promise<void> {
 
 export interface JobRow {
   job_id: string;
+  project_id: string | null;
   status: string;
   video_url: string | null;
   error: string | null;
@@ -49,17 +56,26 @@ export async function getJob(jobId: string): Promise<JobRow | null> {
   return result.rows[0] || null;
 }
 
+export async function getProjectJobs(projectId: string): Promise<JobRow[]> {
+  const result = await pool.query<JobRow>(
+    'SELECT * FROM render_jobs WHERE project_id = $1 ORDER BY created_at DESC',
+    [projectId]
+  );
+  return result.rows;
+}
+
 export async function createJob(data: {
   jobId: string;
+  projectId: string;
   templateName: string;
   format: string;
   quality: string;
   fps: number;
 }): Promise<void> {
   await pool.query(
-    `INSERT INTO render_jobs (job_id, template_name, format, quality, fps, status) 
-     VALUES ($1, $2, $3, $4, $5, 'queued')`,
-    [data.jobId, data.templateName, data.format, data.quality, data.fps]
+    `INSERT INTO render_jobs (job_id, project_id, template_name, format, quality, fps, status) 
+     VALUES ($1, $2, $3, $4, $5, $6, 'queued')`,
+    [data.jobId, data.projectId, data.templateName, data.format, data.quality, data.fps]
   );
 }
 

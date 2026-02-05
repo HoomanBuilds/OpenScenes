@@ -35,7 +35,14 @@ interface RightPanelProps {
     onExport?: () => void;
     projectName?: string;
     setProjectName?: (name: string) => void;
+    renderJobs?: RenderJob[];
+    onSelectRenderJob?: (job: RenderJob) => void;
+    onCancelRenderJob?: (job: RenderJob) => void;
+    onClearRenderJobs?: () => void;
 }
+
+import { RenderStatusDropdown } from './RenderStatusDropdown';
+import { RenderJob } from './hooks/useRenderJobs';
 
 const RightPanel: React.FC<RightPanelProps> = ({
     slides,
@@ -64,7 +71,11 @@ const RightPanel: React.FC<RightPanelProps> = ({
     onResetRender,
     onExport,
     projectName,
-    setProjectName
+    setProjectName,
+    renderJobs = [],
+    onSelectRenderJob = () => {},
+    onCancelRenderJob = () => {},
+    onClearRenderJobs = () => {}
 }) => {
     const selectedSlide = slides.find(s => s.id === selectedSlideId);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -222,6 +233,14 @@ const RightPanel: React.FC<RightPanelProps> = ({
                         Preview
                     </button>
                 )}
+
+                {/* Render Status Dropdown */}
+                <RenderStatusDropdown 
+                    jobs={renderJobs} 
+                    onClear={onClearRenderJobs} 
+                    onSelect={onSelectRenderJob}
+                    onCancel={onCancelRenderJob}
+                />
 
                 {renderStatus === 'rendering' && (
                     <div className="flex items-center gap-3 px-4 py-2 bg-zinc-900 border-2 border-purple-600/50">

@@ -12,6 +12,7 @@ import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground
 import { useSearchParams } from 'next/navigation';
 import { useProjectPersistence } from './hooks/useProjectPersistence';
 import { useEditorHistory } from './hooks/useEditorHistory';
+import { useRenderJobs, RenderJob } from './hooks/useRenderJobs';
 
 const Dashboard: React.FC = () => {
     const searchParams = useSearchParams();
@@ -314,94 +315,75 @@ const Dashboard: React.FC = () => {
             setSlides([]);
         }
     };
+    const { jobs: renderJobs, addJob: addRenderJob, clearJobs: clearRenderJobs, cancelJob: cancelRenderJob } = useRenderJobs(projectId || undefined);
 
     const handleRender = async (options: RenderOptions) => {
         if (slides.length === 0) return;
 
-        setRenderStatus('rendering');
-        setRenderProgress(0);
-        setRenderPhase('Initializing...');
-        setRenderedVideoUrl(null);
-
-        const controller = new AbortController();
-        abortControllerRef.current = controller;
-
         try {
             const templateData = {
-                name: globalPrompt || 'Untitled',
+                name: projectName || globalPrompt || 'Untitled Project',
                 slides: slides.map(s => ({
                     ...s,
                     elements: s.elements || []
                 }))
             };
 
-            const response = await fetch('/api/tmp/fromJson/stream', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...templateData, options }),
-                signal: controller.signal
+            let scale = 1;
+            if (options.resolution === '720p') scale = 0.67;
+            if (options.resolution === '4k') scale = 2;
+
+            const params = new URLSearchParams({
+                fps: (options.fps || 30).toString(),
+                scale: (options.scale || scale).toString(),
+                quality: options.quality || 'high',
+                format: 'mp4'
             });
 
-            if (!response.ok) throw new Error('Render failed');
-
-            const reader = response.body?.getReader();
-            if (!reader) throw new Error('No reader');
-
-            const decoder = new TextDecoder();
-            let buffer = '';
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n\n');
-                buffer = lines.pop() || '';
-
-                for (const line of lines) {
-                    if (line.startsWith('event:')) {
-                        const eventMatch = line.match(/event: (\w+)/);
-                        const dataMatch = line.match(/data: ([\s\S]+)/);
-
-                        if (eventMatch && dataMatch) {
-                            const event = eventMatch[1];
-                            const data = JSON.parse(dataMatch[1]);
-
-                            if (event === 'progress') {
-                                setRenderProgress(data.percent);
-                                setRenderPhase(data.phase || '');
-                            } else if (event === 'complete') {
-                                setRenderedVideoUrl(data.videoUrl);
-                                setRenderFileName(data.fileName);
-                                setRenderStatus('done');
-                            } else if (event === 'error') {
-                                throw new Error(data.message);
-                            }
-                        }
-                    }
-                }
+            if (projectId) {
+                params.append('projectId', projectId);
             }
+
+            const response = await fetch(`/api/render?${params.toString()}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(templateData), // Send templateData directly as root
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || 'Failed to start render');
+            }
+
+            const data = await response.json();
+            
+            // Add to jobs list
+            addRenderJob({
+                jobId: data.jobId,
+                status: 'queued',
+                name: templateData.name,
+                createdAt: Date.now(),
+            });
+
+            // Notify user (optional, non-blocking toast could go here)
+            console.log('Render started:', data.jobId);
+
         } catch (error: any) {
-            if (error.name === 'AbortError') {
-                console.log('Render aborted');
-            } else {
-                console.error('Render error:', error);
-            }
-            setRenderStatus('idle');
-            setRenderProgress(0);
-            setRenderPhase('');
-        } finally {
-            abortControllerRef.current = null;
+            console.error('Render trigger error:', error);
+            alert('Failed to start render: ' + error.message);
+        }
+    };
+
+    const handleSelectRenderJob = (job: RenderJob) => {
+        if (job.status === 'completed' && job.videoUrl) {
+            setRenderStatus('done');
+            setRenderedVideoUrl(job.videoUrl);
+            setRenderFileName(`${job.name.replace(/[^a-z0-9]/gi, '_')}.mp4`);
         }
     };
 
     const handleAbortRender = () => {
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-            setRenderStatus('idle');
-            setRenderProgress(0);
-            setRenderPhase('');
-        }
+        // No-op for async renders (can't easily cancel once sent to queue yet)
     };
 
     const handleExport = () => {
@@ -541,6 +523,10 @@ const Dashboard: React.FC = () => {
                 onResetRender={handleResetRender}
                 projectName={projectName}
                 setProjectName={setProjectName}
+                renderJobs={renderJobs}
+                onSelectRenderJob={handleSelectRenderJob}
+                onCancelRenderJob={(job) => cancelRenderJob(job.jobId)}
+                onClearRenderJobs={clearRenderJobs}
             />
 
             {showPreview && slides.length > 0 && (

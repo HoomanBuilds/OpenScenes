@@ -6,6 +6,35 @@ import os from 'os';
 import { RenderJob } from '../../lib/queue/types';
 import { objectStorage } from '../../lib/object-storage/adapter';
 import { updateJobStatus } from '../../lib/db/postgres';
+import { progressManager } from './progress';
+
+// Singleton Redis for cancellation
+const Redis = require('ioredis');
+let cancellationSubscriber: any = null;
+const activeCancelFunctions = new Map<string, () => void>();
+
+function initCancellationListener() {
+    if (cancellationSubscriber) return;
+    
+    cancellationSubscriber = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379');
+    
+    cancellationSubscriber.subscribe('render:cancel', (err: any) => {
+        if (err) progressManager.log(`[Error] Failed to subscribe to cancellation: ${err}`);
+    });
+
+    cancellationSubscriber.on('message', (channel: string, message: string) => {
+        if (channel === 'render:cancel') {
+            const cancelFn = activeCancelFunctions.get(message);
+            if (cancelFn) {
+                progressManager.updateBar(message, 0, 'Cancelling...');
+                cancelFn();
+            }
+        }
+    });
+}
+
+// Initialize immediately
+initCancellationListener();
 
 interface ProcessResult {
   videoUrl: string;
@@ -13,6 +42,8 @@ interface ProcessResult {
   totalDurationFrames: number;
   fileSizeMB: string;
 }
+
+let cachedBundleLocation: string | null = null;
 
 function calculateTotalDurationInFrames(slides: any[], fps: number): number {
   return slides.reduce((acc, slide) => {
@@ -24,24 +55,30 @@ function calculateTotalDurationInFrames(slides: any[], fps: number): number {
   }, 0);
 }
 
-export async function processRenderJob(job: RenderJob): Promise<ProcessResult> {
+export async function processRenderJob(job: RenderJob): Promise<ProcessResult | undefined> {
   const startTime = Date.now();
   let outputFile: string | null = null;
+  
+  // Initialize progress bar
+  const bar = progressManager.createBar(job.jobId, 100, 'Starting...');
+
+  // Setup cancellation
+  const { cancelSignal, cancel } = makeCancelSignal();
+  activeCancelFunctions.set(job.jobId, cancel);
 
   try {
     await updateJobStatus(job.jobId, 'processing', { progress: 0 });
 
     const { templateData, fps, scale, format, quality } = job;
-    
+
     const totalDurationFrames = calculateTotalDurationInFrames(templateData.slides, fps);
 
     const crfMap = { ultra: 10, high: 18, medium: 23, low: 28 };
     const crf = crfMap[quality] || 18;
     const effectiveScale = quality === 'ultra' && scale === 1 ? 2 : scale;
 
-    console.log(`[${job.jobId}] Starting render: ${templateData.name}`);
-    console.log(`[${job.jobId}] Frames: ${totalDurationFrames}, Quality: ${quality}`);
-
+    progressManager.updateBar(job.jobId, 2, 'Bundling...');
+    
     const entryPoint = path.join(process.cwd(), 'remotion', 'index.tsx');
     const rootDir = process.cwd();
     
@@ -49,54 +86,58 @@ export async function processRenderJob(job: RenderJob): Promise<ProcessResult> {
       throw new Error(`Remotion entry point not found at: ${entryPoint}`);
     }
 
-    console.log(`[${job.jobId}] Bundling Remotion composition...`);
-    await updateJobStatus(job.jobId, 'processing', { progress: 5 });
-    
-    const bundleLocation = await bundle({ 
-      entryPoint,
-      rootDir,
-      enableCaching: false, 
-      webpackOverride: (config: any) => {
-        const cssPath = path.resolve(rootDir, 'remotion', 'style.css');
+    let bundleLocation = cachedBundleLocation;
+
+    if (!bundleLocation) {
+        await updateJobStatus(job.jobId, 'processing', { progress: 5 });
         
-        if (typeof config.entry === 'string') {
-          config.entry = [cssPath, config.entry];
-        } else if (Array.isArray(config.entry)) {
-          config.entry.unshift(cssPath);
-        }
-
-        return {
-          ...config,
-          module: {
-            ...config.module,
-            rules: [
-              ...(config.module?.rules ?? []).filter((rule: any) => {
-                const isCss = rule && rule.test && rule.test.toString().includes('css');
-                return !isCss;
-              }),
-              {
-                test: /\.css$/i,
-                use: [
-                  eval('require.resolve')('style-loader'),
-                  eval('require.resolve')('css-loader'),
-                  {
-                    loader: eval('require.resolve')('postcss-loader'),
-                    options: {
-                      postcssOptions: {
-                        plugins: [
-                          eval('require')('@tailwindcss/postcss'),
-                        ],
-                      },
+        bundleLocation = await bundle({ 
+            entryPoint,
+            rootDir,
+            enableCaching: true, 
+            webpackOverride: (config: any) => {
+              const cssPath = path.resolve(rootDir, 'remotion', 'style.css');
+              if (typeof config.entry === 'string') {
+                config.entry = [cssPath, config.entry];
+              } else if (Array.isArray(config.entry)) {
+                config.entry.unshift(cssPath);
+              }
+              return {
+                ...config,
+                module: {
+                  ...config.module,
+                  rules: [
+                    ...(config.module?.rules ?? []).filter((rule: any) => {
+                      const isCss = rule && rule.test && rule.test.toString().includes('css');
+                      return !isCss;
+                    }),
+                    {
+                      test: /\.css$/i,
+                      use: [
+                        eval('require.resolve')('style-loader'),
+                        eval('require.resolve')('css-loader'),
+                        {
+                          loader: eval('require.resolve')('postcss-loader'),
+                          options: {
+                            postcssOptions: {
+                              plugins: [
+                                eval('require')('@tailwindcss/postcss'),
+                              ],
+                            },
+                          },
+                        },
+                      ],
                     },
-                  },
-                ],
-              },
-            ],
-          },
-        };
-      },
-    });
+                  ],
+                },
+              };
+            },
+        });
 
+      cachedBundleLocation = bundleLocation;
+    } 
+
+    progressManager.updateBar(job.jobId, 15, 'Rendering...');
     await updateJobStatus(job.jobId, 'processing', { progress: 15 });
 
     const composition = await selectComposition({
@@ -116,10 +157,7 @@ export async function processRenderJob(job: RenderJob): Promise<ProcessResult> {
     const tmpDir = os.tmpdir();
     const safeName = templateData.name.replace(/[^a-zA-Z0-9-_]/g, '_');
     outputFile = path.join(tmpDir, `render-${job.jobId}.${format}`);
-
-    console.log(`[${job.jobId}] Rendering video...`);
     
-    const { cancelSignal } = makeCancelSignal();
     let lastProgressUpdate = 15;
 
     await renderMedia({
@@ -132,10 +170,11 @@ export async function processRenderJob(job: RenderJob): Promise<ProcessResult> {
       crf,
       onProgress: async ({ progress }) => {
         const percent = Math.floor(15 + progress * 75);
-        if (percent >= lastProgressUpdate + 10) {
+        progressManager.updateBar(job.jobId, percent);
+        
+        if (percent >= lastProgressUpdate + 5) { 
           lastProgressUpdate = percent;
           await updateJobStatus(job.jobId, 'processing', { progress: percent });
-          console.log(`[${job.jobId}] Progress: ${percent}%`);
         }
       },
     });
@@ -144,8 +183,8 @@ export async function processRenderJob(job: RenderJob): Promise<ProcessResult> {
     const stats = fs.statSync(outputFile);
     const fileSizeMB = (stats.size / (1024 * 1024)).toFixed(2);
 
-    console.log(`[${job.jobId}] Render complete in ${renderTime}s, uploading to MinIO...`);
-    await updateJobStatus(job.jobId, 'processing', { progress: 92 });
+    progressManager.updateBar(job.jobId, 95, 'Uploading...');
+    await updateJobStatus(job.jobId, 'processing', { progress: 95 });
 
     const videoStream = fs.createReadStream(outputFile);
     const objectKey = `${job.jobId}/${safeName}.${format}`;
@@ -153,13 +192,16 @@ export async function processRenderJob(job: RenderJob): Promise<ProcessResult> {
     
     const videoUrl = await objectStorage.uploadStream('videos', objectKey, videoStream, contentType, stats.size);
 
-    console.log(`[${job.jobId}] Upload complete: ${videoUrl}`);
-
     if (outputFile && fs.existsSync(outputFile)) {
       fs.unlinkSync(outputFile);
     }
 
+    progressManager.updateBar(job.jobId, 100, 'Complete');
     await updateJobStatus(job.jobId, 'completed', { videoUrl, progress: 100 });
+    
+    setTimeout(() => {
+        progressManager.removeBar(job.jobId);
+    }, 2000);
 
     return {
       videoUrl,
@@ -169,15 +211,35 @@ export async function processRenderJob(job: RenderJob): Promise<ProcessResult> {
     };
 
   } catch (error: any) {
-    console.error(`[${job.jobId}] Render failed:`, error.message);
-    
     if (outputFile && fs.existsSync(outputFile)) {
       try { fs.unlinkSync(outputFile); } catch {}
     }
 
-    await updateJobStatus(job.jobId, 'failed', { error: error.message });
+    const isCancelled = 
+        error.message === 'USER_CANCEL_REQUEST' || 
+        (error.message && error.message.includes('The operation was aborted')) ||
+        (error.message && error.message.includes('renderMedia() got cancelled'));
 
-    throw error;
+    const status = isCancelled ? 'cancelled' : 'failed';
+    const errorMessage = isCancelled ? 'Cancelled by user' : error.message;
+
+    if (isCancelled) {
+        progressManager.updateBar(job.jobId, 0, 'Cancelled');
+    } else {
+        progressManager.updateBar(job.jobId, 0, 'Failed');
+        progressManager.log(`[Error] Job ${job.jobId} failed: ${error.message}`);
+    }
+
+    await updateJobStatus(job.jobId, status, { error: errorMessage });
+    
+    setTimeout(() => {
+        progressManager.removeBar(job.jobId);
+    }, 5000);
+
+    if (!isCancelled) {
+        throw error;
+    }
+  } finally {
+      activeCancelFunctions.delete(job.jobId);
   }
 }
-

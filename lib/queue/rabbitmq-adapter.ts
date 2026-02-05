@@ -9,9 +9,34 @@ class RabbitMQAdapter implements QueueAdapter {
 
   async connect(): Promise<void> {
     const url = process.env.RABBITMQ_URL || 'amqp://user:password@127.0.0.1:5672';
-    this.connection = await amqp.connect(url);
-    this.channel = await this.connection.createChannel();
-    await this.channel.assertQueue(QUEUE_NAME, { durable: true });
+    
+    let retries = 5;
+    while (retries > 0) {
+      try {
+        console.log(`[RabbitMQ] Connecting to ${url}...`);
+        this.connection = await amqp.connect(url, {
+             timeout: 10000, 
+        });
+        
+        this.connection.on('error', (err) => {
+            console.error('[RabbitMQ] Connection error:', err);
+        });
+
+        this.connection.on('close', () => {
+            console.log('[RabbitMQ] Connection closed');
+        });
+
+        this.channel = await this.connection.createChannel();
+        await this.channel.assertQueue(QUEUE_NAME, { durable: true });
+        console.log('[RabbitMQ] Connected successfully');
+        return;
+      } catch (err: any) {
+        console.error(`[RabbitMQ] Connection failed (retries left: ${retries}):`, err.message);
+        retries--;
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+    throw new Error('Failed to connect to RabbitMQ from Worker after multiple retries.');
   }
 
   async publishRenderJob(job: RenderJob): Promise<void> {
@@ -27,7 +52,9 @@ class RabbitMQAdapter implements QueueAdapter {
       await this.connect();
     }
     
-    await this.channel!.prefetch(1);
+    const concurrency = parseInt(process.env.CONCURRENT_RENDERS || '1', 10);
+    console.log(`[RabbitMQ] Setting prefetch count to ${concurrency}`);
+    await this.channel!.prefetch(concurrency);
     
     await this.channel!.consume(QUEUE_NAME, async (msg) => {
       if (!msg) return;

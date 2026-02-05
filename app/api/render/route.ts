@@ -82,9 +82,18 @@ export async function POST(req: NextRequest) {
     }
 
     const jobId = generateJobId();
+    const projectId = searchParams.get('projectId');
+    
+    if (!projectId) {
+         return NextResponse.json(
+            { error: 'projectId is required' },
+            { status: 400 }
+         );
+    }
 
     await createJob({
       jobId,
+      projectId,
       templateName: templateData.name,
       format,
       quality,
