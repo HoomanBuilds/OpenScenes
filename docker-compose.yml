@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+
+  minio:
+    image: minio/minio:RELEASE.2024-01-18T22-51-28Z
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: clarity
+      POSTGRES_PASSWORD: clarity_pass
+      POSTGRES_DB: clarity
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  # worker:
+  #   build:
+  #     context: . 
+  #     dockerfile: worker/render/Dockerfile
+  #   depends_on:
+  #     - rabbitmq
+  #     - minio
+  #     - postgres
+  #     - redis
+  #   environment:
+  #     RABBITMQ_URL: amqp://user:password@rabbitmq:5672
+  #     MINIO_ENDPOINT: minio
+  #     MINIO_PORT: "9000"
+  #     MINIO_ACCESS_KEY: minioadmin
+  #     MINIO_SECRET_KEY: minioadmin
+  #     MINIO_USE_SSL: "false"
+  #     DATABASE_URL: postgresql://clarity:clarity_pass@postgres:5432/clarity
+  #     REDIS_URL: redis://redis:6379
+  #   volumes:
+  #     - ./generate-logs:/app/generate-logs
+
+volumes:
+  minio-data:
+  postgres-data:
+  redis-data:
+
+      

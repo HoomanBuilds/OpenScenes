@@ -1,8 +1,11 @@
-import { Project, StorageAdapter } from './types';
+import { Project, StorageAdapter, JobRecord } from './types';
 
 const STORAGE_KEY = 'clarity_projects_v1';
 const RENDER_COUNTER_KEY = 'clarity_render_counter';
 const RENDER_LOGS_KEY = 'clarity_render_logs';
+const JOBS_KEY = 'clarity_jobs';
+
+const jobStore: Record<string, JobRecord> = {};
 
 class LocalStorageAdapter implements StorageAdapter {
   private getProjectsFromStorage(): Record<string, Project> {
@@ -53,6 +56,27 @@ class LocalStorageAdapter implements StorageAdapter {
        logs[id] = log;
        localStorage.setItem(RENDER_LOGS_KEY, JSON.stringify(logs));
   }
+
+  async getJob(jobId: string): Promise<JobRecord | null> {
+    if (typeof window === 'undefined') {
+      return jobStore[jobId] || null;
+    }
+    const raw = localStorage.getItem(JOBS_KEY);
+    const jobs = raw ? JSON.parse(raw) : {};
+    return jobs[jobId] || null;
+  }
+
+  async saveJob(job: JobRecord): Promise<void> {
+    if (typeof window === 'undefined') {
+      jobStore[job.jobId] = job;
+      return;
+    }
+    const raw = localStorage.getItem(JOBS_KEY);
+    const jobs = raw ? JSON.parse(raw) : {};
+    jobs[job.jobId] = job;
+    localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
+  }
 }
 
 export const localStorageAdapter = new LocalStorageAdapter();
+
