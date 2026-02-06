@@ -18,10 +18,48 @@ import type {
 } from './types';
 import type { Slide } from '../schemas/template';
 
+import { getTheme } from '@/app/lib/themes';
+
 async function loadThemeConfig(themeName: string): Promise<ThemeConfig | null> {
   try {
-    return null;
-  } catch {
+    const appTheme = getTheme(themeName);
+    if (!appTheme) return null;
+    
+    return {
+       id: appTheme.id,
+       name: appTheme.name,
+       description: appTheme.description,
+       preview_gradient: appTheme.preview_gradient,
+       tags: appTheme.tags,
+       colors: {
+           background_primary: appTheme.colors.background_primary,
+           background_secondary: appTheme.colors.background_secondary,
+           background_tertiary: appTheme.colors.background_tertiary,
+           text_primary: appTheme.colors.text_primary,
+           text_secondary: appTheme.colors.text_secondary || '#a1a1aa',
+           text_muted: appTheme.colors.text_muted || '#52525b',
+           accent_primary: appTheme.colors.accent_primary,
+           accent_secondary: appTheme.colors.accent_secondary || appTheme.colors.accent_primary,
+           accent_tertiary: appTheme.colors.accent_tertiary,
+           success: appTheme.colors.success || '#22c55e',
+           warning: appTheme.colors.warning || '#eab308',
+           error: appTheme.colors.error || '#ef4444',
+           chart_palette: appTheme.colors.chart_palette || [appTheme.colors.accent_primary]
+       },
+       typography: {
+           font_headline: appTheme.typography.font_headline,
+           font_body: appTheme.typography.font_body,
+           headline_sizes: { hero: 96, large: 64, medium: 48, small: 32 },
+           body_sizes: { large: 24, medium: 18, small: 16 },
+           line_height: 1.5
+       },
+       spacing: { margin_x: 60, margin_y: 60, element_gap: 20, section_gap: 40 },
+       decorations: {},
+       animations: { default_type: 'fade', default_duration: 0.5, stagger_delay: 0.1, style: 'smooth' },
+       prompt_injection: appTheme.prompt_injection
+    };
+  } catch (error) {
+    console.warn("Failed to load theme config", error);
     return null;
   }
 }
@@ -73,6 +111,7 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
       userQuery: input.userQuery,
       fileContent: input.uploadedFileContent,
       urlContent: input.urlContent,
+      jobId: input.jobId,
     });
     
     logger.summarizer.complete(summary.topic);
@@ -89,6 +128,7 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
       themePrompt,
       requestedSlideCount: input.requestedSlideCount,
       additionalInstructions: input.additionalInstructions,
+      jobId: input.jobId,
     });
     
     logger.director.planned(
@@ -144,6 +184,8 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
         sceneGuidance: batchScenes,
         previousSlideSummary: previousSummary,
         assetMetadata,
+        themeConfig: themeConfig || undefined, // Pass the loaded theme
+        jobId: input.jobId,
       });
       
       allSlides.push(...batchResult.slides);
@@ -151,7 +193,9 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
       
       await logger.debug.log(input.jobId || 'unknown', `5-batch-${batchIndex + 1}`, batchResult);
       logger.generator.generated(batchResult.slides.length);
-    } catch {
+    } catch (error) {
+       console.error(`[Pipeline] Batch ${batchIndex + 1} failed:`, error);
+       await logger.debug.log(input.jobId || 'unknown', `5-batch-${batchIndex + 1}-error`, { error: error instanceof Error ? error.message : String(error) });
     }
   }
   

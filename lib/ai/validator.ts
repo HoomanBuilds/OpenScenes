@@ -1,22 +1,8 @@
-/**
- * JSON Validator & Repair
- * 
- * Validates slide JSON against schema and canvas bounds.
- * Uses AI to repair malformed JSON when validation fails.
- */
-
 import { aiGenerateJSON } from './adapter';
 import { AI_LIMITS, CANVAS, VALIDATION, SUPPORTED_ELEMENT_TYPES, SUPPORTED_SLIDE_TYPES } from './config';
 import type { ValidationResult, ValidationError } from './types';
 import type { Slide, SlideElement } from '../schemas/template';
 
-// ============================================================================
-// VALIDATION FUNCTIONS
-// ============================================================================
-
-/**
- * Validate element bounds
- */
 function validateElementBounds(
   element: SlideElement,
   slideId: string,
@@ -25,7 +11,6 @@ function validateElementBounds(
   const errors: ValidationError[] = [];
   const path = `slides["${slideId}"].elements[${index}]`;
   
-  // Check x bounds
   if (typeof element.x === 'number') {
     if (element.x < VALIDATION.bounds.minX) {
       errors.push({
@@ -37,7 +22,6 @@ function validateElementBounds(
     }
   }
   
-  // Check y bounds
   if (typeof element.y === 'number') {
     if (element.y < VALIDATION.bounds.minY) {
       errors.push({
@@ -49,7 +33,6 @@ function validateElementBounds(
     }
   }
   
-  // Check if element extends beyond canvas
   if (typeof element.x === 'number' && typeof element.width === 'number') {
     const right = element.x + element.width;
     if (right > CANVAS.width) {
@@ -77,9 +60,6 @@ function validateElementBounds(
   return errors;
 }
 
-/**
- * Validate element properties
- */
 function validateElementProperties(
   element: SlideElement,
   slideId: string,
@@ -88,7 +68,6 @@ function validateElementProperties(
   const errors: ValidationError[] = [];
   const path = `slides["${slideId}"].elements[${index}]`;
   
-  // Required fields
   if (!element.id) {
     errors.push({
       type: 'missing_field',
@@ -114,7 +93,6 @@ function validateElementProperties(
     });
   }
   
-  // Animation validation
   if (element.animation) {
     const anim = element.animation as { type?: string; duration?: number; delay?: number };
     
@@ -139,7 +117,6 @@ function validateElementProperties(
     }
   }
   
-  // Font size validation
   if (typeof element.fontSize === 'number') {
     if (element.fontSize < VALIDATION.fontSize.min || element.fontSize > VALIDATION.fontSize.max) {
       errors.push({
@@ -151,7 +128,6 @@ function validateElementProperties(
     }
   }
   
-  // Z-index validation
   if (typeof element.zIndex === 'number') {
     if (element.zIndex < 0 || element.zIndex > 100) {
       errors.push({
@@ -162,18 +138,29 @@ function validateElementProperties(
       });
     }
   }
+
+  if (element.type === 'custom' && element.content) {
+    const content = element.content as any;
+    const hasChildren = content.layout?.children && content.layout.children.length > 0;
+    const hasText = content.layout?.text && content.layout.text.trim().length > 0;
+    
+    if (!hasChildren && !hasText) {
+      errors.push({
+        type: 'invalid_value',
+        message: 'Custom component has an empty layout (no children or text)',
+        path: `${path}.content.layout`,
+        suggestion: 'Ensure the layout contains visible elements or text',
+      });
+    }
+  }
   
   return errors;
 }
 
-/**
- * Validate a single slide
- */
 function validateSlide(slide: Slide, index: number): ValidationError[] {
   const errors: ValidationError[] = [];
   const path = `slides[${index}]`;
   
-  // Required fields
   if (!slide.id) {
     errors.push({
       type: 'missing_field',
@@ -183,7 +170,6 @@ function validateSlide(slide: Slide, index: number): ValidationError[] {
     });
   }
   
-  // Type validation
   if (slide.type && !SUPPORTED_SLIDE_TYPES.includes(slide.type as typeof SUPPORTED_SLIDE_TYPES[number])) {
     errors.push({
       type: 'invalid_value',
@@ -193,7 +179,6 @@ function validateSlide(slide: Slide, index: number): ValidationError[] {
     });
   }
   
-  // Duration validation
   if (typeof slide.duration === 'number' && slide.duration <= 0) {
     errors.push({
       type: 'invalid_value',
@@ -203,7 +188,6 @@ function validateSlide(slide: Slide, index: number): ValidationError[] {
     });
   }
   
-  // Background validation
   if (slide.background) {
     if (!['color', 'gradient', 'image'].includes(slide.background.type)) {
       errors.push({
@@ -215,9 +199,7 @@ function validateSlide(slide: Slide, index: number): ValidationError[] {
     }
   }
   
-  // Validate elements
   if (slide.elements && Array.isArray(slide.elements)) {
-    // Element count check
     if (slide.elements.length > AI_LIMITS.MAX_ELEMENTS_PER_SLIDE) {
       errors.push({
         type: 'invalid_value',
@@ -227,14 +209,12 @@ function validateSlide(slide: Slide, index: number): ValidationError[] {
       });
     }
     
-    // Validate each element
     for (let i = 0; i < slide.elements.length; i++) {
       const element = slide.elements[i];
       errors.push(...validateElementBounds(element, slide.id, i));
       errors.push(...validateElementProperties(element, slide.id, i));
     }
     
-    // Check for duplicate element IDs
     const elementIds = slide.elements.map(e => e.id).filter(Boolean);
     const duplicates = elementIds.filter((id, i) => elementIds.indexOf(id) !== i);
     for (const dup of duplicates) {
@@ -250,21 +230,10 @@ function validateSlide(slide: Slide, index: number): ValidationError[] {
   return errors;
 }
 
-// ============================================================================
-// MAIN FUNCTIONS
-// ============================================================================
-
-/**
- * Validate slide JSON
- * 
- * @param data - Slide or array of slides to validate
- * @returns Validation result with errors
- */
 export function validateSlideJSON(data: unknown): ValidationResult {
   const errors: ValidationError[] = [];
   const warnings: ValidationError[] = [];
   
-  // Handle single slide or array
   let slides: Slide[];
   
   if (Array.isArray(data)) {
@@ -283,7 +252,6 @@ export function validateSlideJSON(data: unknown): ValidationResult {
     };
   }
   
-  // Validate slide count
   if (slides.length > AI_LIMITS.MAX_SLIDES) {
     errors.push({
       type: 'invalid_value',
@@ -293,12 +261,10 @@ export function validateSlideJSON(data: unknown): ValidationResult {
     });
   }
   
-  // Validate each slide
   for (let i = 0; i < slides.length; i++) {
     errors.push(...validateSlide(slides[i], i));
   }
   
-  // Check for duplicate slide IDs
   const slideIds = slides.map(s => s.id).filter(Boolean);
   const duplicateSlides = slideIds.filter((id, i) => slideIds.indexOf(id) !== i);
   for (const dup of duplicateSlides) {
@@ -317,44 +283,34 @@ export function validateSlideJSON(data: unknown): ValidationResult {
   };
 }
 
-/**
- * Auto-fix common validation errors
- */
 export function autoFixSlides(slides: Slide[]): Slide[] {
   return slides.map((slide, slideIndex) => {
     const fixed = { ...slide };
     
-    // Fix missing ID
     if (!fixed.id) {
       fixed.id = `slide-${slideIndex + 1}`;
     }
     
-    // Fix missing type
     if (!fixed.type) {
       fixed.type = 'default';
     }
     
-    // Fix missing duration
     if (typeof fixed.duration !== 'number' || fixed.duration <= 0) {
       fixed.duration = VALIDATION.defaultSlideDuration;
     }
     
-    // Fix missing background
     if (!fixed.background) {
       fixed.background = { type: 'color', value: '#0a0a0a' };
     }
     
-    // Fix elements
     if (fixed.elements && Array.isArray(fixed.elements)) {
       fixed.elements = fixed.elements.map((element, elemIndex) => {
         const fixedElement = { ...element };
         
-        // Fix missing ID
         if (!fixedElement.id) {
           fixedElement.id = `${fixed.id}-element-${elemIndex}`;
         }
         
-        // Fix bounds
         if (typeof fixedElement.x === 'number') {
           fixedElement.x = Math.max(0, fixedElement.x);
         }
@@ -362,22 +318,31 @@ export function autoFixSlides(slides: Slide[]): Slide[] {
           fixedElement.y = Math.max(0, fixedElement.y);
         }
         
-        // Fix overflow
         if (typeof fixedElement.x === 'number' && typeof fixedElement.width === 'number') {
           if (fixedElement.x + fixedElement.width > CANVAS.width) {
-            fixedElement.width = Math.max(10, CANVAS.width - fixedElement.x);
+            fixedElement.x = Math.max(0, CANVAS.width - fixedElement.width);
+            
+            if (fixedElement.width > CANVAS.width) {
+               fixedElement.width = CANVAS.width;
+               fixedElement.x = 0;
+            }
           }
         }
+        
         if (typeof fixedElement.y === 'number' && typeof fixedElement.height === 'number') {
           if (fixedElement.y + fixedElement.height > CANVAS.height) {
-            fixedElement.height = Math.max(10, CANVAS.height - fixedElement.y);
+            fixedElement.y = Math.max(0, CANVAS.height - fixedElement.height);
+            
+            if (fixedElement.height > CANVAS.height) {
+               fixedElement.height = CANVAS.height;
+               fixedElement.y = 0;
+            }
           }
         }
         
         return fixedElement;
       });
       
-      // Cap elements
       if (fixed.elements.length > AI_LIMITS.MAX_ELEMENTS_PER_SLIDE) {
         fixed.elements = fixed.elements.slice(0, AI_LIMITS.MAX_ELEMENTS_PER_SLIDE);
       }
@@ -386,10 +351,6 @@ export function autoFixSlides(slides: Slide[]): Slide[] {
     return fixed;
   });
 }
-
-// ============================================================================
-// AI REPAIR
-// ============================================================================
 
 const VALIDATOR_SYSTEM_PROMPT = `You are a JSON REPAIR specialist.
 
@@ -408,9 +369,6 @@ You receive a malformed slide JSON and a list of validation errors. Your job is 
 3. If a property is invalid, remove it or replace with the closest valid one.
 4. Output ONLY the fixed JSON. No explanations.`;
 
-/**
- * Repair malformed slide JSON using AI
- */
 export async function repairSlideJSON(
   malformedJSON: string,
   errors: ValidationError[]
@@ -441,7 +399,6 @@ Return the fixed JSON now.`;
       agentType: 'validator',
     });
     
-    // Parse result
     let slides: Slide[];
     
     if (Array.isArray(result)) {
@@ -452,15 +409,12 @@ Return the fixed JSON now.`;
       throw new Error('Unexpected repair result format');
     }
     
-    // Apply auto-fixes to ensure validity
     slides = autoFixSlides(slides);
     
-    // Validate again
     const revalidation = validateSlideJSON(slides);
     
     if (!revalidation.valid) {
       console.warn('[Validator] AI repair incomplete, applying auto-fixes');
-      // Errors persisted, but we've done our best
     }
     
     console.log('[Validator] Repair complete');
@@ -471,9 +425,6 @@ Return the fixed JSON now.`;
   }
 }
 
-/**
- * Format validation errors for display
- */
 export function formatValidationErrors(result: ValidationResult): string {
   if (result.valid) {
     return 'Validation passed';

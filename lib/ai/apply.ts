@@ -6,6 +6,28 @@ function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
 
+function isObject(item: unknown): item is Record<string, unknown> {
+  return (item && typeof item === 'object' && !Array.isArray(item)) as boolean;
+}
+
+function deepMerge(target: any, source: any): any {
+  const output = { ...target };
+  if (isObject(target) && isObject(source)) {
+    Object.keys(source).forEach(key => {
+      if (isObject(source[key])) {
+        if (!(key in target)) {
+          Object.assign(output, { [key]: source[key] });
+        } else {
+          output[key] = deepMerge(target[key], source[key]);
+        }
+      } else {
+        Object.assign(output, { [key]: source[key] });
+      }
+    });
+  }
+  return output;
+}
+
 function applyUpdatePatch(
   slides: Slide[],
   patch: JSONPatch
@@ -15,24 +37,18 @@ function applyUpdatePatch(
       return slide;
     }
     
-    const updatedSlide = { ...slide };
+    let updatedSlide = deepClone(slide);
     
-    // Element-level update
     if (patch.elementId && updatedSlide.elements) {
       updatedSlide.elements = updatedSlide.elements.map(element => {
         if (element.id !== patch.elementId) {
           return element;
         }
         
-        // Apply changes to element
-        return {
-          ...element,
-          ...patch.changes,
-        } as SlideElement;
+        return deepMerge(element, patch.changes) as SlideElement;
       });
     } else {
-      // Slide-level update
-      Object.assign(updatedSlide, patch.changes);
+      updatedSlide = deepMerge(updatedSlide, patch.changes) as Slide;
     }
     
     return updatedSlide;
@@ -43,11 +59,9 @@ function applyAddPatch(
   slides: Slide[],
   patch: JSONPatch
 ): Slide[] {
-  // Check if adding a new element to existing slide
   const slideIndex = slides.findIndex(s => s.id === patch.slideId);
   
   if (slideIndex !== -1 && patch.changes.element) {
-    // Adding element to existing slide
     return slides.map((slide, index) => {
       if (index !== slideIndex) {
         return slide;
@@ -62,19 +76,16 @@ function applyAddPatch(
   }
   
   if (slideIndex === -1 && patch.changes.slide) {
-    // Adding new slide
     const newSlide = patch.changes.slide as Slide;
     return [...slides, newSlide];
   }
   
-  // Fallback - try to add as element if slide exists
   if (slideIndex !== -1) {
     return slides.map((slide, index) => {
       if (index !== slideIndex) {
         return slide;
       }
       
-      // Try to construct element from changes
       const newElement: SlideElement = {
         id: `new-element-${Date.now()}`,
         type: 'text',
@@ -317,10 +328,7 @@ export function mergePatches(patches: JSONPatch[]): JSONPatch[] {
     if (!existing) {
       mergedMap.set(key, { ...patch });
     } else if (existing.operation === 'update' && patch.operation === 'update') {
-      existing.changes = {
-        ...existing.changes,
-        ...patch.changes,
-      };
+      existing.changes = deepMerge(existing.changes, patch.changes);
     } else {
       mergedMap.set(key, patch);
     }

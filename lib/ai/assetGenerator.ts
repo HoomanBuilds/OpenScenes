@@ -3,11 +3,39 @@ import { aiGenerateImage, isVertexConfigured } from './adapter';
 import { logger } from './logger';
 import { saveAssetsBatch } from '../db/ai-assets';
 import { 
-  getPlaceholderUrl, 
-  detectAspectRatio, 
   uploadToMinIO,
   PLACEHOLDER_IMAGES 
 } from './stock-registry';
+
+function getPlaceholderUrl(keyword?: string): string {
+  if (!keyword) return PLACEHOLDER_IMAGES.default;
+  const lowerKey = keyword.toLowerCase();
+  
+  if (lowerKey.includes('tech') || lowerKey.includes('code') || lowerKey.includes('digital') || lowerKey.includes('future')) {
+    return PLACEHOLDER_IMAGES.tech;
+  }
+  if (lowerKey.includes('nature') || lowerKey.includes('green') || lowerKey.includes('eco')) {
+    return PLACEHOLDER_IMAGES.nature;
+  }
+  if (lowerKey.includes('business') || lowerKey.includes('office') || lowerKey.includes('team')) {
+    return PLACEHOLDER_IMAGES.business;
+  }
+  return PLACEHOLDER_IMAGES.default;
+}
+
+function detectAspectRatio(prompt: string): "1:1" | "16:9" | "9:16" | "4:3" | "3:4" {
+  const lower = prompt.toLowerCase();
+  
+  if (lower.includes('portrait') || lower.includes('vertical') || lower.includes('mobile') || lower.includes('phone') || lower.includes('tall')) {
+    return "9:16";
+  }
+  
+  if (lower.includes('square') || lower.includes('icon') || lower.includes('logo') || lower.includes('avatar') || lower.includes('profile')) {
+    return "1:1";
+  }
+  
+  return "16:9"; 
+}
 import type { 
   AssetDirective, 
   AssetGeneratorInput, 
@@ -17,7 +45,7 @@ import type {
 } from './types';
 
 async function generateWithImagen(directive: AssetDirective, jobId?: string): Promise<GeneratedAsset> {
-  const aspectRatio = detectAspectRatio();
+  const aspectRatio = detectAspectRatio(directive.prompt);
   
   const imageResult = await aiGenerateImage({
     prompt: directive.prompt,

@@ -34,9 +34,7 @@ This document provides a detailed visual overview of the SaaS-level architecture
 
 ---
 
-## 2. AI Agent Pipeline (Waterfall Refinement)
-
-The core intelligence is split into three specialized agents. This improves reliability and allows targeted prompting.
+## 2. AI Agent Pipeline
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -45,61 +43,77 @@ The core intelligence is split into three specialized agents. This improves reli
 │  [User Input]                                                                                       │
 │       │                                                                                             │
 │       ▼                                                                                             │
-│  ┌──────────────────────────────────────────────────────────────────────────────────────────────┐   │
-│  │ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  STAGE 1: PLANNER AGENT  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │   │
-│  │                                                                                              │   │
-│  │  INPUT: Raw user prompt, README text, URL content                                            │   │
-│  │  ROLE:  Narrative Arc & High-Level Theme Selection                                           │   │
-│  │  OUTPUT:                                                                                     │   │
-│  │    {                                                                                         │   │
-│  │      "theme": "Cyberpunk SaaS",                                                              │   │
-│  │      "arc": ["Hook", "Problem", "Solution", "Result", "CTA"],                                │   │
-│  │      "slides": [                                                                             │   │
-│  │        { "intent": "title", "keyPoints": ["Product Name", "Tagline"] },                      │   │
-│  │        { "intent": "features", "keyPoints": ["Speed", "Scale", "Security"] },                │   │
-│  │        ...                                                                                   │   │
-│  │      ]                                                                                       │   │
-│  │    }                                                                                         │   │
-│  └────────────────────────────────────────────────────────────────────────────────────────┬─────┘   │
-│                                                                                           │         │
-│                                                                                           ▼         │
-│  ┌──────────────────────────────────────────────────────────────────────────────────────────────┐   │
-│  │ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  STAGE 2: DIRECTOR AGENT  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │   │
-│  │                                                                                              │   │
-│  │  INPUT: Storyboard JSON + Component Manifest (names/descriptions)                            │   │
-│  │  ROLE:  Layout Selection & Asset Discovery                                                   │   │
-│  │  OUTPUT:                                                                                     │   │
-│  │    {                                                                                         │   │
-│  │      "slides": [                                                                             │   │
-│  │        { "idx": 0, "layoutType": "TITLE_CARD", "assets": [] },                               │   │
-│  │        { "idx": 1, "layoutType": "FEATURES_GRID", "assets": ["icon:rocket", "icon:cloud"] }, │   │
-│  │        { "idx": 2, "layoutType": "CHART_BAR", "assets": [] },                                │   │
-│  │        ...                                                                                   │   │
-│  │      ]                                                                                       │   │
-│  │    }                                                                                         │   │
-│  └────────────────────────────────────────────────────────────────────────────────────────┬─────┘   │
-│                                                                                           │         │
-│                                                                                           ▼         │
-│  ┌──────────────────────────────────────────────────────────────────────────────────────────────┐   │
-│  │ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  STAGE 3: CREATOR AGENT  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │   │
-│  │                                                                                              │   │
-│  │  INPUT: Structural Map + types.ts + Golden Example JSON                                      │   │
-│  │  ROLE:  Precise Coordinate & Style JSON Generation                                          │   │
-│  │  OUTPUT:                                                                                     │   │
-│  │    [                                                                                         │   │
-│  │      {                                                                                       │   │
-│  │        "id": "slide-1", "type": "title", "duration": 150,                                    │   │
-│  │        "background": { "type": "color", "value": "#18181b" },                                │   │
-│  │        "elements": [                                                                         │   │
-│  │          { "id": "h1", "type": "headline", "x": 50, "y": 200, ... },                         │   │
-│  │          ...                                                                                 │   │
-│  │        ]                                                                                     │   │
-│  │      },                                                                                      │   │
-│  │      ...                                                                                     │   │
-│  │    ]                                                                                         │   │
-│  └──────────────────────────────────────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐    │
+│  │ STAGE 1: SUMMARIZER  →  Extracts topic, intent, key points from raw input                  │    │
+│  └─────────────────────────────────────────────────────────────────────────────────────────────┘    │
+│       │                                                                                             │
+│       ▼                                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐    │
+│  │ STAGE 2: DIRECTOR  →  Plans scene structure, batches, narrative arc, asset directives      │    │
+│  └─────────────────────────────────────────────────────────────────────────────────────────────┘    │
+│       │                                                                                             │
+│       ▼                                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐    │
+│  │ STAGE 3: ASSET GENERATOR  →  Creates backgrounds, images via AI (Imagen) or stock lookup   │    │
+│  └─────────────────────────────────────────────────────────────────────────────────────────────┘    │
+│       │                                                                                             │
+│       ▼                                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐    │
+│  │ STAGE 4: SLIDE GENERATOR  →  Generates Slide JSON (component or custom mode per scene)     │    │
+│  └─────────────────────────────────────────────────────────────────────────────────────────────┘    │
+│       │                                                                                             │
+│       ▼                                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐    │
+│  │ STAGE 5: VALIDATOR  →  Auto-fixes JSON, ensures schema compliance, inserts asset URLs      │    │
+│  └─────────────────────────────────────────────────────────────────────────────────────────────┘    │
 │                                                                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 2.1 AI Edit Pipeline (Tiered Patching)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                              TIERED EDIT SYSTEM                                         │
+│                                                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────────────────┐    │
+│  │  LEVEL 1: GLOBAL EDIT  (/api/ai/edit)                                           │    │
+│  │  ──────────────────────────────────────                                         │    │
+│  │  • Instruction + ALL slides                                                     │    │
+│  │  • Classifier (cheap LLM) → scope: local | global                               │    │
+│  │  • Context optimization: full JSON for targets, summaries for others            │    │
+│  │  • Output: JSONPatch[] for affected slides                                      │    │
+│  └─────────────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────────────────┐    │
+│  │  LEVEL 2: SLIDE EDIT  (/api/ai/edit/slide)                                      │    │
+│  │  ──────────────────────────────────────────                                     │    │
+│  │  • Instruction + SINGLE slide (full JSON)                                       │    │
+│  │  • Project summary, theme context included                                      │    │
+│  │  • Mode: PATCH (small changes) or REGENERATE (full redesign)                    │    │
+│  │  • Output: Updated slide or JSONPatch[]                                         │    │
+│  └─────────────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────────────────┐    │
+│  │  LEVEL 3: ELEMENT EDIT  (/api/ai/edit/element)                                  │    │
+│  │  ──────────────────────────────────────────                                     │    │
+│  │  • Instruction + SELECTED elements (1 or more)                                  │    │
+│  │  • Uses cheap LLM for fast response                                             │    │
+│  │  • Supports: text, shapes, images, custom components                            │    │
+│  │  • Output: Element-level patches                                                │    │
+│  └─────────────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────────────────┐    │
+│  │  APPLY LAYER  (apply.ts)                                                        │    │
+│  │  ─────────────────────────                                                      │    │
+│  │  • deepMerge for nested property updates                                        │    │
+│  │  • Validates patches against existing slide/element IDs                         │    │
+│  │  • Merges cumulative patches intelligently                                      │    │
+│  └─────────────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---

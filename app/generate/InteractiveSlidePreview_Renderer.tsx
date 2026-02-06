@@ -23,12 +23,12 @@ interface ElementRendererProps {
 export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontSizeValue }) => {
     switch (element.type) {
         case 'headline':
-            return <motion.h1 className="leading-tight drop-shadow-md whitespace-pre-wrap w-full min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight }}>{element.content as string}</motion.h1>;
+            return <motion.h1 className="leading-[1.1] drop-shadow-md whitespace-pre-wrap w-full min-w-0 break-words text-balance" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight, fontWeight: element.fontWeight }}>{element.content as string}</motion.h1>;
         case 'subheadline':
-            return <motion.p className="leading-snug drop-shadow-sm whitespace-pre-wrap w-full min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight }}>{element.content as string}</motion.p>;
+            return <motion.p className="leading-snug drop-shadow-sm whitespace-pre-wrap w-full min-w-0 break-words text-balance opacity-90" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight, fontWeight: element.fontWeight }}>{element.content as string}</motion.p>;
         case 'text':
             return (
-                <motion.div className="leading-normal w-full max-w-none min-w-0 break-words" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight }}>
+                <motion.div className="leading-relaxed w-full max-w-none min-w-0 break-words drop-shadow-sm text-pretty" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight, fontWeight: element.fontWeight }}>
                     {element.textFormat === 'markdown' ? (
                         <ReactMarkdown 
                             components={useMemo(() => createMarkdownComponents('dark', element.fontFamily, element.textColor || element.color), [element.fontFamily, element.textColor, element.color])} 
@@ -95,16 +95,20 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontS
                                     dataKey="value1" 
                                     nameKey="name" 
                                     cx="50%" cy="50%" 
-                                    outerRadius="80%" 
-                                    fill={element.color || "#8884d8"}
+                                    innerRadius={60}
+                                    outerRadius={80} 
+                                    paddingAngle={5}
+                                    cornerRadius={5}
+                                    fill={element.color || "#3b82f6"}
                                     label
+                                    stroke="none"
                                 >
                                     {data.map((entry: any, index: number) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        <Cell key={`cell-${index}`} fill={conf.colors?.[index % (conf.colors?.length || 1)] || COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
-                                {conf.showLegend !== false && <Legend iconSize={10} wrapperStyle={{ fontSize: '10px' }} />}
-                                <Tooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#3f3f46', color: '#fff' }} />
+                                {conf.showLegend !== false && <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '12px', fontFamily: 'Inter', opacity: 0.8 }} verticalAlign="bottom" height={36} />}
+                                <Tooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#3f3f46', color: '#fff', borderRadius: '8px' }} />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
@@ -114,19 +118,30 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontS
             return (
                 <div className="w-full h-full" style={{ fontFamily: element.fontFamily || 'Inter, sans-serif' }}>
                     <ResponsiveContainer width="100%" height="100%">
-                        <ChartComp data={data}>
-                            {(conf.showGrid !== false) && <CartesianGrid strokeDasharray="3 3" opacity={0.2} stroke="#fff" />}
-                            {(conf.showXAxis !== false) && <XAxis dataKey="name" stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} />}
-                            {(conf.showYAxis !== false) && <YAxis stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} />}
-                            <Tooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#3f3f46', color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.1)' }} />
-                            {(conf.showLegend !== false) && <Legend iconSize={10} wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />}
+                        <ChartComp data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                            {(conf.showGrid !== false) && <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" vertical={false} />}
+                            {(conf.showXAxis !== false) && <XAxis dataKey="name" stroke="#a1a1aa" fontSize={11} tickLine={false} axisLine={false} dy={10} />}
+                            {(conf.showYAxis !== false) && <YAxis stroke="#a1a1aa" fontSize={11} tickLine={false} axisLine={false} dx={-10} />}
+                            <Tooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#3f3f46', color: '#fff', borderRadius: '8px' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+                            {(conf.showLegend !== false) && <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '12px', fontFamily: 'Inter', opacity: 0.8, paddingTop: '10px' }} />}
                             {(() => {
                                 const valueKeys = data.length > 0 ? Object.keys(data[0]).filter(k => k.startsWith('value')) : [];
                                 return valueKeys.map((key, index) => {
-                                    const color = index === 0 ? (element.color || COLORS[0]) : COLORS[index % COLORS.length];
-                                    if (element.chartType === 'area') return <Area key={key} type="monotone" dataKey={key} stroke={color} fill={color} fillOpacity={0.3} />;
-                                    if (element.chartType === 'line') return <Line key={key} type="monotone" dataKey={key} stroke={color} strokeWidth={3} dot={{r: 4}} />;
-                                    return <Bar key={key} dataKey={key} fill={color} radius={[4, 4, 0, 0]} />;
+                                    const color = conf.colors?.[index % (conf.colors?.length || 1)] || (index === 0 ? (element.color || COLORS[0]) : COLORS[index % COLORS.length]);
+                                    
+                                    if (element.chartType === 'area') {
+                                        return (
+                                            <defs key={`defs-${key}`}>
+                                                <linearGradient id={`gradient-${key}`} x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
+                                                    <stop offset="95%" stopColor={color} stopOpacity={0}/>
+                                                </linearGradient>
+                                                <Area key={key} type="monotone" dataKey={key} stroke={color} fill={`url(#gradient-${key})`} strokeWidth={3} isAnimationActive={true} animationDuration={1000} />
+                                            </defs>
+                                        );
+                                    }
+                                    if (element.chartType === 'line') return <Line key={key} type="monotone" dataKey={key} stroke={color} strokeWidth={3} dot={{ r: 4, strokeWidth: 0, fill: color }} activeDot={{ r: 6 }} isAnimationActive={true} animationDuration={1000} />;
+                                    return <Bar key={key} dataKey={key} fill={color} radius={[4, 4, 0, 0]} isAnimationActive={true} animationDuration={1000} />;
                                 });
                             })()}
                         </ChartComp>

@@ -11,22 +11,33 @@ import type {
   SlideBatch,
 } from './types';
 
+import { getDirectorSystemPrompt } from './prompts';
+
 const SceneGuidanceSchema = z.object({
   sceneIndex: z.number(),
   sceneId: z.string(),
-  slideType: z.string(),
+  mode: z.enum(['component', 'custom', 'template']).describe('Generation mode'),
+  slideType: z.enum([
+    'title', 'problem', 'solution', 'features', 'metrics', 
+    'comparison', 'testimonial', 'pricing', 'roadmap', 
+    'team', 'cta'
+  ]).describe('Categorical type of slide'),
   intent: z.string(),
-  durationFrames: z.number().min(60).max(600),
+  durationMs: z.number().min(2000).max(15000),
   keyContent: z.object({
-    headline: z.string().optional().describe('Main title or headline'),
-    subheadline: z.string().optional().describe('Subtitle or supporting text'),
-    body: z.string().optional().describe('Main paragraph text'),
-    items: z.array(z.string()).optional().describe('List items or bullet points'),
-    label: z.string().optional().describe('Button label or catgory tag'),
-  }).describe('Key text content for the slide'),
-  visualGuidance: z.string(),
+    headline: z.string().optional(),
+    subheadline: z.string().optional(),
+    body: z.string().optional(),
+    items: z.array(z.string()).optional(),
+    label: z.string().optional(),
+  }),
+  visualGuidance: z.string().describe('Structural layout instructions (e.g., "Split screen", "Grid", "Hero center")'),
   animationNotes: z.string().optional(),
   elementsHint: z.array(z.string()).optional(),
+  
+  componentId: z.string().optional().describe('ID of the component to use (for component mode)'),
+  templateId: z.string().optional().describe('ID of the template to use (for template mode)'),
+  templateContext: z.string().optional().describe('Instructions for the template filler (if templateId is set)'),
 });
 
 const DirectorOutputSchema = z.object({
@@ -42,6 +53,7 @@ const DirectorOutputSchema = z.object({
     pacing: z.enum(['slow', 'moderate', 'fast']).optional(),
   }),
   commonPrompt: z.string(),
+  globalPrompt: z.string().describe('Global visual prompt for consistency'),
   scenes: z.array(SceneGuidanceSchema),
   batches: z.array(z.object({
     slides: z.array(z.number()),
@@ -54,64 +66,6 @@ const DirectorOutputSchema = z.object({
     })).optional(),
   })),
 });
-
-function getDirectorSystemPrompt(): string {
-  return `You are the PRESENTATION DIRECTOR for OpenScenes, an AI video presentation generator.
-
-## YOUR ROLE
-You take summarized content and plan a compelling video presentation. You decide:
-1. The narrative arc (how the story flows)
-2. What each slide should accomplish
-3. The pacing and emotional journey
-4. Batching strategy for generation
-5. Asset requirements (images needed)
-
-## CANVAS CONSTRAINTS
-- Viewport: ${CANVAS.width}px × ${CANVAS.height}px (16:9)
-- Origin: Top-left (0, 0)
-- Z-Index Layers: Background (0-5), Decoration (6-9), Content (10-20), Overlay (21+)
-
-## AVAILABLE SLIDE TYPES
-- title: Opening slide with headline + tagline
-- problem: Present the challenge/pain point
-- solution: Introduce the answer
-- features: Showcase capabilities (grid or list)
-- metrics: Data-driven stats with charts
-- comparison: Side-by-side old vs new
-- testimonial: Quote with attribution
-- pricing: Tier-based pricing display
-- roadmap: Timeline visualization
-- team: People showcase
-- cta: Final call-to-action
-- default: Generic content slide
-
-## BATCHING RULES
-- Group 2-3 slides per batch
-- Keep related slides in same batch (e.g., problem + solution)
-- Assets should be requested in the batch where they're used
-- Maximum ${AI_LIMITS.MAX_ASSETS_PER_RENDER} total assets per presentation
-
-## RULES
-1. Maximum ${AI_LIMITS.MAX_SLIDES} slides per presentation.
-2. Each scene MUST have specific keyContent - never leave it vague.
-3. The commonPrompt is injected into every scene creator call.
-4. Vary slide types - avoid 3+ consecutive text-heavy slides.
-5. Duration should be 120-300 frames per slide (at 30fps, 4-10 seconds).
-6. If content is sparse, use fewer slides.
-7. Always end with a cta slide.
-## ASSET PLANNING
-You MUST request visual assets for every slide to ensure impact.
-- **Unique Prompts**: Each asset MUST have a highly specific, unique prompt describing the visual scene (e.g., "A cinematic view of Mars horizon with orange dust storms").
-- **Targeting**: For each asset, specify the \`targetSlideId\` and \`targetElementId\` (e.g., "slide-1", "image-bg").
-- **Asset Types**: Hero backgrounds, illustrations, or context-specific imagery.
-Maximum ${AI_LIMITS.MAX_ASSETS_PER_RENDER} assets per presentation. These will be fulfilled by AI or premium stock imagery.
-
-## OUTPUT REQUIREMENTS (STRICT)
-1. **Slide Diversity**: Do NOT use "default" for everything. Use "roadmap" for plans, "features" for lists, "metrics" for data, "comparison" for before/after, "title" for intros.
-2. **Key Content**: Elements like "items" or "body" must be filled with high-quality, relevant text.
-3. **Common Prompt**: This will be the foundational visual style shared by all slides. Describe the theme, colors, and overall aesthetic.
-`;
-}
 
 function buildThemesSummary(themes: Record<string, unknown>): string {
   const lines: string[] = ['Available themes:'];
@@ -180,25 +134,43 @@ function createBatchesFromScenes(
   batchSize: number = AI_LIMITS.BATCH_SIZE
 ): SlideBatch[] {
   const batches: SlideBatch[] = [];
-  
-  for (let i = 0; i < scenes.length; i += batchSize) {
-    const batchScenes = scenes.slice(i, i + batchSize);
-    const slideIndices = batchScenes.map(s => s.sceneIndex);
+  let currentBatch: SceneGuidance[] = [];
+
+  const flushBatch = () => {
+    if (currentBatch.length === 0) return;
     
-    const batchPrompt = batchScenes.map(scene => 
+    const slideIndices = currentBatch.map(s => s.sceneIndex);
+    const batchPrompt = currentBatch.map(scene => 
       `Slide ${scene.sceneIndex + 1} (${scene.slideType}): ${scene.intent}`
     ).join('\n');
     
-    batches.push({
-      slides: slideIndices,
-      prompt: batchPrompt,
-    });
+    batches.push({ slides: slideIndices, prompt: batchPrompt });
+    currentBatch = [];
+  };
+
+  for (const scene of scenes) {
+    if (scene.mode === 'custom' || scene.mode === 'component') {
+      flushBatch(); 
+      
+      batches.push({
+        slides: [scene.sceneIndex],
+        prompt: `Slide ${scene.sceneIndex + 1} (${scene.slideType}): ${scene.intent} [MODE: ${scene.mode}]`
+      });
+      continue;
+    }
+
+    currentBatch.push(scene);
+    
+    if (currentBatch.length >= batchSize) {
+      flushBatch();
+    }
   }
-  
+
+  flushBatch();
   return batches;
 }
 
-function validateDirectorOutput(output: DirectorOutput): DirectorOutput {
+export function validateDirectorOutput(output: DirectorOutput): DirectorOutput {
   if (output.totalSlides > AI_LIMITS.MAX_SLIDES) {
     console.warn(`[Director] Capping slides from ${output.totalSlides} to ${AI_LIMITS.MAX_SLIDES}`);
     output.totalSlides = AI_LIMITS.MAX_SLIDES;
@@ -276,6 +248,10 @@ export async function planPresentation(
   
   const prompt = buildDirectorPrompt(input, themesRegistry);
   
+  if (input.jobId) {
+    await logger.debug.prompt(input.jobId, '2-director', prompt, getDirectorSystemPrompt());
+  }
+  
   try {
     const result = await aiGenerateStructured({
       model: 'medium',
@@ -297,7 +273,7 @@ export async function planPresentation(
 
 export function getSuggestedSlideCount(summary?: SummarizerOutput): number {
   if (!summary) {
-    return 6; // Default
+    return 6; 
   }
   
   return Math.min(summary.suggestedSlideCount, AI_LIMITS.MAX_SLIDES);
@@ -313,9 +289,10 @@ export function createMinimalPlan(
   scenes.push({
     sceneIndex: 0,
     sceneId: 'scene-title',
+    mode: 'custom',
     slideType: 'title',
     intent: 'Hook the viewer with the main topic',
-    durationFrames: 180,
+    durationMs: 6000,
     keyContent: { headline: 'Title', subheadline: 'Subtitle' },
     visualGuidance: 'Center-aligned hero text',
   });
@@ -328,9 +305,10 @@ export function createMinimalPlan(
     scenes.push({
       sceneIndex: i + 1,
       sceneId: `scene-${type}-${i}`,
+      mode: 'custom',
       slideType: type,
       intent: `Present ${type} content`,
-      durationFrames: 180,
+      durationMs: 6000,
       keyContent: { body: `${type} content` },
       visualGuidance: 'Follow theme guidelines',
     });
@@ -339,9 +317,10 @@ export function createMinimalPlan(
   scenes.push({
     sceneIndex: scenes.length,
     sceneId: 'scene-cta',
+    mode: 'custom',
     slideType: 'cta',
     intent: 'Call to action',
-    durationFrames: 180,
+    durationMs: 6000,
     keyContent: { headline: 'Get Started', label: 'Learn More' },
     visualGuidance: 'Bold, centered call to action',
   });
@@ -357,6 +336,7 @@ export function createMinimalPlan(
       pacing: 'moderate',
     },
     commonPrompt: `Create a presentation about: ${userQuery}`,
+    globalPrompt: `Clean, modern presentation about ${userQuery}`,
     scenes,
     batches: createBatchesFromScenes(scenes),
   };

@@ -34,7 +34,7 @@ export async function initAICallsTable(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_ai_calls_created_at ON ai_calls(created_at)
     `);
     
-    console.log('[DB] ai_calls table initialized');
+    // console.log('[DB] ai_calls table initialized');
   } finally {
     client.release();
   }

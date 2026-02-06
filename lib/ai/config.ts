@@ -1,8 +1,9 @@
 export const AI_MODELS = {
-  main: 'gemini-2.0-flash',
-  cheap: 'gemini-2.0-flash-lite',
-  medium: 'gemini-2.0-flash',
-  validator: 'gemini-2.0-flash-lite',
+  main: 'gemini-2.5-flash',
+  creative: 'gemini-2.5-pro',
+  cheap: 'gemini-2.5-flash-lite',
+  medium: 'gemini-2.5-flash',
+  validator: 'gemini-2.5-flash-lite',
 } as const;
 
 export const AI_IMAGE_CONFIG = {
@@ -26,7 +27,7 @@ export const AI_LIMITS = {
 export const AI_TEMPERATURES = {
   summarizer: 0.3,
   director: 0.7,
-  generator: 0.4,
+  generator: 0.5,
   validator: 0.2,
   editor: 0.2,
 } as const;
@@ -38,11 +39,11 @@ export const AI_MAX_TOKENS = {
   },
   director: {
     input: 16000,
-    output: 6000,
+    output: 8000,
   },
   generator: {
     input: 8000,
-    output: 4000,
+    output: 16000,
   },
   validator: {
     input: 4000,
@@ -109,6 +110,7 @@ export const SUPPORTED_SLIDE_TYPES = [
   'roadmap',
   'team',
   'cta',
+  'custom',
   'default',
 ] as const;
 

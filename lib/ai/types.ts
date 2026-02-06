@@ -4,6 +4,7 @@ export interface SummarizerInput {
   userQuery: string;
   fileContent?: string;
   urlContent?: string;
+  jobId?: string;
 }
 
 export interface SummarizerOutput {
@@ -36,6 +37,7 @@ export interface DirectorInput {
   themePrompt: string;
   requestedSlideCount?: number;
   additionalInstructions?: string;
+  jobId?: string;
 }
 
 export interface AssetDirective {
@@ -54,9 +56,10 @@ export interface SlideBatch {
 export interface SceneGuidance {
   sceneIndex: number;
   sceneId: string;
-  slideType: string;
+  mode: 'component' | 'custom' | 'template'; // NEW: Explicit mode
+  slideType: string; // Keep for backward compat or categorical description
   intent: string;
-  durationFrames: number;
+  durationMs: number;
   keyContent: {
     headline?: string;
     subheadline?: string;
@@ -67,6 +70,11 @@ export interface SceneGuidance {
   visualGuidance: string;
   animationNotes?: string;
   elementsHint?: string[];
+  
+  // Mode-specific fields
+  componentId?: string; // For 'component' mode
+  templateId?: string; // For 'template' mode
+  templateContext?: string; // For 'template' mode
 }
 
 export interface DirectorOutput {
@@ -81,7 +89,8 @@ export interface DirectorOutput {
     animationStyle?: 'smooth' | 'punchy' | 'minimal';
     pacing?: 'slow' | 'moderate' | 'fast';
   };
-  commonPrompt: string;
+  commonPrompt: string; // Legacy support
+  globalPrompt: string; // NEW: Global prompt for all slides
   scenes: SceneGuidance[];
   batches: SlideBatch[];
 }
@@ -93,6 +102,8 @@ export interface SlideGeneratorInput {
   sceneGuidance: SceneGuidance[];
   previousSlideSummary?: string;
   assetMetadata?: Map<string, AssetMetadata>;
+  themeConfig?: ThemeConfig;
+  jobId?: string;
 }
 
 export interface SlideGeneratorOutput {

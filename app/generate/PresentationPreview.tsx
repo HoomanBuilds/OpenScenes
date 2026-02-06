@@ -246,36 +246,34 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-zinc-950 flex flex-col font-mono"
+            className="fixed inset-0 z-[100] bg-black flex flex-col font-sans text-white/90"
         >
-            <div className="absolute inset-0 z-0 opacity-[0.03]" 
+            {/* Ambient Background */}
+            <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" 
                 style={{ 
-                    backgroundImage: `linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)`,
-                    backgroundSize: '40px 40px'
+                    backgroundImage: `radial-gradient(circle at 50% 50%, #3f3f46 0%, #000 100%)`,
                 }} 
             />
-            <div className="h-16 border-b-2 border-zinc-800 bg-[#09090b] flex items-center justify-between px-6 z-20 relative">
+
+            {/* Header */}
+            <div className="h-16 flex items-center justify-between px-6 z-20 relative">
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center space-x-3 bg-zinc-900 border-2 border-zinc-800 px-3 py-1.5 shadow-[4px_4px_0_0_rgba(24,24,27,1)]">
-                        <span className="text-[10px] text-zinc-400 font-black uppercase tracking-widest">
-                            SEQ {currentIndex + 1}/{slides.length}
-                        </span>
-                        <div className="w-px h-3 bg-zinc-700"></div>
-                        <span className="text-[10px] text-zinc-500 font-mono">
-                            {((currentSlide?.duration || 5000) / 1000).toFixed(1)}s
+                    <div className="flex items-center space-x-3 bg-white/5 backdrop-blur-md rounded-full px-4 py-1.5 border border-white/10">
+                        <span className="text-[11px] font-bold tracking-wider text-white/70">
+                            {currentIndex + 1} <span className="text-white/30 mx-1">/</span> {slides.length}
                         </span>
                     </div>
                 </div>
                 
                 <button 
                     onClick={onClose}
-                    className="px-4 py-2 flex items-center bg-zinc-900 border-2 border-zinc-800 hover:bg-red-500 hover:text-white hover:border-red-500 text-[10px] font-black uppercase tracking-widest text-zinc-500 transition-all shadow-[4px_4px_0_0_rgba(24,24,27,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                    className="p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 transition-all active:scale-95 group"
                 >
-                    <X size={14} className="mr-2" />
-                    CLOSE
+                    <X size={18} className="text-white/70 group-hover:text-white transition-colors" />
                 </button>
             </div>
 
+            {/* Main Stage */}
             <div className="flex-1 flex items-center justify-center p-8 overflow-hidden relative" ref={containerRef}>
                 <div 
                     style={{ 
@@ -284,7 +282,7 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
                         transform: `scale(${containerScale})`,
                         transformOrigin: 'center center'
                     }}
-                    className="relative shadow-[0_0_0_2px_#27272a,0_20px_50px_-12px_rgba(0,0,0,1)] bg-black"
+                    className="relative shadow-2xl shadow-black/50 bg-black rounded-xl overflow-hidden ring-1 ring-white/10"
                 >
 
                     <AnimatePresence mode="wait">
@@ -312,7 +310,7 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
                                 />
                             )}
                             
-                            <div className="relative w-full h-full" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            <div className="relative w-full h-full font-sans antialiased">
                                 {currentSlide.elements?.map((element) => (
                                     <AnimatedElement 
                                         key={element.id} 
@@ -326,63 +324,68 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
                 </div>
             </div>
 
-            <div className="border-t-2 border-zinc-800 bg-[#09090b] p-6 z-20">
-                <div className="max-w-4xl mx-auto w-full">
+            {/* Bottom Controls */}
+            <div className="p-8 z-20 pb-10">
+                <div className="max-w-xl mx-auto w-full bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-xl">
                     
-                    <div className="flex gap-1 mb-6 bg-zinc-900 border-2 border-zinc-800 p-1">
+                    {/* Progress Indicators */}
+                    <div className="flex gap-1.5 mb-4 px-1">
                         {slides.map((_, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => { setCurrentIndex(idx); setProgress(0); setSlideKey(prev => prev + 1); }}
-                                className="flex-1 h-2 bg-zinc-800 hover:bg-zinc-700 transition-colors relative group"
+                                className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden transition-all hover:h-1.5 hover:bg-white/20"
                             >
                                 <div 
-                                    className="h-full bg-purple-600 relative z-10"
+                                    className="h-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-300 ease-linear"
                                     style={{ 
                                         width: idx < currentIndex ? '100%' : 
                                                idx === currentIndex ? `${progress}%` : '0%' 
                                     }}
                                 />
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black border border-zinc-800 text-[9px] text-zinc-400 opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-20">
-                                    SLIDE {idx + 1}
-                                </div>
                             </button>
                         ))}
                     </div>
 
-                    <div className="flex items-center justify-between">
-                         <div className="flex items-center gap-4">
+                    {/* Playback Controls */}
+                    <div className="flex items-center justify-between px-2">
+                         <div className="flex items-center gap-1">
+                            <span className="text-xs text-white/40 font-mono tabular-nums">
+                                {((currentSlide?.duration || 5000) / 1000).toFixed(1)}s
+                            </span>
+                        </div>
+
+                         <div className="flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
                             <button 
-                                onClick={() => setIsPlaying(p => !p)}
-                                className="w-12 h-12 flex items-center justify-center bg-zinc-100 border-b-4 border-r-4 border-zinc-400 text-black hover:bg-white hover:border-zinc-500 active:border-0 active:translate-y-1 active:translate-x-1 transition-all"
+                                onClick={goToPrev}
+                                disabled={currentIndex === 0}
+                                className="p-2 text-white/50 hover:text-white disabled:opacity-20 transition-all active:scale-95"
                             >
-                                {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
+                                <SkipBack size={20} fill="currentColor" />
                             </button>
 
-                            <div className="flex items-center gap-1">
-                                <button 
-                                    onClick={goToPrev}
-                                    disabled={currentIndex === 0}
-                                    className="w-10 h-10 flex items-center justify-center bg-zinc-900 border-2 border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 disabled:opacity-30 disabled:border-zinc-900 transition-all active:scale-95"
-                                >
-                                    <SkipBack size={16} fill="currentColor" />
-                                </button>
-                                <button 
-                                    onClick={goToNext}
-                                    disabled={currentIndex === slides.length - 1}
-                                    className="w-10 h-10 flex items-center justify-center bg-zinc-900 border-2 border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 disabled:opacity-30 disabled:border-zinc-900 transition-all active:scale-95"
-                                >
-                                    <SkipForward size={16} fill="currentColor" />
-                                </button>
-                            </div>
+                            <button 
+                                onClick={() => setIsPlaying(p => !p)}
+                                className="w-12 h-12 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-white/10"
+                            >
+                                {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
+                            </button>
+
+                            <button 
+                                onClick={goToNext}
+                                disabled={currentIndex === slides.length - 1}
+                                className="p-2 text-white/50 hover:text-white disabled:opacity-20 transition-all active:scale-95"
+                            >
+                                <SkipForward size={20} fill="currentColor" />
+                            </button>
                         </div>
 
                         <button 
                             onClick={restart}
-                            className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border-2 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
+                            className="p-2 text-white/50 hover:text-white transition-all active:rotate-[-45deg]"
+                            title="Restart Presentation"
                         >
-                            <RotateCcw size={12} />
-                            RESTART
+                            <RotateCcw size={16} />
                         </button>
                     </div>
                 </div>

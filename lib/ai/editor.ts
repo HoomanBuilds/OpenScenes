@@ -3,6 +3,7 @@ import { aiGenerateStructured } from './adapter';
 import { AI_LIMITS } from './config';
 import type { EditRequest, EditOutput, JSONPatch, GenerationMetadata } from './types';
 import type { Slide } from '../schemas/template';
+import { classifyEditRequest, EditClassification } from './classifier';
 
 const JSONPatchSchema = z.object({
   slideId: z.string().describe('ID of the slide to edit'),
@@ -24,12 +25,17 @@ You receive an existing presentation and an edit instruction. Your job is to:
 2. Generate MINIMAL JSON patches to achieve that change
 3. Never regenerate the entire presentation
 
+## CONTEXT HANDLING
+You are provided with a mix of FULL JSON slides and SUMMARIZED slides.
+- **FULL JSON**: You have the complete structure. You can add/update/remove elements freely.
+- **SUMMARIZED**: You only have the ID/Title. You should ONLY patch these if it's a GLOBAL change (like theme/style) that applies consistently across all slides.
+
 ## PATCH FORMAT
 Each patch has:
 - slideId: ID of the slide to modify
 - elementId: ID of the element (optional, for element-level changes)
 - operation: "update" | "add" | "remove"
-- changes: Object with properties to change/add
+- changes: Object with properties to change/add. NEVER LEAVE THIS EMPTY.
 
 ## EXAMPLES
 
@@ -52,68 +58,47 @@ Patch:
   "changes": { "background": { "type": "color", "value": "#3b82f6" } }
 }
 
-### Example 3: Remove an element
-Instruction: "Remove the subtitle"
+### Example 3: Update text color
+Instruction: "Make the headline on slide 2 red"
 Patch:
 {
-  "slideId": "slide-1",
-  "elementId": "subheadline-1",
-  "operation": "remove",
-  "changes": {}
-}
-
-### Example 4: Add an element
-Instruction: "Add a subtitle saying 'Welcome'"
-Patch:
-{
-  "slideId": "slide-1",
-  "operation": "add",
-  "changes": {
-    "element": {
-      "id": "new-subheadline",
-      "type": "subheadline",
-      "content": "Welcome",
-      "x": 100,
-      "y": 200,
-      "width": 800,
-      "height": 50,
-      "fontSize": 28,
-      "textColor": "#a1a1aa",
-      "textAlign": "center",
-      "zIndex": 11
-    }
-  }
+  "slideId": "slide-2",
+  "elementId": "headline-1",
+  "operation": "update",
+  "changes": { "textColor": "#ef4444" }
 }
 
 ## RULES
 1. Generate the MINIMUM number of patches needed.
-2. Never regenerate entire slides - only patch what's needed.
-3. Use "update" for modifying existing content.
-4. Use "add" only for new elements or slides.
-5. Use "remove" for deletions.
-6. Keep changes targeted and precise.
-7. Maximum ${AI_LIMITS.MAX_PATCHES_PER_EDIT} patches per request.
-8. Reference actual slide/element IDs from the existing presentation.`;
+2. Never regenerate entire slides.
+3. The "changes" object MUST contain the actual new values. NEVER leave it empty.
+4. Use "update" for modifying existing content.
+5. Use "add" only for new elements or slides.
+6. Reference actual slide/element IDs from the existing presentation.`;
 
-function buildSlidesContext(slides: Slide[]): string {
+function buildSlidesContext(slides: Slide[], classification: EditClassification): string {
   const parts: string[] = [];
   
   for (const slide of slides) {
-    parts.push(`### Slide: ${slide.id} (${slide.type}) ###`);
+    const isTarget = classification.scope === 'global' || 
+                     classification.affectedSlideIds.includes(slide.id) ||
+                     slides.indexOf(slide) < 2; // Always include first 2 as reference
     
-    if (slide.background) {
-      parts.push(`Background: ${slide.background.type} = ${slide.background.value}`);
-    }
+    parts.push(`### Slide: ${slide.id} (${slide.type}) [${isTarget ? 'FULL CONTEXT' : 'SUMMARY ONLY'}] ###`);
     
-    if (slide.elements && slide.elements.length > 0) {
-      parts.push('Elements:');
-      for (const el of slide.elements) {
-        const content = el.content ? el.content.slice(0, 50) : '';
-        parts.push(`  - ${el.id} (${el.type}): "${content}"`);
-        parts.push(`    Position: (${el.x}, ${el.y}) Size: ${el.width}x${el.height}`);
-        if (el.textColor) parts.push(`    Color: ${el.textColor}`);
-        if (el.fontSize) parts.push(`    FontSize: ${el.fontSize}`);
+    if (isTarget) {
+      if (slide.background) {
+        parts.push(`Background: ${JSON.stringify(slide.background)}`);
       }
+      
+      if (slide.elements && slide.elements.length > 0) {
+        parts.push('Elements (Full JSON):');
+        parts.push(JSON.stringify(slide.elements, null, 2));
+      }
+    } else {
+      const title = slide.elements?.find(el => el.type === 'headline')?.content || 'Untitled';
+      parts.push(`Title: "${title.slice(0, 50)}..."`);
+      parts.push(`(Full data omitted to save tokens. Only patch if applying a global change)`);
     }
     parts.push('');
   }
@@ -121,7 +106,7 @@ function buildSlidesContext(slides: Slide[]): string {
   return parts.join('\n');
 }
 
-function buildEditorPrompt(request: EditRequest): string {
+function buildEditorPrompt(request: EditRequest, classification: EditClassification): string {
   const parts: string[] = [];
   
   parts.push('Generate JSON patches for the following edit instruction.');
@@ -131,26 +116,25 @@ function buildEditorPrompt(request: EditRequest): string {
   parts.push(request.instruction);
   parts.push('### END EDIT INSTRUCTION ###');
   parts.push('');
+
+  parts.push('### CLASSIFICATION BIAS ###');
+  parts.push(`Scope: ${classification.scope}`);
+  parts.push(`Reasoning: ${classification.reasoning}`);
+  parts.push('');
   
   if (request.presentationSummary) {
     parts.push('### PRESENTATION CONTEXT ###');
     parts.push(`Summary: ${request.presentationSummary}`);
-    if (request.keyPoints && request.keyPoints.length > 0) {
-      parts.push('Key Points:');
-      for (const kp of request.keyPoints) {
-        parts.push(`  - ${kp}`);
-      }
-    }
     parts.push('### END CONTEXT ###');
     parts.push('');
   }
   
   parts.push('### EXISTING SLIDES ###');
-  parts.push(buildSlidesContext(request.existingSlides));
+  parts.push(buildSlidesContext(request.existingSlides, classification));
   parts.push('### END EXISTING SLIDES ###');
   parts.push('');
   
-  parts.push('Generate the minimal patches needed to fulfill the edit instruction.');
+  parts.push('Generate the minimal patches needed. Output VALID JSON patches.');
   
   return parts.join('\n');
 }
@@ -158,13 +142,17 @@ function buildEditorPrompt(request: EditRequest): string {
 export async function generateEditPatches(
   request: EditRequest
 ): Promise<EditOutput> {
-  console.log(`[Editor] Processing edit instruction: "${request.instruction.slice(0, 50)}..."`);
+  console.log(`[Editor] Processing: "${request.instruction}"`);                          
   
-  const prompt = buildEditorPrompt(request);
+  const classification = await classifyEditRequest(request.instruction, request.existingSlides);
+  console.log(`[Editor] Classification:`, JSON.stringify(classification, null, 2));
+
+  const prompt = buildEditorPrompt(request, classification);
+  console.log(`[Editor] Prompt length: ${prompt.length} chars`);
   
   try {
     const result = await aiGenerateStructured({
-      model: 'cheap',
+      model: classification.scope === 'global' ? 'main' : 'medium', 
       schema: EditOutputSchema,
       schemaName: 'EditOutput',
       schemaDescription: 'JSON patches for presentation edit',
@@ -173,9 +161,15 @@ export async function generateEditPatches(
       agentType: 'editor',
     });
     
-    console.log(`[Editor] Generated ${result.patches.length} patches: ${result.changeDescription}`);
+    console.log(`[Editor] RAW LLM OUTPUT:`, JSON.stringify(result, null, 2));
     
     const validatedPatches = validatePatches(result.patches, request.existingSlides);
+    
+    for (const patch of validatedPatches) {
+      if (!patch.changes || Object.keys(patch.changes).length === 0) {
+        console.warn(`[Editor] WARNING: Patch has empty changes!`, JSON.stringify(patch));
+      }
+    }
     
     return {
       patches: validatedPatches,

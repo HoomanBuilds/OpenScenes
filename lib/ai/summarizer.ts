@@ -1,18 +1,8 @@
-/**
- * Content Summarizer
- * 
- * Reduces large user content into high-signal context for the pipeline.
- * Skips summarization if content is below threshold.
- */
-
 import { z } from 'zod';
 import { aiGenerateStructured, estimateTokens } from './adapter';
 import { AI_LIMITS } from './config';
+import { logger } from './logger';
 import type { SummarizerInput, SummarizerOutput } from './types';
-
-// ============================================================================
-// SCHEMA
-// ============================================================================
 
 const SummarizerOutputSchema = z.object({
   topic: z.string().describe('Main topic in 5 words or less'),
@@ -48,10 +38,6 @@ const SummarizerOutputSchema = z.object({
   contentDensity: z.enum(['sparse', 'balanced', 'dense']),
 });
 
-// ============================================================================
-// SYSTEM PROMPT
-// ============================================================================
-
 const SUMMARIZER_SYSTEM_PROMPT = `You are the CONTENT ANALYST for OpenScenes, an AI video presentation generator.
 
 ## YOUR ROLE
@@ -70,10 +56,6 @@ You receive raw user content and extract ONLY the information relevant for creat
 5. Keep keyPoints to max 8 items, ordered by priority.
 6. The summary should be 2-4 sentences max.
 7. suggestedSlideCount should be between 4-12 based on content density.`;
-
-// ============================================================================
-// MAIN FUNCTION
-// ============================================================================
 
 /**
  * Check if content needs summarization
@@ -172,6 +154,10 @@ export async function summarizeContent(
   // Log token estimate
   const estimatedTokens = estimateTokens(prompt);
   console.log(`[Summarizer] Input tokens (est): ${estimatedTokens}`);
+  
+  if (input.jobId) {
+    await logger.debug.prompt(input.jobId, '1-summarizer', prompt);
+  }
   
   try {
     const result = await aiGenerateStructured({

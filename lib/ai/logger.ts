@@ -49,6 +49,24 @@ export const logger = {
         );
       } catch (error) {
       }
+    },
+    prompt: async (jobId: string, step: string, promptContent: string, systemPrompt?: string) => {
+      if (!AI_CONFIG.debug) return;
+      
+      try {
+        const logsDir = path.join(process.cwd(), 'logs', 'ai-logs', jobId);
+        await fs.mkdir(logsDir, { recursive: true });
+        
+        const fullContent = systemPrompt 
+          ? `### SYSTEM PROMPT ###\n${systemPrompt}\n\n### USER PROMPT ###\n${promptContent}`
+          : promptContent;
+
+        await fs.writeFile(
+          path.join(logsDir, `${step}.prompt`),
+          fullContent
+        );
+      } catch (error) {
+      }
     }
   },
 
@@ -92,13 +110,15 @@ export const logger = {
       console.log(symbols.info + ' Location: ' + c.cyan(location));
     },
     
-    connection: (service: string, status: 'connecting' | 'connected' | 'error') => {
+    connection: (service: string, status: 'connecting' | 'connected' | 'error', details?: string) => {
       if (status === 'connecting') {
         console.log(symbols.bullet + ' Connecting to ' + c.yellow(service) + '...');
       } else if (status === 'connected') {
-        console.log(symbols.success + ' Connected to ' + c.green(service));
+        const detailStr = details ? c.gray(` (${details})`) : '';
+        console.log(symbols.success + ' Connected to ' + c.green(service) + detailStr);
       } else {
-        console.log(symbols.error + ' Failed to connect to ' + c.red(service));
+        const detailStr = details ? c.gray(` (${details})`) : '';
+        console.log(symbols.error + ' Failed to connect to ' + c.red(service) + detailStr);
       }
     },
   },

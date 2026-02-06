@@ -10,7 +10,7 @@ export interface RenderJob {
 
 export interface AIJob {
   jobId: string;
-  type: 'generate' | 'edit';
+  type: 'generate' | 'edit' | 'slide-edit' | 'element-edit';
   userQuery: string;
   themeName: string;
   themePrompt?: string;
@@ -21,6 +21,21 @@ export interface AIJob {
   existingSlides?: unknown[];
   editInstruction?: string;
   previousMetadata?: unknown;
+  // Slide-level edit data
+  slideEditData?: {
+    slideId: string;
+    slide: unknown;
+    instruction: string;
+    themePrompt?: string;
+    projectSummary?: string;
+  };
+  // Element-level edit data
+  elementEditData?: {
+    slideId: string;
+    elements: unknown[];
+    instruction: string;
+    themePrompt?: string;
+  };
   createdAt: number;
 }
 
@@ -49,7 +64,7 @@ export interface AIJobRecord {
 }
 
 export interface QueueAdapter {
-  connect(): Promise<void>;
+  connect(): Promise<string>;
   publishRenderJob(job: RenderJob): Promise<void>;
   consumeRenderJobs(handler: (job: RenderJob) => Promise<void>): Promise<void>;
   publishAIJob(job: AIJob): Promise<void>;

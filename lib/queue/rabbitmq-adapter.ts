@@ -8,13 +8,13 @@ class RabbitMQAdapter implements QueueAdapter {
   private connection: amqp.ChannelModel | null = null;
   private channel: amqp.Channel | null = null;
 
-  async connect(): Promise<void> {
+  async connect(): Promise<string> {
     const url = (process.env.RABBITMQ_URL || 'amqp://user:password@127.0.0.1:5672').replace('localhost', '127.0.0.1');
-    
+    const sanitizedUrl = url.replace(/:[^:@]+@/, ':****@');
+
     let retries = 10;
     while (retries > 0) {
       try {
-        console.log(`[RabbitMQ] Connecting to ${url}...`);
         this.connection = await amqp.connect(url, {
              timeout: 10000,
              headers: { 'User-Agent': 'clarity-worker' }, 
@@ -31,8 +31,8 @@ class RabbitMQAdapter implements QueueAdapter {
         this.channel = await this.connection.createChannel();
         await this.channel.assertQueue(RENDER_QUEUE, { durable: true });
         await this.channel.assertQueue(AI_QUEUE, { durable: true });
-        console.log('[RabbitMQ] Connected successfully');
-        return;
+        // console.log('[RabbitMQ] Connected successfully');
+        return sanitizedUrl;
       } catch (err: any) {
         console.error(`[RabbitMQ] Connection failed (retries left: ${retries}):`, err.message);
         retries--;
@@ -56,7 +56,7 @@ class RabbitMQAdapter implements QueueAdapter {
     }
     
     const concurrency = parseInt(process.env.CONCURRENT_RENDERS || '1', 10);
-    console.log(`[RabbitMQ] Setting render prefetch count to ${concurrency}`);
+    // console.log(`Setting render prefetch count to ${concurrency}`);
     await this.channel!.prefetch(concurrency);
     
     await this.channel!.consume(RENDER_QUEUE, async (msg) => {
@@ -88,7 +88,7 @@ class RabbitMQAdapter implements QueueAdapter {
     }
     
     const concurrency = parseInt(process.env.CONCURRENT_AI_JOBS || '2', 10);
-    console.log(`[RabbitMQ] Setting AI prefetch count to ${concurrency}`);
+    // console.log(`Setting AI prefetch count to ${concurrency}`);
     await this.channel!.prefetch(concurrency);
     
     await this.channel!.consume(AI_QUEUE, async (msg) => {

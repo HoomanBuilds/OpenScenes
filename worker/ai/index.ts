@@ -6,15 +6,21 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 import { queue, AIJob } from '../../lib/queue/adapter';
 import { redis } from '../../lib/redis/adapter';
 import { run, type PipelineInput, type PipelineOutput } from '../../lib/ai';
+import { generateSlideEdit, applySlideEdit, type SlideEditRequest } from '../../lib/ai/slideEditor';
+import { generateElementEdit, applyElementEdits, type ElementEditRequest } from '../../lib/ai/elementEditor';
 import { initTracing, shutdownTracing } from '../../lib/ai/tracing';
 import { setJobContext, clearJobContext } from '../../lib/ai/adapter';
 import { initDatabase } from '../../lib/db/postgres';
 import { initAICallsTable } from '../../lib/db/ai-calls';
 import { initAIAssetsTable } from '../../lib/db/ai-assets';
 import { logger } from '../../lib/ai/logger';
+import type { Slide, SlideElement } from '../../lib/schemas/template';
 
 const AI_JOB_PREFIX = 'ai:job:';
 const AI_JOB_TTL = 3600;
+
+const LATEST_ONLY = process.argv.includes('--latest');
+const WORKER_START_TIME = Date.now();
 
 async function updateJobStatus(
   jobId: string, 
@@ -37,6 +43,17 @@ async function updateJobStatus(
 }
 
 async function processAIJob(job: AIJob): Promise<void> {
+  if (LATEST_ONLY) {
+    const match = job.jobId.match(/^ai_(?:slide_|element_)?(\d+)_/);
+    if (match) {
+      const jobTimestamp = parseInt(match[1], 10);
+      if (jobTimestamp < WORKER_START_TIME) {
+        console.log(`[Worker] Skipping old job ${job.jobId} (--latest mode)`);
+        return;
+      }
+    }
+  }
+
   const startTime = Date.now();
   
   logger.worker.jobStart(job.jobId, job.type, job.userQuery);
@@ -46,6 +63,60 @@ async function processAIJob(job: AIJob): Promise<void> {
   await updateJobStatus(job.jobId, 'processing');
   
   try {
+    // Handle element-edit jobs
+    if (job.type === 'element-edit' && job.elementEditData) {
+      const elementEditRequest: ElementEditRequest = {
+        slideId: job.elementEditData.slideId,
+        elements: job.elementEditData.elements as SlideElement[],
+        instruction: job.elementEditData.instruction,
+        themeName: job.themeName,
+        themePrompt: job.elementEditData.themePrompt,
+      };
+
+      const editResult = await generateElementEdit(elementEditRequest);
+      const updatedElements = applyElementEdits(elementEditRequest.elements, editResult.patches);
+
+      const duration = Date.now() - startTime;
+      logger.worker.jobComplete(job.jobId, editResult.patches.length, duration);
+
+      await updateJobStatus(job.jobId, 'completed', {
+        result: {
+          slideId: job.elementEditData.slideId,
+          elements: updatedElements,
+          patches: editResult.patches,
+          explanation: editResult.explanation,
+        },
+      });
+      return;
+    }
+
+    // Handle slide-edit jobs
+    if (job.type === 'slide-edit' && job.slideEditData) {
+      const slideEditRequest: SlideEditRequest = {
+        slideId: job.slideEditData.slideId,
+        slide: job.slideEditData.slide as Slide,
+        instruction: job.slideEditData.instruction,
+        themeName: job.themeName,
+        themePrompt: job.slideEditData.themePrompt,
+        projectSummary: job.slideEditData.projectSummary,
+      };
+
+      const editResult = await generateSlideEdit(slideEditRequest);
+      const updatedSlide = applySlideEdit(slideEditRequest.slide, editResult);
+
+      const duration = Date.now() - startTime;
+      logger.worker.jobComplete(job.jobId, 1, duration);
+
+      await updateJobStatus(job.jobId, 'completed', {
+        result: {
+          slide: updatedSlide,
+          editMode: editResult.mode,
+          explanation: editResult.explanation,
+        },
+      });
+      return;
+    }
+
     const pipelineInput: PipelineInput = {
       jobId: job.jobId,
       userQuery: job.userQuery,
@@ -116,8 +187,8 @@ async function main() {
     logger.worker.connection('Database', 'connected');
     
     logger.worker.connection('RabbitMQ', 'connecting');
-    await queue.connect();
-    logger.worker.connection('RabbitMQ', 'connected');
+    const rabbitUrl = await queue.connect();
+    logger.worker.connection('RabbitMQ', 'connected', rabbitUrl);
     
     logger.worker.ready();
     await queue.consumeAIJobs(processAIJob);
