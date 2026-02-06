@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig = {
+  output: 'standalone',
   serverExternalPackages: [
     "@remotion/renderer", 
     "@remotion/bundler", 
