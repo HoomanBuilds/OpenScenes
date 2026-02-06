@@ -1,8 +1,14 @@
 export const AI_MODELS = {
-  main: 'gemini-3-flash-preview',
-  cheap: 'gemini-2.5-flash-lite',
-  medium: 'gemini-2.5-flash',
-  validator: 'gemini-2.5-flash-lite',
+  main: 'gemini-2.0-flash',
+  cheap: 'gemini-2.0-flash-lite',
+  medium: 'gemini-2.0-flash',
+  validator: 'gemini-2.0-flash-lite',
+} as const;
+
+export const AI_IMAGE_CONFIG = {
+  model: 'imagen-3.0-fast-generate-001',
+  enabled: () => process.env.ENABLE_AI_IMAGES === 'true',
+  bucket: 'ai-assets',
 } as const;
 
 export type ModelAlias = keyof typeof AI_MODELS;
@@ -120,6 +126,7 @@ export const SUPPORTED_BACKGROUND_TYPES = [
 ] as const;
 
 export const AI_CONFIG = {
+  debug: true,
   models: AI_MODELS,
   limits: AI_LIMITS,
   temperatures: AI_TEMPERATURES,

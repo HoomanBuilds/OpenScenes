@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { aiGenerateStructured } from './adapter';
-import { AI_LIMITS, CANVAS } from './config';
+import { AI_LIMITS, AI_IMAGE_CONFIG, CANVAS } from './config';
 import { formatSummaryForPrompt } from './summarizer';
+import { logger } from './logger';
 import type { 
   DirectorInput, 
   DirectorOutput, 
@@ -54,7 +55,8 @@ const DirectorOutputSchema = z.object({
   })),
 });
 
-const DIRECTOR_SYSTEM_PROMPT = `You are the PRESENTATION DIRECTOR for OpenScenes, an AI video presentation generator.
+function getDirectorSystemPrompt(): string {
+  return `You are the PRESENTATION DIRECTOR for OpenScenes, an AI video presentation generator.
 
 ## YOUR ROLE
 You take summarized content and plan a compelling video presentation. You decide:
@@ -96,7 +98,20 @@ You take summarized content and plan a compelling video presentation. You decide
 4. Vary slide types - avoid 3+ consecutive text-heavy slides.
 5. Duration should be 120-300 frames per slide (at 30fps, 4-10 seconds).
 6. If content is sparse, use fewer slides.
-7. Always end with a cta slide.`;
+7. Always end with a cta slide.
+## ASSET PLANNING
+You MUST request visual assets for every slide to ensure impact.
+- **Unique Prompts**: Each asset MUST have a highly specific, unique prompt describing the visual scene (e.g., "A cinematic view of Mars horizon with orange dust storms").
+- **Targeting**: For each asset, specify the \`targetSlideId\` and \`targetElementId\` (e.g., "slide-1", "image-bg").
+- **Asset Types**: Hero backgrounds, illustrations, or context-specific imagery.
+Maximum ${AI_LIMITS.MAX_ASSETS_PER_RENDER} assets per presentation. These will be fulfilled by AI or premium stock imagery.
+
+## OUTPUT REQUIREMENTS (STRICT)
+1. **Slide Diversity**: Do NOT use "default" for everything. Use "roadmap" for plans, "features" for lists, "metrics" for data, "comparison" for before/after, "title" for intros.
+2. **Key Content**: Elements like "items" or "body" must be filled with high-quality, relevant text.
+3. **Common Prompt**: This will be the foundational visual style shared by all slides. Describe the theme, colors, and overall aesthetic.
+`;
+}
 
 function buildThemesSummary(themes: Record<string, unknown>): string {
   const lines: string[] = ['Available themes:'];
@@ -217,6 +232,37 @@ function validateDirectorOutput(output: DirectorOutput): DirectorOutput {
   
   if (!output.batches || output.batches.length === 0) {
     output.batches = createBatchesFromScenes(output.scenes);
+  } else {
+    const allIndices = output.batches.flatMap(b => b.slides);
+    const maxIndex = Math.max(...(allIndices.length > 0 ? allIndices : [0]));
+    
+    if (maxIndex === output.scenes.length && !allIndices.includes(0)) {
+      console.log('[Director] Detecting 1-based indexing, normalizing to 0-based');
+      output.batches = output.batches.map(b => ({
+        ...b,
+        slides: b.slides.map(s => s - 1).filter(s => s >= 0 && s < output.scenes.length)
+      }));
+    } else {
+      output.batches = output.batches.map(b => ({
+        ...b,
+        slides: b.slides.filter(s => s >= 0 && s < output.scenes.length)
+      }));
+    }
+    
+    const coveredIndices = new Set(output.batches.flatMap(b => b.slides));
+    const missingIndices = output.scenes
+      .map((_, i) => i)
+      .filter(i => !coveredIndices.has(i));
+      
+    if (missingIndices.length > 0) {
+      console.log(`[Director] Found ${missingIndices.length} orphaned scenes, adding to batches`);
+      if (output.batches.length > 0) {
+        output.batches[output.batches.length - 1].slides.push(...missingIndices);
+        output.batches[output.batches.length - 1].slides.sort((a, b) => a - b);
+      } else {
+        output.batches = createBatchesFromScenes(output.scenes);
+      }
+    }
   }
   
   return output;
@@ -226,8 +272,7 @@ export async function planPresentation(
   input: DirectorInput,
   themesRegistry?: Record<string, unknown>
 ): Promise<DirectorOutput> {
-  console.log('[Director] Starting presentation planning...');
-  console.log(`[Director] Theme: ${input.themeName}`);
+  logger.director.planning(input.themeName);
   
   const prompt = buildDirectorPrompt(input, themesRegistry);
   
@@ -237,19 +282,15 @@ export async function planPresentation(
       schema: DirectorOutputSchema,
       schemaName: 'DirectorOutput',
       schemaDescription: 'Presentation structure and batching plan',
-      systemPrompt: DIRECTOR_SYSTEM_PROMPT,
+      systemPrompt: getDirectorSystemPrompt(),
       prompt,
       agentType: 'director',
     });
     
     const validatedResult = validateDirectorOutput(result);
     
-    console.log(`[Director] Planned ${validatedResult.totalSlides} slides in ${validatedResult.batches.length} batches`);
-    console.log(`[Director] Narrative arc: ${validatedResult.narrativeArc.join(' → ')}`);
-    
     return validatedResult;
   } catch (error) {
-    console.error('[Director] Error during planning:', error);
     throw new Error(`Director planning failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

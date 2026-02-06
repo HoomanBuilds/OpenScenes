@@ -1,0 +1,531 @@
+{
+  "name": "Cosmic-Coffee-Pitch",
+  "slides": [
+            {
+                "id": "slide-1",
+                "type": "title",
+                "duration": 2100,
+                "background": {
+                    "type": "color",
+                    "value": "#0a0a0a"
+                },
+                "elements": [
+                    {
+                        "id": "headline-1",
+                        "type": "headline",
+                        "x": 50,
+                        "y": 181,
+                        "width": 900,
+                        "height": 100,
+                        "zIndex": 10,
+                        "content": "Mars Genesis Initiative",
+                        "fontSize": 64,
+                        "fontWeight": "bold",
+                        "textColor": "#ffffff",
+                        "textAlign": "center",
+                        "animation": {
+                            "type": "fade",
+                            "duration": 1
+                        }
+                    },
+                    {
+                        "id": "subheadline-1",
+                        "type": "subheadline",
+                        "x": 50,
+                        "y": 281,
+                        "width": 900,
+                        "height": 60,
+                        "zIndex": 11,
+                        "content": "A 50-Year Blueprint for Terraforming and Colonization",
+                        "fontSize": 32,
+                        "fontWeight": "normal",
+                        "textColor": "#9ca3af",
+                        "textAlign": "center",
+                        "animation": {
+                            "type": "slide",
+                            "duration": 1,
+                            "direction": "up"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "slide-2",
+                "type": "problem",
+                "duration": 1800,
+                "background": {
+                    "type": "color",
+                    "value": "#0a0a0a"
+                },
+                "elements": [
+                    {
+                        "id": "headline-2",
+                        "type": "headline",
+                        "x": 50,
+                        "y": 50,
+                        "width": 900,
+                        "height": 80,
+                        "zIndex": 10,
+                        "content": "The Red Planet's Harsh Realities",
+                        "fontSize": 48,
+                        "fontWeight": "bold",
+                        "textColor": "#ffffff",
+                        "textAlign": "center",
+                        "animation": {
+                            "type": "fade",
+                            "duration": 0.7
+                        }
+                    },
+                    {
+                        "id": "text-1",
+                        "type": "text",
+                        "x": 150,
+                        "y": 150,
+                        "width": 700,
+                        "height": 300,
+                        "zIndex": 11,
+                        "content": "- Thin Atmosphere\n- Extreme Temperatures\n- Radiation Exposure\n- Resource Scarcity",
+                        "fontSize": 28,
+                        "textColor": "#9ca3af",
+                        "textAlign": "left",
+                        "textFormat": "markdown",
+                        "lineHeight": 1.5,
+                        "animation": {
+                            "type": "fade",
+                            "duration": 0.5,
+                            "delay": 0.5
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "slide-3",
+                "type": "solution",
+                "duration": 1800,
+                "background": {
+                    "type": "color",
+                    "value": "#0a0a0a"
+                },
+                "elements": [
+                    {
+                        "id": "headline-3",
+                        "type": "headline",
+                        "x": 50,
+                        "y": 150,
+                        "width": 900,
+                        "height": 80,
+                        "zIndex": 10,
+                        "content": "The Mars Genesis Solution",
+                        "fontSize": 64,
+                        "fontWeight": "bold",
+                        "fontFamily": "sans-serif",
+                        "textColor": "#ffffff",
+                        "textAlign": "center",
+                        "animation": {
+                            "type": "scale",
+                            "duration": 0.7,
+                            "delay": 0.3
+                        }
+                    },
+                    {
+                        "id": "subheadline-3",
+                        "type": "subheadline",
+                        "x": 50,
+                        "y": 250,
+                        "width": 900,
+                        "height": 60,
+                        "zIndex": 11,
+                        "content": "A comprehensive plan to overcome Martian obstacles",
+                        "fontSize": 32,
+                        "fontWeight": "normal",
+                        "fontFamily": "sans-serif",
+                        "textColor": "#9ca3af",
+                        "textAlign": "center",
+                        "animation": {
+                            "type": "fade",
+                            "duration": 0.5,
+                            "delay": 0.8
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "slide-4",
+                "type": "roadmap",
+                "duration": 2400,
+                "background": {
+                    "type": "color",
+                    "value": "#0a0a0a"
+                },
+                "elements": [
+                    {
+                        "id": "headline-4",
+                        "type": "headline",
+                        "x": 50,
+                        "y": 50,
+                        "width": 900,
+                        "height": 60,
+                        "zIndex": 10,
+                        "content": "50-Year Roadmap",
+                        "fontSize": 48,
+                        "fontWeight": "bold",
+                        "fontFamily": "sans-serif",
+                        "textColor": "#ffffff",
+                        "textAlign": "center",
+                        "animation": {
+                            "type": "fade",
+                            "duration": 0.5,
+                            "delay": 0.2
+                        }
+                    },
+                    {
+                        "id": "roadmap-text-4",
+                        "type": "text",
+                        "x": 100,
+                        "y": 150,
+                        "width": 800,
+                        "height": 350,
+                        "zIndex": 11,
+                        "content": "- Phase 1: Atmospheric Injection (Years 1-10)\n- Phase 2: Subterranean Habitats (Years 10-20)\n- Phase 3: Oxygen Harvesting (Years 20-30)\n- Phase 4: Ecological Integration (Years 30-40)\n- Phase 5: Sustainable Civilization (Years 40-50)",
+                        "fontSize": 24,
+                        "fontWeight": "normal",
+                        "fontFamily": "sans-serif",
+                        "textColor": "#9ca3af",
+                        "textAlign": "left",
+                        "lineHeight": 1.5,
+                        "textFormat": "markdown",
+                        "animation": {
+                            "type": "fade",
+                            "duration": 0.5,
+                            "delay": 0.7
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "slide-5",
+                "type": "features",
+                "duration": 1800,
+                "background": {
+                    "type": "color",
+                    "value": "#0a0a0a"
+                },
+                "elements": [
+                    {
+                        "id": "headline-5",
+                        "type": "headline",
+                        "x": 50,
+                        "y": 50,
+                        "width": 900,
+                        "height": 60,
+                        "zIndex": 10,
+                        "content": "Subterranean Habitats",
+                        "fontSize": 48,
+                        "fontWeight": "bold",
+                        "fontFamily": "sans-serif",
+                        "textColor": "#ffffff"
+                    },
+                    {
+                        "id": "item-1-5",
+                        "type": "text",
+                        "x": 100,
+                        "y": 150,
+                        "width": 350,
+                        "height": 80,
+                        "zIndex": 11,
+                        "content": "- Modular Construction",
+                        "fontSize": 24,
+                        "textColor": "#d4d4d4",
+                        "textFormat": "markdown",
+                        "animation": {
+                            "type": "fade",
+                            "duration": 0.5,
+                            "delay": 0
+                        }
+                    },
+                    {
+                        "id": "item-2-5",
+                        "type": "text",
+                        "x": 550,
+                        "y": 150,
+                        "width": 350,
+                        "height": 80,
+                        "zIndex": 11,
+                        "content": "- Radiation Shielding",
+                        "fontSize": 24,
+                        "textColor": "#d4d4d4",
+                        "textFormat": "markdown",
+                        "animation": {
+                            "type": "fade",
+                            "duration": 0.5,
+                            "delay": 0.3
+                        }
+                    },
+                    {
+                        "id": "item-3-5",
+                        "type": "text",
+                        "x": 100,
+                        "y": 300,
+                        "width": 350,
+                        "height": 80,
+                        "zIndex": 11,
+                        "content": "- Closed-Loop Life Support",
+                        "fontSize": 24,
+                        "textColor": "#d4d4d4",
+                        "textFormat": "markdown",
+                        "animation": {
+                            "type": "fade",
+                            "duration": 0.5,
+                            "delay": 0.6
+                        }
+                    },
+                    {
+                        "id": "item-4-5",
+                        "type": "text",
+                        "x": 550,
+                        "y": 300,
+                        "width": 350,
+                        "height": 80,
+                        "zIndex": 11,
+                        "content": "- Expandable Capacity",
+                        "fontSize": 24,
+                        "textColor": "#d4d4d4",
+                        "textFormat": "markdown",
+                        "animation": {
+                            "type": "fade",
+                            "duration": 0.5,
+                            "delay": 0.9
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "slide-6",
+                "type": "metrics",
+                "duration": 1800,
+                "background": {
+                    "type": "color",
+                    "value": "#0a0a0a"
+                },
+                "elements": [
+                    {
+                        "id": "headline-6",
+                        "type": "headline",
+                        "x": 50,
+                        "y": 50,
+                        "width": 900,
+                        "height": 60,
+                        "zIndex": 10,
+                        "content": "Atmospheric Composition Goals",
+                        "fontSize": 48,
+                        "fontWeight": "bold",
+                        "fontFamily": "sans-serif",
+                        "textColor": "#ffffff"
+                    },
+                    {
+                        "id": "item-1-6",
+                        "type": "text",
+                        "x": 100,
+                        "y": 150,
+                        "width": 400,
+                        "height": 60,
+                        "zIndex": 11,
+                        "content": "- Target CO2 Levels: 80%",
+                        "fontSize": 24,
+                        "textColor": "#d4d4d4",
+                        "textFormat": "markdown",
+                        "animation": {
+                            "type": "slide",
+                            "duration": 0.5,
+                            "delay": 0,
+                            "direction": "left"
+                        }
+                    },
+                    {
+                        "id": "item-2-6",
+                        "type": "text",
+                        "x": 100,
+                        "y": 250,
+                        "width": 400,
+                        "height": 60,
+                        "zIndex": 11,
+                        "content": "- Target O2 Levels: 20%",
+                        "fontSize": 24,
+                        "textColor": "#d4d4d4",
+                        "textFormat": "markdown",
+                        "animation": {
+                            "type": "slide",
+                            "duration": 0.5,
+                            "delay": 0.3,
+                            "direction": "left"
+                        }
+                    },
+                    {
+                        "id": "item-3-6",
+                        "type": "text",
+                        "x": 100,
+                        "y": 350,
+                        "width": 400,
+                        "height": 60,
+                        "zIndex": 11,
+                        "content": "- Atmospheric Pressure: 600 mbar",
+                        "fontSize": 24,
+                        "textColor": "#d4d4d4",
+                        "textFormat": "markdown",
+                        "animation": {
+                            "type": "slide",
+                            "duration": 0.5,
+                            "delay": 0.6,
+                            "direction": "left"
+                        }
+                    },
+                    {
+                        "id": "chart-1-6",
+                        "type": "chart",
+                        "chartType": "line",
+                        "x": 550,
+                        "y": 150,
+                        "width": 350,
+                        "height": 300,
+                        "zIndex": 12,
+                        "content": "10 12 15 18 20",
+                        "animation": {
+                            "type": "scale",
+                            "duration": 1,
+                            "delay": 0.9
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "slide-7",
+                "type": "comparison",
+                "duration": 2100,
+                "background": {
+                    "type": "color",
+                    "value": "#0a0a0a"
+                },
+                "elements": [
+                    {
+                        "id": "headline-7",
+                        "type": "headline",
+                        "x": 50,
+                        "y": 50,
+                        "width": 900,
+                        "height": 60,
+                        "zIndex": 10,
+                        "content": "Mars: Before & After",
+                        "fontSize": 48,
+                        "textColor": "#ffffff",
+                        "textAlign": "center"
+                    },
+                    {
+                        "id": "image-before",
+                        "type": "image",
+                        "x": 50,
+                        "y": 150,
+                        "width": 450,
+                        "height": 350,
+                        "zIndex": 8,
+                        "content": "https://source.unsplash.com/450x350/?mars,landscape",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "id": "image-after",
+                        "type": "image",
+                        "x": 500,
+                        "y": 150,
+                        "width": 450,
+                        "height": 350,
+                        "zIndex": 8,
+                        "content": "https://source.unsplash.com/450x350/?terraformed,mars",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "id": "text-before",
+                        "type": "text",
+                        "x": 50,
+                        "y": 510,
+                        "width": 450,
+                        "height": 30,
+                        "zIndex": 10,
+                        "content": "Before: Barren, Red Landscape",
+                        "fontSize": 20,
+                        "textColor": "#cccccc",
+                        "textAlign": "center"
+                    },
+                    {
+                        "id": "text-after",
+                        "type": "text",
+                        "x": 500,
+                        "y": 510,
+                        "width": 450,
+                        "height": 30,
+                        "zIndex": 10,
+                        "content": "After: Green, Habitable World",
+                        "fontSize": 20,
+                        "textColor": "#cccccc",
+                        "textAlign": "center"
+                    }
+                ]
+            },
+            {
+                "id": "slide-8",
+                "type": "cta",
+                "duration": 2020,
+                "background": {
+                    "type": "color",
+                    "value": "#0a0a0a"
+                },
+                "elements": [
+                    {
+                        "id": "headline-8",
+                        "type": "headline",
+                        "x": 50,
+                        "y": 50,
+                        "width": 900,
+                        "height": 60,
+                        "zIndex": 10,
+                        "content": "Join the Genesis Initiative",
+                        "fontSize": 56,
+                        "textColor": "#ffffff",
+                        "textAlign": "center",
+                        "animation": {
+                            "type": "fade",
+                            "duration": 0.5,
+                            "delay": 0.2
+                        }
+                    },
+                    {
+                        "id": "subheadline-8",
+                        "type": "subheadline",
+                        "x": 50,
+                        "y": 120,
+                        "width": 900,
+                        "height": 40,
+                        "zIndex": 10,
+                        "content": "Be a part of humanity's future on Mars!",
+                        "fontSize": 32,
+                        "textColor": "#cccccc",
+                        "textAlign": "center",
+                        "animation": {
+                            "type": "fade",
+                            "duration": 0.5,
+                            "delay": 0.4
+                        }
+                    },
+                    {
+                        "id": "image-mars-living",
+                        "type": "image",
+                        "x": 0,
+                        "y": 200,
+                        "width": 1000,
+                        "height": 362,
+                        "zIndex": 8,
+                        "content": "https://source.unsplash.com/1000x362/?futuristic,city,mars",
+                        "objectFit": "cover"
+                    }
+                ]
+            }
+        ]
+}

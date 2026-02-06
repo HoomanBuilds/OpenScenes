@@ -1,10 +1,3 @@
-/**
- * AI Pipeline Orchestrator
- * 
- * Main entry point connecting all AI modules.
- * Handles both generation and edit flows.
- */
-
 import { AI_LIMITS } from './config';
 import { summarizeContent, formatSummaryForPrompt, needsSummarization } from './summarizer';
 import { planPresentation, createMinimalPlan } from './director';
@@ -13,44 +6,31 @@ import { generateAssets, collectAssetDirectives } from './assetGenerator';
 import { validateSlideJSON, autoFixSlides } from './validator';
 import { generateEditPatches, createEditRequest } from './editor';
 import { applyPatches } from './apply';
+import { logger } from './logger';
 import type {
   PipelineInput,
   PipelineOutput,
   SummarizerOutput,
   DirectorOutput,
+  AssetMetadata,
   GenerationMetadata,
   ThemeConfig,
 } from './types';
 import type { Slide } from '../schemas/template';
 
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
-/**
- * Load theme configuration from theme.json
- */
 async function loadThemeConfig(themeName: string): Promise<ThemeConfig | null> {
   try {
-    // In a real implementation, this would load from file or database
-    // For now, return null to use default behavior
-    console.log(`[Pipeline] Loading theme: ${themeName}`);
     return null;
-  } catch (error) {
-    console.warn(`[Pipeline] Failed to load theme: ${themeName}`, error);
+  } catch {
     return null;
   }
 }
 
-/**
- * Get theme prompt injection
- */
 function getThemePrompt(themeConfig: ThemeConfig | null, themeName: string): string {
   if (themeConfig?.prompt_injection) {
     return themeConfig.prompt_injection;
   }
   
-  // Default minimal theme guidance
   return `Theme: ${themeName}
 Use professional styling with clean layouts.
 Background: dark colors (#0a0a0a, #18181b)
@@ -58,13 +38,11 @@ Text: white for headlines, gray for body
 Accent: indigo (#6366f1)`;
 }
 
-/**
- * Build generation metadata
- */
 function buildMetadata(
   input: PipelineInput,
   summary: SummarizerOutput | null,
-  directorPlan: DirectorOutput | null
+  directorPlan: DirectorOutput | null,
+  assetUrls?: string[]
 ): GenerationMetadata {
   return {
     topic: summary?.topic,
@@ -72,6 +50,7 @@ function buildMetadata(
     summary: summary?.summary,
     keyPoints: summary?.keyPoints.map(kp => kp.point),
     commonPrompt: directorPlan?.commonPrompt,
+    assetUrls,
     generatedAt: new Date().toISOString(),
     themeName: input.themeName,
     userQuery: input.userQuery,
@@ -79,30 +58,12 @@ function buildMetadata(
   };
 }
 
-// ============================================================================
-// GENERATION PIPELINE
-// ============================================================================
-
-/**
- * Run the full generation pipeline
- * 
- * Flow:
- * 1. Summarize content (if needed)
- * 2. Director planning
- * 3. Asset generation (if requested)
- * 4. Slide generation (batched)
- * 5. JSON assembly & validation
- */
 export async function runPipeline(input: PipelineInput): Promise<PipelineOutput> {
-  console.log('[Pipeline] Starting generation pipeline...');
-  console.log(`[Pipeline] Theme: ${input.themeName}`);
-  console.log(`[Pipeline] Query: "${input.userQuery.slice(0, 100)}..."`);
+  logger.pipeline.start(input.themeName);
   
-  // Step 0: Load theme
   const themeConfig = await loadThemeConfig(input.themeName);
   const themePrompt = getThemePrompt(themeConfig, input.themeName);
   
-  // Step 1: Summarization
   let summary: SummarizerOutput | null = null;
   
   const hasContent = input.userQuery || input.uploadedFileContent || input.urlContent;
@@ -114,10 +75,10 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
       urlContent: input.urlContent,
     });
     
-    console.log(`[Pipeline] Summarization complete - Topic: "${summary.topic}"`);
+    logger.summarizer.complete(summary.topic);
+    await logger.debug.log(input.jobId || 'unknown', '1-summarizer', summary);
   }
   
-  // Step 2: Director Planning
   let directorPlan: DirectorOutput;
   
   try {
@@ -130,11 +91,13 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
       additionalInstructions: input.additionalInstructions,
     });
     
-    console.log(`[Pipeline] Director planned ${directorPlan.totalSlides} slides in ${directorPlan.batches.length} batches`);
-  } catch (error) {
-    console.warn('[Pipeline] Director failed, using minimal plan:', error);
-    
-    // Fallback to minimal plan
+    logger.director.planned(
+      directorPlan.totalSlides, 
+      directorPlan.batches.length, 
+      directorPlan.narrativeArc
+    );
+    await logger.debug.log(input.jobId || 'unknown', '2-director-plan', directorPlan);
+  } catch {
     directorPlan = createMinimalPlan(
       input.userQuery,
       input.themeName,
@@ -142,20 +105,26 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
     );
   }
   
-  // Step 3: Asset Generation
   const assetDirectives = collectAssetDirectives(directorPlan.batches);
-  let assetUrls = new Map<string, string>();
+  let assetMetadata = new Map<string, AssetMetadata>();
   
   if (assetDirectives.length > 0) {
-    console.log(`[Pipeline] Generating ${assetDirectives.length} assets...`);
+    logger.asset.generating(assetDirectives.length);
+    await logger.debug.log(input.jobId || 'unknown', '3-asset-directives', assetDirectives);
     
-    const assetResult = await generateAssets({ directives: assetDirectives });
-    assetUrls = assetResult.assets;
+    const assetResult = await generateAssets({ 
+      directives: assetDirectives,
+      jobId: input.jobId,
+    });
+    assetMetadata = assetResult.assets;
+    await logger.debug.log(input.jobId || 'unknown', '4-asset-results', {
+      assets: Object.fromEntries(assetMetadata),
+      results: assetResult.results
+    });
     
-    console.log(`[Pipeline] Generated ${assetUrls.size} assets`);
+    logger.asset.complete(assetResult.results.filter(r => r.success).length, assetResult.results.filter(r => !r.success).length);
   }
   
-  // Step 4: Slide Generation (batched)
   const allSlides: Slide[] = [];
   let previousSummary = '';
   
@@ -165,7 +134,7 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
       batch.slides.includes(s.sceneIndex)
     );
     
-    console.log(`[Pipeline] Generating batch ${batchIndex + 1}/${directorPlan.batches.length} (${batchScenes.length} slides)...`);
+    logger.generator.generating(batchScenes.length, batchIndex + 1, directorPlan.batches.length);
     
     try {
       const batchResult = await generateSlides({
@@ -174,42 +143,47 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
         themePrompt,
         sceneGuidance: batchScenes,
         previousSlideSummary: previousSummary,
-        assetUrls,
+        assetMetadata,
       });
       
       allSlides.push(...batchResult.slides);
       previousSummary = batchResult.batchSummary;
       
-      console.log(`[Pipeline] Batch ${batchIndex + 1} complete: ${batchResult.slides.length} slides`);
-    } catch (error) {
-      console.error(`[Pipeline] Batch ${batchIndex + 1} failed:`, error);
-      // Continue with remaining batches
+      await logger.debug.log(input.jobId || 'unknown', `5-batch-${batchIndex + 1}`, batchResult);
+      logger.generator.generated(batchResult.slides.length);
+    } catch {
     }
   }
   
-  // Step 5: Insert asset URLs
-  let finalSlides = insertAssetUrls(allSlides, assetUrls);
+  let finalSlides = insertAssetUrls(allSlides, assetMetadata);
   
-  // Step 6: Validation
-  console.log('[Pipeline] Validating generated slides...');
+  logger.validator.validating();
   
   const validation = validateSlideJSON(finalSlides);
   
   if (!validation.valid) {
-    console.warn(`[Pipeline] Validation found ${validation.errors.length} errors, auto-fixing...`);
+    logger.validator.fixed(validation.errors.length);
     finalSlides = autoFixSlides(finalSlides);
+    await logger.debug.log(input.jobId || 'unknown', '6-validation-fix', {
+      initial: validation.errors,
+      fixed: finalSlides
+    });
+  } else {
+    logger.validator.valid();
   }
   
-  // Enforce slide limit
   if (finalSlides.length > AI_LIMITS.MAX_SLIDES) {
-    console.warn(`[Pipeline] Capping slides from ${finalSlides.length} to ${AI_LIMITS.MAX_SLIDES}`);
     finalSlides = finalSlides.slice(0, AI_LIMITS.MAX_SLIDES);
   }
   
-  // Build metadata
-  const metadata = buildMetadata(input, summary, directorPlan);
+  const assetUrls = Array.from(assetMetadata.values()).map(a => a.url);
+  const metadata = buildMetadata(input, summary, directorPlan, assetUrls);
   
-  console.log(`[Pipeline] Generation complete: ${finalSlides.length} slides`);
+  logger.pipeline.complete(finalSlides.length);
+  await logger.debug.log(input.jobId || 'unknown', '7-final-output', {
+    slides: finalSlides,
+    metadata
+  });
   
   return {
     slides: finalSlides,
@@ -218,18 +192,6 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
   };
 }
 
-// ============================================================================
-// EDIT PIPELINE
-// ============================================================================
-
-/**
- * Run the edit pipeline
- * 
- * Flow:
- * 1. Generate patches from instruction
- * 2. Apply patches to existing slides
- * 3. Validate result
- */
 export async function runEditPipeline(input: PipelineInput): Promise<PipelineOutput> {
   console.log('[Pipeline] Starting edit pipeline...');
   console.log(`[Pipeline] Instruction: "${input.editInstruction?.slice(0, 100)}..."`);
@@ -238,7 +200,6 @@ export async function runEditPipeline(input: PipelineInput): Promise<PipelineOut
     throw new Error('Edit pipeline requires existingSlides and editInstruction');
   }
   
-  // Step 1: Generate patches
   const editRequest = createEditRequest(
     input.existingSlides,
     input.editInstruction,
@@ -249,7 +210,6 @@ export async function runEditPipeline(input: PipelineInput): Promise<PipelineOut
   
   console.log(`[Pipeline] Generated ${editResult.patches.length} patches`);
   
-  // Step 2: Apply patches
   let editedSlides: Slide[];
   
   try {
@@ -262,7 +222,6 @@ export async function runEditPipeline(input: PipelineInput): Promise<PipelineOut
     throw new Error(`Failed to apply edits: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
   
-  // Step 3: Build updated metadata
   const metadata: GenerationMetadata = {
     ...input.previousMetadata,
     generatedAt: new Date().toISOString(),
@@ -280,15 +239,7 @@ export async function runEditPipeline(input: PipelineInput): Promise<PipelineOut
   };
 }
 
-// ============================================================================
-// UNIFIED ENTRY POINT
-// ============================================================================
-
-/**
- * Run pipeline (auto-detects generation vs edit mode)
- */
 export async function run(input: PipelineInput): Promise<PipelineOutput> {
-  // Determine mode
   const isEditMode = !!(input.existingSlides && input.editInstruction);
   
   if (isEditMode) {
@@ -298,13 +249,6 @@ export async function run(input: PipelineInput): Promise<PipelineOutput> {
   return runPipeline(input);
 }
 
-// ============================================================================
-// UTILITY EXPORTS
-// ============================================================================
-
-/**
- * Check if summarization will be needed
- */
 export function willSummarize(input: PipelineInput): boolean {
   return needsSummarization({
     userQuery: input.userQuery,
@@ -313,9 +257,6 @@ export function willSummarize(input: PipelineInput): boolean {
   });
 }
 
-/**
- * Estimate number of slides for given input
- */
 export function estimateSlideCount(input: PipelineInput): number {
   const contentLength = [
     input.userQuery?.length || 0,

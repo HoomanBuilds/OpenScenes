@@ -1,11 +1,24 @@
-import { google } from '@ai-sdk/google';
-import { generateText, generateObject, generateImage } from 'ai';
+import { createVertex } from '@ai-sdk/google-vertex';
+import { generateText, generateObject, experimental_generateImage } from 'ai';
 import { z } from 'zod';
-import { AI_MODELS, AI_TEMPERATURES, AI_MAX_TOKENS, ModelAlias } from './config';
+import { AI_MODELS, AI_TEMPERATURES, AI_MAX_TOKENS, AI_IMAGE_CONFIG, ModelAlias } from './config';
 import { getTelemetryConfig } from './tracing';
 import { logAICall, AICallRecord } from '../db/ai-calls';
+import { logger } from './logger';
 
-console.log('[Adapter] Using Google AI SDK (non-Vertex)');
+let _vertex: ReturnType<typeof createVertex> | null = null;
+
+function getVertex() {
+  if (!_vertex) {
+    const project = process.env.GOOGLE_CLOUD_PROJECT;
+    const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1';
+    
+    logger.adapter.init(project || 'not set', location);
+    
+    _vertex = createVertex({ project, location });
+  }
+  return _vertex;
+}
 
 let currentJobId: string | undefined;
 let currentTraceId: string | undefined;
@@ -78,7 +91,7 @@ export async function aiGenerateText(options: GenerateTextOptions): Promise<stri
   
   try {
     const result = await generateText({
-      model: google(modelId),
+      model: getVertex()(modelId),
       system: systemPrompt,
       prompt: prompt,
       temperature: temp,
@@ -152,7 +165,7 @@ export async function aiGenerateStructured<T>(
   
   try {
     const result = await generateObject({
-      model: google(modelId),
+      model: getVertex()(modelId),
       schema: schema,
       schemaName: schemaName,
       schemaDescription: schemaDescription,
@@ -231,70 +244,62 @@ export interface GenerateImageOptions {
 }
 
 export async function aiGenerateImage(options: GenerateImageOptions): Promise<string | null> {
-  const { prompt, negativePrompt, aspectRatio, agentType } = options;
-  
-  const startTime = Date.now();
-  
-  try {
-    // Google AI SDK standard provider doesn't support Imagen yet
-    // Return null to trigger fallback
-    console.warn('[Adapter] Image generation not supported with Google AI SDK (requires Vertex)');
+  if (!AI_IMAGE_CONFIG.enabled()) {
     return null;
+  }
 
-    /*
-    const result = await generateImage({
-      model: vertex.image('imagen-3.0-generate-001'),
+  const { prompt, aspectRatio } = options;
+  const startTime = Date.now();
+
+  try {
+    const vertex = getVertex();
+    const result = await experimental_generateImage({
+      model: vertex.image(AI_IMAGE_CONFIG.model),
       prompt,
       providerOptions: {
         vertex: {
-          ...(negativePrompt && { negativePrompt }),
-          ...(aspectRatio && { aspectRatio }),
+          aspectRatio: aspectRatio || '16:9',
         },
       },
     });
-    */
-    
-    await logCall({
-      agentType: agentType || 'image',
-      model: 'imagen-3.0-generate-001',
+
+    await logAICall({
+      agentType: options.agentType || 'image',
+      model: AI_IMAGE_CONFIG.model,
       operation: 'generate_image',
       latencyMs: Date.now() - startTime,
       status: 'success',
       metadata: { prompt: prompt.slice(0, 200), aspectRatio },
     });
-    /*
-    // Return base64 data URL
+
     if (result.image?.base64) {
       return `data:image/png;base64,${result.image.base64}`;
     }
-    */
-    
+
     return null;
   } catch (err) {
-    console.warn('[Adapter] Image generation failed:', err);
-    
-    await logCall({
-      agentType: agentType || 'image',
-      model: 'imagen-3.0-generate-001',
+    await logAICall({
+      agentType: options.agentType || 'image',
+      model: AI_IMAGE_CONFIG.model,
       operation: 'generate_image',
       latencyMs: Date.now() - startTime,
-      status: 'fallback',
+      status: 'error',
       error: err instanceof Error ? err.message : 'Unknown error',
       metadata: { prompt: prompt.slice(0, 200) },
     });
-    
+
     return null;
   }
 }
 
 export function isVertexConfigured(): boolean {
-  return !!process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  return !!(process.env.GOOGLE_CLOUD_PROJECT && process.env.GOOGLE_APPLICATION_CREDENTIALS);
 }
 
 export function getVertexConfig(): { project: string | undefined; location: string } {
   return {
-    project: 'google-ai-studio',
-    location: 'global',
+    project: process.env.GOOGLE_CLOUD_PROJECT,
+    location: process.env.GOOGLE_CLOUD_LOCATION || 'us-central1',
   };
 }
 

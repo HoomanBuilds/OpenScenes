@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
-console.log('[Worker] Loaded environment. Vertex Project:', process.env.GOOGLE_CLOUD_PROJECT);
 
 import { queue, AIJob } from '../../lib/queue/adapter';
 import { redis } from '../../lib/redis/adapter';
@@ -11,6 +10,8 @@ import { initTracing, shutdownTracing } from '../../lib/ai/tracing';
 import { setJobContext, clearJobContext } from '../../lib/ai/adapter';
 import { initDatabase } from '../../lib/db/postgres';
 import { initAICallsTable } from '../../lib/db/ai-calls';
+import { initAIAssetsTable } from '../../lib/db/ai-assets';
+import { logger } from '../../lib/ai/logger';
 
 const AI_JOB_PREFIX = 'ai:job:';
 const AI_JOB_TTL = 3600;
@@ -36,8 +37,9 @@ async function updateJobStatus(
 }
 
 async function processAIJob(job: AIJob): Promise<void> {
-  console.log(`[AI Worker] Processing job: ${job.jobId}`);
-  console.log(`[AI Worker] Type: ${job.type}, Query: "${job.userQuery.slice(0, 50)}..."`);
+  const startTime = Date.now();
+  
+  logger.worker.jobStart(job.jobId, job.type, job.userQuery);
   
   setJobContext(job.jobId);
   
@@ -45,6 +47,7 @@ async function processAIJob(job: AIJob): Promise<void> {
   
   try {
     const pipelineInput: PipelineInput = {
+      jobId: job.jobId,
       userQuery: job.userQuery,
       themeName: job.themeName,
       uploadedFileContent: job.uploadedFileContent,
@@ -61,7 +64,8 @@ async function processAIJob(job: AIJob): Promise<void> {
     
     const result: PipelineOutput = await run(pipelineInput);
     
-    console.log(`[AI Worker] Job ${job.jobId} completed: ${result.slides.length} slides`);
+    const duration = Date.now() - startTime;
+    logger.worker.jobComplete(job.jobId, result.slides.length, duration);
     
     await updateJobStatus(job.jobId, 'completed', {
       result: {
@@ -73,7 +77,7 @@ async function processAIJob(job: AIJob): Promise<void> {
     });
     
   } catch (error) {
-    console.error(`[AI Worker] Job ${job.jobId} failed:`, error);
+    logger.worker.jobError(job.jobId, error instanceof Error ? error.message : 'Unknown error');
     
     await updateJobStatus(job.jobId, 'failed', {
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -84,10 +88,17 @@ async function processAIJob(job: AIJob): Promise<void> {
 }
 
 async function main() {
-  console.log('AI Worker starting...');
+  logger.worker.start();
+  
+  logger.worker.env(
+    process.env.GOOGLE_CLOUD_PROJECT || 'not set',
+    process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
+  );
   
   process.on('SIGINT', async () => {
-    console.log('\nShutting down AI worker...');
+    logger.blank();
+    logger.divider();
+    console.log('Shutting down AI worker...');
     await shutdownTracing();
     process.exit(0);
   });
@@ -95,20 +106,20 @@ async function main() {
   try {
     initTracing();
     
-    console.log('Initializing database tables...');
+    logger.worker.connection('Database', 'connecting');
     try {
         await initDatabase();
-        console.log('[DB] render_jobs table initialized');
-    } catch (err) {
-        console.warn('[DB] Failed to init render_jobs (might exist):', err);
+    } catch {
     }
     await initAICallsTable();
+    await initAIAssetsTable();
+    logger.worker.connection('Database', 'connected');
     
-    console.log('Connecting to RabbitMQ...');
+    logger.worker.connection('RabbitMQ', 'connecting');
     await queue.connect();
-    console.log('Connected to RabbitMQ');
+    logger.worker.connection('RabbitMQ', 'connected');
     
-    console.log('Waiting for AI jobs...');
+    logger.worker.ready();
     await queue.consumeAIJobs(processAIJob);
     
   } catch (error) {
@@ -119,3 +130,4 @@ async function main() {
 }
 
 main();
+

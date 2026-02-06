@@ -92,7 +92,7 @@ export interface SlideGeneratorInput {
   themePrompt: string;
   sceneGuidance: SceneGuidance[];
   previousSlideSummary?: string;
-  assetUrls?: Map<string, string>;
+  assetMetadata?: Map<string, AssetMetadata>;
 }
 
 export interface SlideGeneratorOutput {
@@ -102,6 +102,7 @@ export interface SlideGeneratorOutput {
 
 export interface AssetGeneratorInput {
   directives: AssetDirective[];
+  jobId?: string;
 }
 
 export interface GeneratedAsset {
@@ -111,8 +112,15 @@ export interface GeneratedAsset {
   error?: string;
 }
 
+export interface AssetMetadata {
+  url: string;
+  prompt: string;
+  targetSlideId?: string;
+  targetElementId?: string;
+}
+
 export interface AssetGeneratorOutput {
-  assets: Map<string, string>;
+  assets: Map<string, AssetMetadata>;
   results: GeneratedAsset[];
 }
 
@@ -154,6 +162,7 @@ export interface GenerationMetadata {
   summary?: string;
   keyPoints?: string[];
   commonPrompt?: string;
+  assetUrls?: string[];
   tokensUsed?: number;
   generatedAt: string;
   themeName: string;
@@ -162,13 +171,13 @@ export interface GenerationMetadata {
 }
 
 export interface PipelineInput {
+  jobId?: string;
   userQuery: string;
   themeName: string;
   uploadedFileContent?: string;
   urlContent?: string;
   requestedSlideCount?: number;
   additionalInstructions?: string;
-  // Edit mode fields
   existingSlides?: Slide[];
   editInstruction?: string;
   previousMetadata?: GenerationMetadata;
