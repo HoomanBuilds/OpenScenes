@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Slide, Asset, GenerationStatus, SlideElement, SlideBackground, ContextFile } from './types';
+import { Slide, Asset, GenerationStatus, SlideElement, SlideBackground, RawFile } from './types';
 import { LeftPanel_Global, RenderOptions } from './LeftPanel_Global';
 import { LeftPanel_Assets } from './LeftPanel_Assets';
 import { LeftPanel_ComponentLibrary } from './LeftPanel_ComponentLibrary';
 import { LeftPanel_SlideSettings } from './LeftPanel_SlideSettings';
 import { LeftPanel_ElementEditor } from './LeftPanel_ElementEditor';
+import { useFileParser } from './hooks/useFileParser';
 
 interface LeftPanelProps {
     globalPrompt: string;
@@ -25,9 +26,9 @@ interface LeftPanelProps {
     onRemove: () => void;
     onRegenerateSlide: (slideId: string) => void;
     onRemoveElement: (slideId: string, elementId: string) => void;
-    contextFiles: ContextFile[];
-    onAddContextFile: (file: ContextFile) => void;
-    onRemoveContextFile: (id: string) => void;
+    rawFiles: RawFile[];
+    onAddRawFile: (file: RawFile) => void;
+    onRemoveRawFile: (id: string) => void;
     renderStatus: 'idle' | 'rendering' | 'done';
     renderProgress: number;
     renderPhase: string;
@@ -35,6 +36,8 @@ interface LeftPanelProps {
     onAbort: () => void;
     visualStyle: string;
     setVisualStyle: (style: string) => void;
+    onSlideAIEdit: (slideId: string, instruction: string) => void;
+    onElementAIEdit: (slideId: string, elementIds: string[], instruction: string) => void;
 }
 
 const LeftPanel: React.FC<LeftPanelProps> = ({ 
@@ -54,9 +57,9 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
     onRemove,
     onRegenerateSlide,
     onRemoveElement,
-    contextFiles,
-    onAddContextFile,
-    onRemoveContextFile,
+    rawFiles,
+    onAddRawFile,
+    onRemoveRawFile,
     renderStatus,
     renderProgress,
     renderPhase,
@@ -64,9 +67,12 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
     onAbort,
     visualStyle,
     setVisualStyle,
+    onSlideAIEdit,
+    onElementAIEdit,
 }) => {
     const [libraryTab, setLibraryTab] = useState<'assets' | 'components'>('assets');
     const [aiEditPrompt, setAiEditPrompt] = useState('');
+    const { parseFile } = useFileParser();
 
     const primaryElementId = selectedElementIds[0];
     const selectedElement = selectedSlide?.elements?.find(e => e.id === primaryElementId);
@@ -168,27 +174,15 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
                                         />
                                         <button 
                                             onClick={() => {
-                                                const prompt = aiEditPrompt.toLowerCase();
-                                                const updates: Partial<SlideElement> = {};
-                                                
-                                                if (prompt.includes('red')) updates.color = '#ef4444';
-                                                if (prompt.includes('blue')) updates.color = '#3b82f6';
-                                                if (prompt.includes('green')) updates.color = '#22c55e';
-                                                if (prompt.includes('bigger') || prompt.includes('large')) updates.fontSize = (selectedElement?.fontSize || 16) + 10;
-                                                if (prompt.includes('smaller')) updates.fontSize = (selectedElement?.fontSize || 16) - 5;
-                                                if (prompt.includes('bold')) updates.fontWeight = 'bold';
-                                                if (prompt.includes('opacity') || prompt.includes('fade')) updates.opacity = 0.5;
-                                                
-                                                if (Object.keys(updates).length > 0) {
-                                                    selectedElementIds.forEach(id => {
-                                                        onUpdateElement(selectedSlide!.id, id, updates);
-                                                    });
+                                                if (aiEditPrompt.trim() && selectedSlide) {
+                                                    onElementAIEdit(selectedSlide.id, selectedElementIds, aiEditPrompt);
                                                     setAiEditPrompt('');
                                                 }
                                             }}
-                                            className="absolute right-3 bottom-3 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white text-[9px] font-black uppercase tracking-widest transition-colors"
+                                            disabled={generationStatus === 'generating'}
+                                            className="absolute right-3 bottom-3 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white text-[9px] font-black uppercase tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            EXECUTE
+                                            {generationStatus === 'generating' ? 'PROCESSING...' : 'EXECUTE'}
                                         </button>
                                     </div>
                                 </div>
@@ -257,9 +251,10 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
                             onBackToGlobal={onBackToGlobal}
                             visualStyle={visualStyle}
                             setVisualStyle={setVisualStyle}
-                            contextFiles={contextFiles}
-                            onAddContextFile={onAddContextFile}
-                            onRemoveContextFile={onRemoveContextFile}
+                            rawFiles={rawFiles}
+                            onAddRawFile={onAddRawFile}
+                            onRemoveRawFile={onRemoveRawFile}
+                            parseFile={parseFile}
                             slidesCount={slides.length}
                             renderStatus={renderStatus}
                             renderProgress={renderProgress}

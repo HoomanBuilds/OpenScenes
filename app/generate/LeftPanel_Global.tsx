@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { GenerationStatus, ContextFile } from './types';
+import { GenerationStatus, RawFile } from './types';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
 import { getAllThemes, themes } from '../lib/themes';
@@ -19,14 +19,14 @@ interface LeftPanel_GlobalProps {
     onBackToGlobal: () => void;
     visualStyle: string;
     setVisualStyle: (style: string) => void;
-    contextFiles: ContextFile[];
-    onAddContextFile: (file: ContextFile) => void;
-    onRemoveContextFile: (id: string) => void;
+    rawFiles: RawFile[];
+    onAddRawFile: (file: RawFile) => void;
+    onRemoveRawFile: (id: string) => void;
+    parseFile: (file: File) => Promise<RawFile | null>;
     slidesCount: number;
     renderStatus: 'idle' | 'rendering' | 'done';
     renderProgress: number;
     renderPhase: string;
-
     onRender: (options: RenderOptions) => void;
     onAbort: () => void;
 }
@@ -39,9 +39,10 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
     onBackToGlobal,
     visualStyle,
     setVisualStyle,
-    contextFiles,
-    onAddContextFile,
-    onRemoveContextFile,
+    rawFiles,
+    onAddRawFile,
+    onRemoveRawFile,
+    parseFile,
     slidesCount,
     renderStatus,
     renderProgress,
@@ -65,27 +66,15 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
             return;
         }
 
-        if (file.size > 2 * 1024 * 1024) {
-            alert('File too large. Context files should be under 2MB.');
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File too large. Context files should be under 5MB.');
             return;
         }
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const content = event.target?.result as string;
-            onAddContextFile({
-                id: `ctx-${Date.now()}`,
-                name: file.name,
-                type: file.type,
-                content: content.slice(0, 50000)
-            });
-        };
-
-        reader.onerror = () => {
-            alert('Failed to read context file.');
-        };
-
-        reader.readAsText(file);
+        const parsed = await parseFile(file);
+        if (parsed) {
+            onAddRawFile(parsed);
+        }
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
@@ -179,14 +168,14 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
                 </div>
 
                 <AnimatePresence>
-                    {contextFiles.length > 0 && (
+                    {rawFiles.length > 0 && (
                         <motion.div 
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
                             className="flex flex-wrap gap-2 mb-4 p-2 bg-zinc-950 border-2 border-zinc-900 overflow-hidden"
                         >
-                            {contextFiles.map((file) => (
+                            {rawFiles.map((file) => (
                                 <motion.div 
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -195,9 +184,12 @@ export const LeftPanel_Global: React.FC<LeftPanel_GlobalProps> = ({
                                     className="flex items-center space-x-2 bg-zinc-900 pl-2 pr-1.5 py-1 group hover:bg-zinc-800 transition-colors border border-transparent hover:border-zinc-700"
                                 >
                                     <LucideIcons.FileText className="w-3 h-3 text-zinc-500" />
-                                    <span className="text-[9px] text-zinc-300 font-mono max-w-[100px] truncate uppercase">{file.name}</span>
+                                    <span className="text-[9px] text-zinc-300 font-mono max-w-[100px] truncate uppercase">{file.fileName}</span>
+                                    {file.isTruncated && (
+                                        <span className="text-[8px] text-yellow-500 uppercase">TRIMMED</span>
+                                    )}
                                     <button 
-                                        onClick={() => onRemoveContextFile(file.id)}
+                                        onClick={() => onRemoveRawFile(file.id)}
                                         className="p-0.5 text-zinc-600 hover:text-red-400 transition-all"
                                     >
                                         <LucideIcons.X className="w-3 h-3" />

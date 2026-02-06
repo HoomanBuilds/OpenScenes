@@ -1,18 +1,21 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
 import PresentationPreview from './PresentationPreview';
 import { FontLoader } from './FontLoader';
 import { validateTemplate } from './templateSchema';
 import { RenderOptions } from './LeftPanel_Global';
+import { getAllThemes } from '../lib/themes';
 
-import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation, ContextFile } from './types';
+import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation, RawFile, AIJobResult } from './types';
 import { useSearchParams } from 'next/navigation';
 import { useProjectPersistence } from './hooks/useProjectPersistence';
 import { useEditorHistory } from './hooks/useEditorHistory';
 import { useRenderJobs, RenderJob } from './hooks/useRenderJobs';
+import { useAI } from './hooks/useAI';
+import { useAIStatus } from './hooks/useAIStatus';
 
 const Dashboard: React.FC = () => {
     const searchParams = useSearchParams();
@@ -32,7 +35,9 @@ const Dashboard: React.FC = () => {
     const [generationStatus, setGenerationStatus] = useState<GenerationStatus>('idle');
     const [renderStatus, setRenderStatus] = useState<'idle' | 'rendering' | 'done'>('idle');
     const [refreshKey, setRefreshKey] = useState<number>(0);
-    const [contextFiles, setContextFiles] = useState<ContextFile[]>([]);
+    const [rawFiles, setRawFiles] = useState<RawFile[]>([]);
+    const [aiJobId, setAiJobId] = useState<string | null>(null);
+    const [projectSummary, setProjectSummary] = useState<string>('');
 
     const [history, setHistory] = useState<Slide[][]>([]);
 
@@ -165,13 +170,18 @@ const Dashboard: React.FC = () => {
         setGlobalAssets(prev => [...prev, newAsset]);
     };
 
-    const handleAddContextFile = (file: ContextFile) => {
-        setContextFiles(prev => [...prev, file]);
-    };
+    const handleAddRawFile = useCallback((file: RawFile) => {
+        setRawFiles(prev => [...prev, file]);
+    }, []);
 
-    const handleRemoveContextFile = (id: string) => {
-        setContextFiles(prev => prev.filter(f => f.id !== id));
-    };
+    const handleRemoveRawFile = useCallback((id: string) => {
+        setRawFiles(prev => prev.filter(f => f.id !== id));
+    }, []);
+
+    const getThemeName = useCallback((): string => {
+        const theme = getAllThemes().find(t => t.prompt_injection === visualStyle);
+        return theme?.id || 'minimal_dark';
+    }, [visualStyle]);
 
     const handleUpdateElement = (slideId: string, elementId: string, changes: Partial<SlideElement>) => {
         saveToHistory();
@@ -276,8 +286,58 @@ const Dashboard: React.FC = () => {
         setSelectedElementIds([]);
     };
 
-    const handleGenerate = async () => {
+    const ai = useAI({
+        onJobStarted: (jobId) => {
+            setAiJobId(jobId);
+            setGenerationLog('Processing...');
+        },
+        onError: (error) => {
+            console.error('AI Error:', error);
+            setGenerationStatus('idle');
+            setGenerationLog('');
+            setSlides([]);
+        }
+    });
+
+    const handleAIComplete = useCallback((result: AIJobResult) => {
+        if (result.slides && Array.isArray(result.slides)) {
+            setSlides(result.slides.map(s => ({ ...s, props: s.props || {} })));
+            if (result.metadata?.summary) {
+                setProjectSummary(result.metadata.summary);
+            }
+        } else if (result.slide) {
+            setSlides(prev => prev.map(s => s.id === result.slide!.id ? { ...result.slide!, props: result.slide!.props || {} } : s));
+        } else if (result.elements && result.patches) {
+            const slideId = (result as any).slideId;
+            if (slideId) {
+                setSlides(prev => prev.map(s => {
+                    if (s.id !== slideId) return s;
+                    const updatedElements = s.elements?.map(el => {
+                        const updated = result.elements!.find(e => e.id === el.id);
+                        return updated || el;
+                    });
+                    return { ...s, elements: updatedElements };
+                }));
+            }
+        }
+        setGenerationStatus('done');
+        setGenerationLog('');
+        setAiJobId(null);
+    }, []);
+
+    useAIStatus(aiJobId, {
+        onComplete: handleAIComplete,
+        onError: (error) => {
+            console.error('AI Status Error:', error);
+            setGenerationStatus('idle');
+            setGenerationLog('');
+            setAiJobId(null);
+        }
+    });
+
+    const handleGenerate = useCallback(async () => {
         if (generationStatus === 'generating') return;
+        if (!globalPrompt.trim()) return;
 
         setGenerationStatus('generating');
         setRenderStatus('idle');
@@ -287,34 +347,37 @@ const Dashboard: React.FC = () => {
         setSlides([{ id: 'skeleton-1', type: 'skeleton', props: {}, duration: 90, elements: [] }]);
         setGenerationLog('Initializing AI pipeline...');
 
-        try {
-            const response = await fetch('/api/generate/slides', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    prompt: globalPrompt,
-                    context: contextFiles.map(f => ({ name: f.name, content: f.content }))
-                })
-            });
+        const themeName = getThemeName();
 
-            if (!response.ok) throw new Error('Generation failed');
-
-            const data = await response.json();
-
-            if (data.slides && Array.isArray(data.slides)) {
-                setSlides(data.slides);
-                setGenerationStatus('done');
-                setGenerationLog('');
-            } else {
-                throw new Error('Invalid response format');
-            }
-        } catch (error) {
-            console.error('Generation error:', error);
-            setGenerationStatus('idle');
-            setGenerationLog('');
-            setSlides([]);
+        if (slides.length === 0 || slides[0]?.type === 'skeleton') {
+            await ai.generatePresentation(globalPrompt, themeName, rawFiles);
+        } else {
+            await ai.editPresentation(slides.filter(s => s.type !== 'skeleton'), globalPrompt, themeName, { summary: projectSummary });
         }
-    };
+    }, [generationStatus, globalPrompt, slides, rawFiles, ai, getThemeName, projectSummary]);
+
+    const handleSlideAIEdit = useCallback(async (slideId: string, instruction: string) => {
+        const slide = slides.find(s => s.id === slideId);
+        if (!slide || !instruction.trim()) return;
+
+        setGenerationStatus('generating');
+        setGenerationLog('Processing slide edit...');
+        const themeName = getThemeName();
+        await ai.editSlide(slideId, slide, instruction, themeName, projectSummary);
+    }, [slides, ai, getThemeName, projectSummary]);
+
+    const handleElementAIEdit = useCallback(async (slideId: string, elementIds: string[], instruction: string) => {
+        const slide = slides.find(s => s.id === slideId);
+        if (!slide || elementIds.length === 0 || !instruction.trim()) return;
+
+        const elements = slide.elements?.filter(el => elementIds.includes(el.id)) || [];
+        if (elements.length === 0) return;
+
+        setGenerationStatus('generating');
+        setGenerationLog('Processing element edit...');
+        const themeName = getThemeName();
+        await ai.editElements(slideId, elements, instruction, themeName);
+    }, [slides, ai, getThemeName]);
     const { jobs: renderJobs, addJob: addRenderJob, clearJobs: clearRenderJobs, cancelJob: cancelRenderJob } = useRenderJobs(projectId || undefined);
 
     const handleRender = async (options: RenderOptions) => {
@@ -483,9 +546,9 @@ const Dashboard: React.FC = () => {
                 onRemove={() => selectedSlideId && handleRemoveSlide(selectedSlideId)}
                 onRegenerateSlide={handleRegenerateSlide}
                 onRemoveElement={handleRemoveElement}
-                contextFiles={contextFiles}
-                onAddContextFile={handleAddContextFile}
-                onRemoveContextFile={handleRemoveContextFile}
+                rawFiles={rawFiles}
+                onAddRawFile={handleAddRawFile}
+                onRemoveRawFile={handleRemoveRawFile}
                 renderStatus={renderStatus}
                 renderProgress={renderProgress}
                 renderPhase={renderPhase}
@@ -493,6 +556,8 @@ const Dashboard: React.FC = () => {
                 onAbort={handleAbortRender}
                 visualStyle={visualStyle}
                 setVisualStyle={setVisualStyle}
+                onSlideAIEdit={handleSlideAIEdit}
+                onElementAIEdit={handleElementAIEdit}
             />
 
             <RightPanel

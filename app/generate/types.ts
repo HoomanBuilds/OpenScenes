@@ -1,4 +1,3 @@
-
 export type AnimationType = 'none' | 'fade' | 'slide' | 'pop' | 'scale';
 export type AnimationDirection = 'up' | 'down' | 'left' | 'right';
 
@@ -14,8 +13,8 @@ export type SlideBackground = {
 
 export type ElementAnimation = {
     type: AnimationType;
-    duration: number; // seconds
-    delay: number; // seconds
+    duration: number;
+    delay: number;
     direction?: AnimationDirection;
 };
 
@@ -62,12 +61,12 @@ export type Slide = {
     id: string;
     type: string;
     props: Record<string, any>;
-    duration: number; // in frames
-    elements?: SlideElement[]; // Interactive elements
+    duration: number;
+    elements?: SlideElement[];
     background?: SlideBackground;
     transition?: {
         type: 'none' | 'fade' | 'slide' | 'wipe';
-        duration?: number; // seconds
+        duration?: number;
     };
 };
 
@@ -83,6 +82,30 @@ export type ContextFile = {
     name: string;
     type: string;
     content: string;
+};
+
+export type RawFile = {
+    id: string;
+    fileName: string;
+    fileType: string;
+    content: string;
+    charCount: number;
+    isTruncated: boolean;
+};
+
+export type AIJobStatus = 'queued' | 'processing' | 'completed' | 'failed';
+
+export type AIJobResult = {
+    slides?: Slide[];
+    slide?: Slide;
+    elements?: SlideElement[];
+    patches?: any[];
+    explanation?: string;
+    metadata?: {
+        summary?: string;
+        generatedAt?: string;
+        themeName?: string;
+    };
 };
 
 export type ViewMode = 'sequence' | 'focus';
