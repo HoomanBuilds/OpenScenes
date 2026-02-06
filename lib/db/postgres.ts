@@ -1,7 +1,16 @@
 import { Pool } from 'pg';
 
+const connectionString = (process.env.DATABASE_URL || 'postgresql://clarity:clarity_pass@127.0.0.1:5432/clarity').replace('localhost', '127.0.0.1');
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://clarity:clarity_pass@127.0.0.1:5432/clarity',
+  connectionString,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+});
+
+pool.on('error', (err) => {
+  console.error('[DB] Unexpected client error', err);
 });
 
 export async function initDatabase(): Promise<void> {

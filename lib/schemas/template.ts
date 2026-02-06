@@ -20,10 +20,39 @@ export interface Slide {
   };
 }
 
+/**
+ * Metadata from AI generation, stored for edit mode context
+ */
+export interface GenerationMetadata {
+  /** Summarized topic */
+  topic?: string;
+  /** Detected intent (product_launch, educational, etc.) */
+  intent?: string;
+  /** Content summary for edit context */
+  summary?: string;
+  /** Key points extracted from content */
+  keyPoints?: string[];
+  /** Director's common prompt */
+  commonPrompt?: string;
+  /** Narrative arc stages */
+  narrativeArc?: string[];
+  /** Total tokens used in generation */
+  tokensUsed?: number;
+  /** Generation timestamp (ISO string) */
+  generatedAt: string;
+  /** Theme used for generation */
+  themeName: string;
+  /** Original user query */
+  userQuery: string;
+}
+
 export interface TemplateData {
   name: string;
   slides: Slide[];
+  /** AI generation metadata for edit mode context */
+  metadata?: GenerationMetadata;
 }
+
 
 export function validateTemplate(data: any): TemplateData {
   if (!data || typeof data !== 'object') {

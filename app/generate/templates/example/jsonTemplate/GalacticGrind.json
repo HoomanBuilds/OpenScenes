@@ -1,0 +1,220 @@
+{
+  "name": "Galactic-Grind-Pitch",
+  "slides": [
+    {
+      "id": "scene-title",
+      "type": "title",
+      "duration": 6000,
+      "background": {
+        "type": "color",
+        "value": "#0a0a0a"
+      },
+      "elements": [
+        {
+          "id": "bg-accent-1",
+          "type": "shape",
+          "content": "circle",
+          "x": 800,
+          "y": 0,
+          "width": 200,
+          "height": 400,
+          "color": "#6366f1",
+          "opacity": 0.1,
+          "zIndex": 1
+        },
+        {
+          "id": "headline-1",
+          "type": "headline",
+          "content": "GALACTIC GRIND",
+          "x": 50,
+          "y": 200,
+          "width": 900,
+          "height": 100,
+          "fontSize": 84,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 10,
+          "animation": {
+            "type": "pop",
+            "duration": 1,
+            "delay": 0.2
+          }
+        },
+        {
+          "id": "subheadline-1",
+          "type": "subheadline",
+          "content": "The First Interstellar Coffee Hub for All Lifeforms",
+          "x": 100,
+          "y": 310,
+          "width": 800,
+          "height": 50,
+          "fontSize": 32,
+          "textColor": "#9ca3af",
+          "textAlign": "center",
+          "zIndex": 10,
+          "animation": {
+            "type": "fade",
+            "duration": 1,
+            "delay": 0.8
+          }
+        },
+        {
+          "id": "line-decor",
+          "type": "shape",
+          "content": "rect",
+          "x": 450,
+          "y": 295,
+          "width": 100,
+          "height": 4,
+          "color": "#6366f1",
+          "zIndex": 10
+        }
+      ]
+    },
+    {
+      "id": "scene-features-0",
+      "type": "features",
+      "duration": 6000,
+      "background": {
+        "type": "color",
+        "value": "#18181b"
+      },
+      "elements": [
+        {
+          "id": "feature-title",
+          "type": "headline",
+          "content": "Universal Amenities",
+          "x": 50,
+          "y": 50,
+          "width": 500,
+          "height": 60,
+          "fontSize": 48,
+          "textColor": "#ffffff",
+          "zIndex": 10
+        },
+        {
+          "id": "feature-list",
+          "type": "text",
+          "textFormat": "markdown",
+          "content": "- **Atmospheric Control:** Specialized zones for methane, oxygen, and vacuum breathers.\n- **Multi-Species Menu:** From Liquid Nitrogen Cold Brews to Radioactive Roast.\n- **Zero-G Seating:** Floating pods for maximum comfort during light-speed breaks.\n- **Telepathic Ordering:** No vocal cords required. Just think, and we brew.",
+          "x": 50,
+          "y": 150,
+          "width": 600,
+          "height": 350,
+          "fontSize": 28,
+          "textColor": "#d1d5db",
+          "lineHeight": 1.6,
+          "zIndex": 10,
+          "animation": {
+            "type": "slide",
+            "direction": "right",
+            "duration": 1,
+            "delay": 0.3
+          }
+        },
+        {
+          "id": "feature-shape-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 700,
+          "y": 0,
+          "width": 300,
+          "height": 562,
+          "color": "#6366f1",
+          "opacity": 0.05,
+          "zIndex": 1
+        },
+        {
+          "id": "accent-bar",
+          "type": "shape",
+          "content": "rect",
+          "x": 50,
+          "y": 115,
+          "width": 60,
+          "height": 6,
+          "color": "#6366f1",
+          "zIndex": 10
+        }
+      ]
+    },
+    {
+      "id": "scene-cta",
+      "type": "cta",
+      "duration": 5000,
+      "background": {
+        "type": "color",
+        "value": "#0a0a0a"
+      },
+      "elements": [
+        {
+          "id": "cta-headline",
+          "type": "headline",
+          "content": "Join the Expansion",
+          "x": 100,
+          "y": 180,
+          "width": 800,
+          "height": 80,
+          "fontSize": 72,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 10,
+          "animation": {
+            "type": "scale",
+            "duration": 0.8
+          }
+        },
+        {
+          "id": "cta-button-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 350,
+          "y": 320,
+          "width": 300,
+          "height": 80,
+          "color": "#6366f1",
+          "borderRadius": 40,
+          "zIndex": 10,
+          "animation": {
+            "type": "fade",
+            "duration": 0.5,
+            "delay": 1
+          }
+        },
+        {
+          "id": "cta-text",
+          "type": "text",
+          "content": "INVEST NOW",
+          "x": 350,
+          "y": 340,
+          "width": 300,
+          "height": 40,
+          "fontSize": 28,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "center",
+          "zIndex": 11,
+          "animation": {
+            "type": "fade",
+            "duration": 0.5,
+            "delay": 1.2
+          }
+        },
+        {
+          "id": "footer-text",
+          "type": "text",
+          "content": "Available across 14 star systems",
+          "x": 100,
+          "y": 480,
+          "width": 800,
+          "height": 30,
+          "fontSize": 18,
+          "textColor": "#6b7280",
+          "textAlign": "center",
+          "zIndex": 10
+        }
+      ]
+    }
+  ]
+}

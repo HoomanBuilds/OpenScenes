@@ -7,9 +7,6 @@ const nextConfig = {
     "sharp"
   ],
   experimental: {
-    turbopack: {
-        root: process.cwd(),
-    }
   }
 };
 

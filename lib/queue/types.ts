@@ -8,6 +8,22 @@ export interface RenderJob {
   createdAt: number;
 }
 
+export interface AIJob {
+  jobId: string;
+  type: 'generate' | 'edit';
+  userQuery: string;
+  themeName: string;
+  themePrompt?: string;
+  uploadedFileContent?: string;
+  urlContent?: string;
+  requestedSlideCount?: number;
+  additionalInstructions?: string;
+  existingSlides?: unknown[];
+  editInstruction?: string;
+  previousMetadata?: unknown;
+  createdAt: number;
+}
+
 export type JobStatus = 'queued' | 'processing' | 'completed' | 'failed' | 'cancelling' | 'cancelled';
 
 export interface JobRecord {
@@ -19,9 +35,25 @@ export interface JobRecord {
   updatedAt: number;
 }
 
+export interface AIJobRecord {
+  jobId: string;
+  status: JobStatus;
+  result?: {
+    slides: unknown[];
+    metadata: unknown;
+    appliedPatches?: unknown[];
+  };
+  error?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface QueueAdapter {
   connect(): Promise<void>;
   publishRenderJob(job: RenderJob): Promise<void>;
   consumeRenderJobs(handler: (job: RenderJob) => Promise<void>): Promise<void>;
+  publishAIJob(job: AIJob): Promise<void>;
+  consumeAIJobs(handler: (job: AIJob) => Promise<void>): Promise<void>;
   close(): Promise<void>;
 }
+
