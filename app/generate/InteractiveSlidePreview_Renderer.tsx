@@ -31,7 +31,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontS
                 <motion.div className="w-full max-w-none min-w-0 break-words drop-shadow-sm text-pretty" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : element.lineHeight, fontWeight: element.fontWeight }}>
                     {element.textFormat === 'markdown' ? (
                         <ReactMarkdown 
-                            components={useMemo(() => createMarkdownComponents('dark', element.fontFamily, element.textColor || element.color), [element.fontFamily, element.textColor, element.color])} 
+                            components={useMemo(() => createMarkdownComponents('dark', element.fontFamily, element.textColor || element.color, (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : element.lineHeight, true), [element.fontFamily, element.textColor, element.color, element.lineHeight])} 
                             remarkPlugins={[remarkBreaks]}
                         >
                             {element.content as string}

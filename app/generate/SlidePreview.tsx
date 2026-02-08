@@ -4,13 +4,13 @@ import React from 'react';
 import { Slide } from './types';
 import { 
     BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
-    XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
+    XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer 
 } from 'recharts';
 import { parseChartData } from './utils';
 import * as LucideIcons from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
-import { markdownComponents } from './markdownConfig';
+import { createMarkdownComponents } from './markdownConfig';
 import { resolveElementValues } from './valueKeywords';
 import { CustomComponentRenderer } from './renderers/CustomComponentRenderer';
 
@@ -66,6 +66,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
             <div className="absolute inset-0 z-10 overflow-hidden font-sans antialiased">
                 {slide.elements?.map(rawEl => {
                     const el = resolveElementValues(rawEl);
+                    const lHeight = (el.lineHeight && el.lineHeight > 5) ? `${el.lineHeight}px` : (el.lineHeight || 1.1);
+                    
                     return (
                     <div
                         key={el.id as string}
@@ -82,10 +84,20 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                             fontSize: el.fontSize || 16,
                             fontWeight: el.fontWeight || 'normal',
                             fontFamily: el.fontFamily ? `${el.fontFamily}, sans-serif` : 'Inter, sans-serif',
-                            lineHeight: (el.lineHeight && el.lineHeight > 5) ? `${el.lineHeight}px` : (el.lineHeight || 1.4),
+                            lineHeight: lHeight,
                             textAlign: el.textAlign || 'left',
                             backgroundColor: el.type === 'shape' ? (el.color || '#3b82f6') : undefined,
-                            borderRadius: (el.type === 'shape' || el.type === 'image') ? `${el.borderRadius || 0}px` : undefined,
+                            borderRadius: (el.type === 'shape' || el.type === 'image') 
+                                ? ((typeof el.content === 'string' && el.content.toLowerCase() === 'circle') ? '50%' : `${el.borderRadius || 0}px`) 
+                                : undefined,
+                            display: (el.type === 'text' || el.type === 'headline' || el.type === 'subheadline' || el.type === 'shape') ? 'flex' : undefined,
+                            flexDirection: (el.type === 'text' || el.type === 'headline' || el.type === 'subheadline' || el.type === 'shape') ? 'column' : undefined,
+                            justifyContent: (el.type === 'text' || el.type === 'headline' || el.type === 'subheadline' || el.type === 'shape') 
+                                ? (el.verticalAlign === 'center' ? 'center' : el.verticalAlign === 'bottom' ? 'flex-end' : 'flex-start') 
+                                : undefined,
+                            alignItems: (el.type === 'text' || el.type === 'headline' || el.type === 'subheadline' || el.type === 'shape') 
+                                ? (el.textAlign === 'center' ? 'center' : el.textAlign === 'right' ? 'flex-end' : 'flex-start') 
+                                : undefined,
                             borderWidth: (el.type === 'shape' || el.type === 'image') ? (el.strokeWidth || 0) : undefined,
                             borderColor: (el.type === 'shape' || el.type === 'image') ? (el.strokeColor || 'transparent') : undefined,
                             borderStyle: (el.strokeWidth && el.strokeWidth > 0) ? 'solid' : 'none',
@@ -94,12 +106,15 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                             letterSpacing: el.letterSpacing || 'normal'
                         }}
                     >
-                         {el.type === 'headline' && <h1 className="leading-[1.1] drop-shadow-md text-balance">{el.content as string}</h1>}
-                         {el.type === 'subheadline' && <p className="leading-snug drop-shadow-sm text-balance opacity-90">{el.content as string}</p>}
+                         {el.type === 'headline' && <h1 className="m-0 drop-shadow-md text-balance" style={{ fontSize: 'inherit', fontWeight: 'inherit', textAlign: 'inherit', color: 'inherit', lineHeight: 'inherit' }}>{el.content as string}</h1>}
+                         {el.type === 'subheadline' && <p className="m-0 drop-shadow-sm text-balance opacity-90" style={{ fontSize: 'inherit', fontWeight: 'inherit', textAlign: 'inherit', color: 'inherit', lineHeight: 'inherit' }}>{el.content as string}</p>}
                          {el.type === 'text' && (
-                             <div className="leading-relaxed drop-shadow-sm text-pretty w-full h-full">
+                             <div className="drop-shadow-sm text-pretty w-full">
                                  {el.textFormat === 'markdown' ? (
-                                     <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkBreaks]}>
+                                     <ReactMarkdown 
+                                        components={createMarkdownComponents('dark', el.fontFamily, el.textColor || el.color, lHeight, true)} 
+                                        remarkPlugins={[remarkBreaks]}
+                                     >
                                          {el.content as string}
                                      </ReactMarkdown>
                                  ) : (el.content as string)}
@@ -121,6 +136,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                          )}
 
                          {el.type === 'image' && (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img 
                                 src={(el.content && ((el.content as string).startsWith('http') || (el.content as string).startsWith('blob:'))) ? (el.content as string) : 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80'} 
                                 className="w-full h-full block" 
@@ -163,7 +179,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                                                         isAnimationActive={false}
                                                         stroke="none"
                                                     >
-                                                        {data.map((entry: any, index: number) => (
+                                                        {data.map((entry: unknown, index: number) => (
                                                             <Cell key={`cell-${index}`} fill={conf.colors?.[index % (conf.colors?.length || 1)] || COLORS[index % COLORS.length]} />
                                                         ))}
                                                     </Pie>
@@ -211,7 +227,8 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
 
                         {el.type === 'icon' && (() => {
                              const iconName = (el.content as string).split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('');
-                             // @ts-ignore
+                             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                             // @ts-expect-error
                              const IconComp = LucideIcons[iconName] || LucideIcons[el.content as string] || LucideIcons.HelpCircle;
                              return (
                                  <div className="w-full h-full flex items-center justify-center">

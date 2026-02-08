@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Slide, SlideElement } from './types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, X, SkipBack, SkipForward, RotateCcw } from 'lucide-react';
@@ -121,23 +122,27 @@ const AnimatedElement: React.FC<{ element: SlideElement; slideKey: string }> = (
                 fontSize: el.fontSize || 16,
                 fontWeight: el.fontWeight || 'normal',
                 fontFamily: el.fontFamily ? `${el.fontFamily}, sans-serif` : 'Inter, sans-serif',
-                lineHeight: el.lineHeight || 1.5,
+                lineHeight: (el.lineHeight && el.lineHeight > 5) ? `${el.lineHeight}px` : (el.lineHeight || 1.1),
                 textAlign: (el.textAlign as any) || 'left',
                 backgroundColor: el.type === 'shape' ? (el.color || '#3b82f6') : undefined,
-                borderRadius: (el.type === 'shape' || el.type === 'image') ? `${el.borderRadius || 0}px` : undefined,
+                borderRadius: (el.type === 'shape' || el.type === 'image') 
+                    ? ((typeof el.content === 'string' && el.content.toLowerCase() === 'circle') ? '50%' : `${el.borderRadius || 0}px`) 
+                    : undefined,
                 borderWidth: (el.type === 'shape' || el.type === 'image') ? (el.strokeWidth || 0) : undefined,
                 borderColor: (el.type === 'shape' || el.type === 'image') ? (el.strokeColor || 'transparent') : undefined,
                 borderStyle: ((el.strokeWidth || 0) > 0) ? 'solid' : 'none',
                 whiteSpace: el.type === 'custom' ? 'normal' : 'pre-wrap',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: el.verticalAlign === 'center' ? 'center' : el.verticalAlign === 'bottom' ? 'flex-end' : 'flex-start',
-                alignItems: (el.textAlign as any) === 'center' ? 'center' : (el.textAlign as any) === 'right' ? 'flex-end' : 'flex-start',
+                display: (el.type === 'text' || el.type === 'headline' || el.type === 'subheadline' || el.type === 'shape') ? 'flex' : undefined,
+                flexDirection: (el.type === 'text' || el.type === 'headline' || el.type === 'subheadline' || el.type === 'shape') ? 'column' : undefined,
+                justifyContent: (el.type === 'text' || el.type === 'headline' || el.type === 'subheadline' || el.type === 'shape') 
+                    ? (el.verticalAlign === 'center' ? 'center' : el.verticalAlign === 'bottom' ? 'flex-end' : 'flex-start') 
+                    : undefined,
+                alignItems: (el.type === 'text' || el.type === 'headline' || el.type === 'subheadline' || el.type === 'shape') 
+                    ? (el.textAlign === 'center' ? 'center' : el.textAlign === 'right' ? 'flex-end' : 'flex-start') 
+                    : undefined,
             }}
         >
-            <div style={{ width: '100%', height: '100%' }}>
-                {renderContent()}
-            </div>
+            {renderContent()}
         </motion.div>
     );
 };
@@ -303,6 +308,7 @@ const PresentationPreview: React.FC<PresentationPreviewProps> = ({ slides, onClo
                             }}
                         >
                             {currentSlide.background?.type === 'image' && (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img 
                                     src={currentSlide.background.value} 
                                     className="absolute inset-0 w-full h-full object-cover opacity-50" 

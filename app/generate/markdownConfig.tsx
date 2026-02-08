@@ -204,7 +204,7 @@ export const getMarkdownConfig = (theme: MarkdownTheme = 'dark') => {
     return theme === 'light' ? lightTheme : darkTheme;
 };
 
-export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', overrideFont?: string, overrideColor?: string) => {
+export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', overrideFont?: string, overrideColor?: string, lineHeight?: string | number, tight: boolean = true) => {
     const config = getMarkdownConfig(theme);
     const fontStyle = overrideFont ? { fontFamily: overrideFont } : { fontFamily: 'inherit' };
     const textColor = overrideColor || undefined;
@@ -214,10 +214,10 @@ export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', override
             <h1 style={{
                 fontSize: config.h1.fontSize,
                 fontWeight: config.h1.fontWeight,
-                marginTop: config.h1.marginTop,
-                marginBottom: config.h1.marginBottom,
+                marginTop: tight ? 0 : config.h1.marginTop,
+                marginBottom: tight ? 0 : config.h1.marginBottom,
                 color: textColor || config.h1.color,
-                lineHeight: config.h1.lineHeight,
+                lineHeight: lineHeight || config.h1.lineHeight,
                 ...fontStyle,
             }}>{children}</h1>
         ),
@@ -225,10 +225,10 @@ export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', override
             <h2 style={{
                 fontSize: config.h2.fontSize,
                 fontWeight: config.h2.fontWeight,
-                marginTop: config.h2.marginTop,
-                marginBottom: config.h2.marginBottom,
+                marginTop: tight ? 0 : config.h2.marginTop,
+                marginBottom: tight ? 0 : config.h2.marginBottom,
                 color: textColor || config.h2.color,
-                lineHeight: config.h2.lineHeight,
+                lineHeight: lineHeight || config.h2.lineHeight,
                 ...fontStyle,
             }}>{children}</h2>
         ),
@@ -236,18 +236,19 @@ export const createMarkdownComponents = (theme: MarkdownTheme = 'dark', override
             <h3 style={{
                 fontSize: config.h3.fontSize,
                 fontWeight: config.h3.fontWeight,
-                marginTop: config.h3.marginTop,
-                marginBottom: config.h3.marginBottom,
+                marginTop: tight ? 0 : config.h3.marginTop,
+                marginBottom: tight ? 0 : config.h3.marginBottom,
                 color: textColor || config.h3.color,
-                lineHeight: config.h3.lineHeight,
+                lineHeight: lineHeight || config.h3.lineHeight,
                 ...fontStyle,
             }}>{children}</h3>
         ),
         p: ({ children }: any) => (
             <p style={{
-                marginBottom: config.paragraph.marginBottom,
+                marginTop: 0,
+                marginBottom: tight ? 0 : config.paragraph.marginBottom,
                 color: textColor || config.paragraph.color,
-                lineHeight: config.paragraph.lineHeight,
+                lineHeight: lineHeight || config.paragraph.lineHeight,
                 ...fontStyle,
             }}>{children}</p>
         ),

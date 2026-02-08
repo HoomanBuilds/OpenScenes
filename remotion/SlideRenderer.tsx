@@ -267,7 +267,7 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                         width: '100%', 
                         fontSize: element.fontSize || 16,
                         fontFamily: getFontFamily(element.fontFamily || 'Inter'),
-                        lineHeight: 1.5,
+                        lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : (element.lineHeight || 1.1),
                     }}>
                         <MarkdownRenderer content={element.content} textColor={element.textColor} />
                     </div>
@@ -278,7 +278,7 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                     fontSize: element.fontSize || 16,
                     textAlign: element.textAlign || 'left',
                     fontFamily: getFontFamily(element.fontFamily || 'Inter'),
-                    lineHeight: 1.5,
+                    lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : (element.lineHeight || 1.1),
                     whiteSpace: 'pre-wrap',
                     width: '100%'
                 }}>

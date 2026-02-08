@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateJobStatus, getJob } from '../../../../lib/db/postgres';
+import { checkAuth } from '../../../../lib/auth/api-middleware';
 
 export async function POST(req: NextRequest) {
   try {
+    // Check authentication
+    const authResult = await checkAuth(req);
+    if (!authResult.isAuthenticated) {
+      return authResult.error;
+    }
+
     const { jobId } = await req.json();
 
     if (!jobId) {

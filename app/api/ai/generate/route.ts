@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queue, AIJob } from '@/lib/queue/adapter';
 import { redis } from '@/lib/redis/adapter';
+import { checkAuth } from '@/lib/auth/api-middleware';
 
 const AI_JOB_PREFIX = 'ai:job:';
 
@@ -10,6 +11,12 @@ function generateJobId(): string {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const authResult = await checkAuth(request);
+    if (!authResult.isAuthenticated) {
+      return authResult.error;
+    }
+
     const body = await request.json();
     
     if (!body.userQuery || typeof body.userQuery !== 'string') {

@@ -1,27 +1,25 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
+import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { LoginModal } from './components/LoginModal';
 
 export default function LandingPage() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     return (
         <div className="h-screen bg-[#050505] text-white selection:bg-purple-500/30 overflow-hidden font-sans flex flex-col items-center justify-center relative">
             
             <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}></div>
             
-            <div className="absolute inset-0 z-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black_40%,transparent_100%)] pointer-events-none"></div>
+            <div className="absolute inset-0 z-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[40px_40px] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,black_40%,transparent_100%)] pointer-events-none"></div>
 
             <div className="absolute top-0 left-0 right-0 h-12 border-b border-zinc-900 bg-zinc-950/50 backdrop-blur-sm flex items-center justify-between px-6 z-20">
                 <div className="flex items-center space-x-4">
                     <div className="w-2 h-2 bg-purple-500 animate-pulse" />
                 </div>
                 <div className="flex items-center space-x-8">
-                     <div className="hidden md:flex font-mono text-[9px] text-zinc-600 space-x-8 uppercase tracking-widest opacity-50">
-                        <span>Mem: 42%</span>
-                        <span>Net: Active</span>
-                        <span>Gpu: Ready</span>
-                     </div>
+                    
                 </div>
             </div>
 
@@ -56,17 +54,17 @@ export default function LandingPage() {
                     </div>
                 </div>
 
-                <Link href="/generate">
-                    <button className="group relative w-72 h-20 bg-zinc-100 hover:bg-white active:bg-zinc-300 border-b-[8px] border-r-[8px] border-black rounded-sm flex items-center justify-between px-8 transition-all active:border-b-0 active:border-r-0 active:translate-y-[8px] active:translate-x-[8px]">
-                        <div className="flex flex-col items-start space-y-1">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 group-hover:text-purple-600 transition-colors">Initialize</span>
-                            <span className="text-xl font-black text-black tracking-tight group-hover:scale-105 transition-transform origin-left">LAUNCH STUDIO</span>
-                        </div>
-                        <div className="w-10 h-10 bg-black flex items-center justify-center group-hover:rotate-90 transition-transform duration-500">
-                             <ArrowRight className="w-5 h-5 text-white" strokeWidth={3} />
-                        </div>
-                    </button>
-                </Link>
+                <button 
+                    onClick={() => setIsModalOpen(true)}
+                    className="group relative w-72 h-20 bg-zinc-100 hover:bg-white active:bg-zinc-300 border-b-[8px] border-r-[8px] border-black rounded-sm flex items-center justify-between px-8 transition-all active:border-b-0 active:border-r-0 active:translate-y-[8px] active:translate-x-[8px]">
+                    <div className="flex flex-col items-start space-y-1">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 group-hover:text-purple-600 transition-colors">Initialize</span>
+                        <span className="text-xl font-black text-black tracking-tight group-hover:scale-105 transition-transform origin-left">LAUNCH STUDIO</span>
+                    </div>
+                    <div className="w-10 h-10 bg-black flex items-center justify-center group-hover:rotate-90 transition-transform duration-500">
+                         <ArrowRight className="w-5 h-5 text-white" strokeWidth={3} />
+                    </div>
+                </button>
 
             </div>
 
@@ -76,11 +74,8 @@ export default function LandingPage() {
             <div className="absolute bottom-24 left-6 w-px h-12 bg-zinc-800" />
             <div className="absolute bottom-24 right-6 w-px h-12 bg-zinc-800" />
 
-            <div className="absolute top-1/4 right-12 hidden md:block opacity-20 font-mono text-[9px] text-zinc-500 text-right space-y-1">
-                <div>SYS_CHECK_OK</div>
-                <div>BUFFER_LOAD: 0%</div>
-                <div>INIT_SEQ_READY</div>
-            </div>
+
+            <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
         </div>
     );

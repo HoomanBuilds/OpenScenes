@@ -73,6 +73,7 @@ Optional properties:
 5. **Animation Sequencing**: Use 'delay' to ensure elements enter in a logical flow: Background → Containers → Content.
 6. **Charts**: Always provide contrasting 'colors' in 'chartProps'.
 7. **Branding**: Respect theme colors and use the provided color palette.
+9. "verticalAlign": "center" usually makes the text in center, its a property for headline text subheadline and text elements.
 
 ## ANIMATION OPTIONS
 - type: "fade" | "pop" | "slide" | "scale" | "pulse"

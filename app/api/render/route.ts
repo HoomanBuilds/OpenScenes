@@ -4,6 +4,7 @@ import { queue, RenderJob } from '../../../lib/queue/adapter';
 import { createJob } from '../../../lib/db/postgres';
 import { checkRateLimits, getRateLimitHeaders, renderLimits } from '../../../lib/config/rate-limit';
 import { validateRenderRequest, validateRenderParams } from '../../../lib/config/validation';
+import { checkAuth } from '../../../lib/auth/api-middleware';
 
 function generateJobId(): string {
   return `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -17,6 +18,12 @@ function getClientIp(req: NextRequest): string {
 
 export async function POST(req: NextRequest) {
   try {
+    // Check authentication
+    const authResult = await checkAuth(req);
+    if (!authResult.isAuthenticated) {
+      return authResult.error;
+    }
+
     const clientIp = getClientIp(req);
     const rateLimitResult = await checkRateLimits(`render:${clientIp}`, renderLimits);
     

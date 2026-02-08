@@ -8,6 +8,7 @@ import { FontLoader } from './FontLoader';
 import { validateTemplate } from './templateSchema';
 import { RenderOptions } from './LeftPanel_Global';
 import { getAllThemes } from '../lib/themes';
+import { LoginModal } from '../components/LoginModal';
 
 import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation, RawFile, AIJobResult } from './types';
 import { useSearchParams } from 'next/navigation';
@@ -48,6 +49,7 @@ const Dashboard: React.FC = () => {
     const [renderedVideoUrl, setRenderedVideoUrl] = useState<string | null>(null);
 
     const [renderFileName, setRenderFileName] = useState<string>('');
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
     const [projectName, setProjectName] = useState('Untitled Project');
     const [lastSaved, setLastSaved] = useState<number | null>(null);
@@ -424,6 +426,10 @@ const Dashboard: React.FC = () => {
 
             if (!response.ok) {
                 const err = await response.json();
+                if (response.status === 401) {
+                    setIsLoginModalOpen(true);
+                    return;
+                }
                 throw new Error(err.error || 'Failed to start render');
             }
 
@@ -611,6 +617,11 @@ const Dashboard: React.FC = () => {
                     onClose={() => setShowPreview(false)}
                 />
             )}
+
+            <LoginModal 
+                isOpen={isLoginModalOpen}
+                onClose={() => setIsLoginModalOpen(false)}
+            />
         </div>
     );
 };

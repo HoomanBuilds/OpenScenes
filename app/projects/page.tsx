@@ -9,6 +9,7 @@ import { Project } from '@/lib/storage/types';
 import { useRouter } from 'next/navigation';
 import SlidePreview from '../generate/SlidePreview';
 import { CreateProjectModal } from './CreateProjectModal';
+import { UserMenu } from '../components/UserMenu';
 
 export default function ProjectsPage() {
     const router = useRouter();
@@ -64,17 +65,12 @@ export default function ProjectsPage() {
                             <div className="w-5 h-5 bg-purple-600"></div>
                         </div>
                         <div>
-                            <h1 className="text-xl font-black tracking-tighter">OpenScenes<span className="text-purple-500">AI</span></h1>
-                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono">Project Management System</p>
+                            <h1 className="text-xl font-black tracking-tighter">OpenScenes<span className="text-purple-500"></span></h1>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <Link href="/login">
-                            <div className="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center hover:bg-zinc-700 transition-colors cursor-pointer">
-                                <LucideIcons.User className="w-5 h-5 text-zinc-400" />
-                            </div>
-                        </Link>
+                        <UserMenu />
                     </div>
                 </div>
             </div>

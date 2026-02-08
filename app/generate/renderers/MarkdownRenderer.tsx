@@ -78,21 +78,21 @@ const MarkdownRenderer: React.FC<{ content: string; textColor?: string }> = ({ c
         const h1Match = line.match(/^# (.+)$/);
         if (h1Match) {
             flushList();
-            elements.push(<h1 key={i} style={{ fontSize: '2em', fontWeight: 700, margin: '1.5em 0 0.5em 0', color: '#ffffff' }}>{parseInline(h1Match[1])}</h1>);
+            elements.push(<h1 key={i} style={{ fontSize: '2em', fontWeight: 700, margin: 0, color: '#ffffff' }}>{parseInline(h1Match[1])}</h1>);
             return;
         }
         
         const h2Match = line.match(/^## (.+)$/);
         if (h2Match) {
             flushList();
-            elements.push(<h2 key={i} style={{ fontSize: '1.5em', fontWeight: 700, margin: '1.5em 0 0.5em 0', color: '#ffffff' }}>{parseInline(h2Match[1])}</h2>);
+            elements.push(<h2 key={i} style={{ fontSize: '1.5em', fontWeight: 700, margin: 0, color: '#ffffff' }}>{parseInline(h2Match[2] || h2Match[1])}</h2>);
             return;
         }
         
         const h3Match = line.match(/^### (.+)$/);
         if (h3Match) {
             flushList();
-            elements.push(<h3 key={i} style={{ fontSize: '1.25em', fontWeight: 700, margin: '1.25em 0 0.5em 0', color: '#ffffff' }}>{parseInline(h3Match[1])}</h3>);
+            elements.push(<h3 key={i} style={{ fontSize: '1.25em', fontWeight: 700, margin: 0, color: '#ffffff' }}>{parseInline(h3Match[1])}</h3>);
             return;
         }
         
@@ -158,7 +158,7 @@ const MarkdownRenderer: React.FC<{ content: string; textColor?: string }> = ({ c
         }
         
         flushList();
-        elements.push(<p key={i} style={{ margin: '1em 0', color: textColor }}>{parseInline(line)}</p>);
+        elements.push(<p key={i} style={{ margin: 0, color: textColor }}>{parseInline(line)}</p>);
     });
     
     flushList();
