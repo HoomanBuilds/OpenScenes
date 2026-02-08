@@ -305,6 +305,9 @@ const Dashboard: React.FC = () => {
             if (result.metadata?.summary) {
                 setProjectSummary(result.metadata.summary);
             }
+            if (result.metadata?.presentationTitle) {
+                setProjectName(result.metadata.presentationTitle);
+            }
         } else if (result.slide) {
             setSlides(prev => prev.map(s => s.id === result.slide!.id ? { ...result.slide!, props: result.slide!.props || {} } : s));
         } else if (result.elements && result.patches) {
@@ -320,13 +323,19 @@ const Dashboard: React.FC = () => {
                 }));
             }
         }
-        setGenerationStatus('done');
-        setGenerationLog('');
-        setAiJobId(null);
+
+        if (!result.isPartial) {
+            setGenerationStatus('done');
+            setGenerationLog('');
+            setAiJobId(null);
+        } else {
+            setGenerationLog(`Generating slides... (${result.slides?.length || 0} ready)`);
+        }
     }, []);
 
     useAIStatus(aiJobId, {
         onComplete: handleAIComplete,
+        onProgress: handleAIComplete,
         onError: (error) => {
             console.error('AI Status Error:', error);
             setGenerationStatus('idle');
@@ -376,8 +385,8 @@ const Dashboard: React.FC = () => {
         setGenerationStatus('generating');
         setGenerationLog('Processing element edit...');
         const themeName = getThemeName();
-        await ai.editElements(slideId, elements, instruction, themeName);
-    }, [slides, ai, getThemeName]);
+        await ai.editElements(slideId, elements, instruction, themeName, projectSummary);
+    }, [slides, ai, getThemeName, projectSummary]);
     const { jobs: renderJobs, addJob: addRenderJob, clearJobs: clearRenderJobs, cancelJob: cancelRenderJob } = useRenderJobs(projectId || undefined);
 
     const handleRender = async (options: RenderOptions) => {
@@ -455,7 +464,7 @@ const Dashboard: React.FC = () => {
         const totalDurationFrames = Math.ceil((totalDurationMs / 1000) * fps);
 
         const templateData = {
-            name: globalPrompt || 'Untitled Export',
+            name: projectName || 'Untitled Export',
             version: '1.0',
             createdAt: new Date().toISOString(),
             canvas: {
@@ -498,7 +507,8 @@ const Dashboard: React.FC = () => {
 
                 saveToHistory();
                 setSlides(result.data.slides.map(s => ({ ...s, props: {}, type: s.type || 'default', duration: s.duration || 90 })) as Slide[]);
-                setGlobalPrompt(result.data.name || '');
+                setGlobalPrompt(result.data.globalPrompt || '');
+                setProjectName(result.data.name || 'Imported Project');
                 setViewMode('sequence');
                 setSelectedSlideId(null);
             } catch (err) {

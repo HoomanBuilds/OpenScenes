@@ -10,8 +10,15 @@ import { queue, RenderJob } from '../../lib/queue/adapter';
 import { processRenderJob } from './processor';
 import { initDatabase } from '../../lib/db/postgres';
 
+const LATEST_ONLY = process.argv.includes('--latest');
+const WORKER_START_TIME = Date.now();
+
 async function handleJob(job: RenderJob): Promise<void> {
-  console.log(`Received job: ${job.jobId}`);
+  if (LATEST_ONLY && job.createdAt < WORKER_START_TIME) {
+      progressManager.log(`[Worker] Skipping old job ${job.jobId} (--latest mode)`);
+      return;
+  }
+  progressManager.log(`Received job: ${job.jobId}`);
   await processRenderJob(job);
 }
 

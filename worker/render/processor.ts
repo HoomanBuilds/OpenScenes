@@ -160,6 +160,7 @@ export async function processRenderJob(job: RenderJob): Promise<ProcessResult | 
     
     let lastProgressUpdate = 15;
 
+    let isUpdating = false;
     await renderMedia({
       composition: finalComposition,
       serveUrl: bundleLocation,
@@ -172,9 +173,17 @@ export async function processRenderJob(job: RenderJob): Promise<ProcessResult | 
         const percent = Math.floor(15 + progress * 75);
         progressManager.updateBar(job.jobId, percent);
         
-        if (percent >= lastProgressUpdate + 5) { 
+        if (percent >= lastProgressUpdate + 5 && !isUpdating) { 
           lastProgressUpdate = percent;
-          await updateJobStatus(job.jobId, 'processing', { progress: percent });
+          isUpdating = true;
+          try {
+            await updateJobStatus(job.jobId, 'processing', { progress: percent });
+          } catch (err) {
+            // Silently fail progress updates to avoid crashing render
+            progressManager.log(`[Warn] Progress DB update skipped: ${job.jobId}`);
+          } finally {
+            isUpdating = false;
+          }
         }
       },
     });

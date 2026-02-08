@@ -118,3 +118,70 @@ export const resolveTarget = (
 
     return val;
 };
+
+export const VALID_EASINGS = ['easeIn', 'easeOut', 'easeInOut', 'circIn', 'circOut', 'backIn', 'backOut', 'anticipate', 'linear'];
+
+export const sanitizeEasing = (ease?: any): any => {
+    if (!ease) return undefined;
+    if (typeof ease !== 'string') return ease;
+    
+    const mapped: Record<string, string> = {
+        'power1.in': 'easeIn',
+        'power1.out': 'easeOut',
+        'power1.inOut': 'easeInOut',
+        'power2.in': 'easeIn',
+        'power2.out': 'easeOut',
+        'power2.inOut': 'easeInOut',
+        'power3.in': 'easeIn',
+        'power3.out': 'easeOut',
+        'power3.inOut': 'easeInOut',
+        'power4.in': 'easeIn',
+        'power4.out': 'easeOut',
+        'power4.inOut': 'easeInOut',
+        'sine.in': 'easeIn',
+        'sine.out': 'easeOut',
+        'sine.inOut': 'easeInOut',
+        'expo.in': 'easeIn',
+        'expo.out': 'easeOut',
+        'expo.inOut': 'easeInOut',
+        'circ.in': 'circIn',
+        'circ.out': 'circOut',
+        'circ.inOut': 'easeInOut',
+    };
+
+    if (mapped[ease]) return mapped[ease];
+    if (VALID_EASINGS.includes(ease)) return ease;
+    
+    return 'easeOut';
+};
+
+export const sanitizeRepeat = (repeat?: any): any => {
+    if (repeat === undefined || repeat === null) return undefined;
+    if (typeof repeat === 'string') {
+        const lower = repeat.trim().toLowerCase();
+        if (lower === 'infinity') return Infinity;
+        const num = parseInt(lower, 10);
+        return isNaN(num) ? undefined : num;
+    }
+    return repeat;
+};
+
+export const sanitizeTransition = (transition?: any): any => {
+    if (!transition) return undefined;
+    const sanitized = { ...transition };
+    
+    if (sanitized.repeat !== undefined) {
+        sanitized.repeat = sanitizeRepeat(sanitized.repeat);
+    }
+    
+    if (sanitized.ease) {
+        sanitized.ease = sanitizeEasing(sanitized.ease);
+    }
+    
+    if (sanitized.yoyo === true) {
+        sanitized.repeatType = 'reverse';
+        delete sanitized.yoyo;
+    }
+    
+    return sanitized;
+};

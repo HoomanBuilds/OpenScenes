@@ -139,12 +139,12 @@ export function useAI(options: UseAIOptions = {}) {
             return null;
         }
     }, [handleError, onJobStarted]);
-
     const editElements = useCallback(async (
         slideId: string,
         elements: SlideElement[],
         instruction: string,
-        themeName: string
+        themeName: string,
+        projectSummary?: string
     ): Promise<string | null> => {
         setState({ isLoading: true, jobId: null, error: null });
 
@@ -156,7 +156,8 @@ export function useAI(options: UseAIOptions = {}) {
                     slideId,
                     elements,
                     instruction,
-                    themeName
+                    themeName,
+                    projectSummary
                 })
             });
 

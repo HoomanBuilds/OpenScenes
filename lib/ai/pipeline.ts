@@ -83,6 +83,7 @@ function buildMetadata(
   assetUrls?: string[]
 ): GenerationMetadata {
   return {
+    presentationTitle: directorPlan?.presentationTitle,
     topic: summary?.topic,
     intent: summary?.intent,
     summary: summary?.summary,
@@ -168,36 +169,54 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
   const allSlides: Slide[] = [];
   let previousSummary = '';
   
-  for (let batchIndex = 0; batchIndex < directorPlan.batches.length; batchIndex++) {
-    const batch = directorPlan.batches[batchIndex];
-    const batchScenes = directorPlan.scenes.filter(s => 
-      batch.slides.includes(s.sceneIndex)
-    );
-    
-    logger.generator.generating(batchScenes.length, batchIndex + 1, directorPlan.batches.length);
-    
-    try {
-      const batchResult = await generateSlides({
-        commonPrompt: directorPlan.commonPrompt,
-        batchPrompt: batch.prompt,
-        themePrompt,
-        sceneGuidance: batchScenes,
-        previousSlideSummary: previousSummary,
-        assetMetadata,
-        themeConfig: themeConfig || undefined, // Pass the loaded theme
-        jobId: input.jobId,
-      });
-      
-      allSlides.push(...batchResult.slides);
-      previousSummary = batchResult.batchSummary;
-      
-      await logger.debug.log(input.jobId || 'unknown', `5-batch-${batchIndex + 1}`, batchResult);
-      logger.generator.generated(batchResult.slides.length);
-    } catch (error) {
-       console.error(`[Pipeline] Batch ${batchIndex + 1} failed:`, error);
-       await logger.debug.log(input.jobId || 'unknown', `5-batch-${batchIndex + 1}-error`, { error: error instanceof Error ? error.message : String(error) });
-    }
-  }
+  // PARALLEL BATCH GENERATION
+  const batchPromises = directorPlan.batches.map(async (batch, batchIndex) => {
+      const batchScenes = directorPlan.scenes.filter(s => 
+        batch.slides.includes(s.sceneIndex)
+      );
+
+      logger.generator.generating(batchScenes.length, batchIndex + 1, directorPlan.batches.length);
+
+      try {
+        const batchResult = await generateSlides({
+          commonPrompt: directorPlan.commonPrompt,
+          batchPrompt: batch.prompt,
+          themePrompt,
+          sceneGuidance: batchScenes,
+          previousSlideSummary: previousSummary, 
+          assetMetadata,
+          themeConfig: themeConfig || undefined, 
+          jobId: input.jobId,
+        });
+
+        if (batchResult && input.onProgress) {
+            // Collect all slides completed so far to trigger progress
+            // Note: because this is parallel, we need to be careful with state
+            // For now, we'll just send the slides from THIS batch as they arrive
+            input.onProgress({ slides: insertAssetUrls(batchResult.slides, assetMetadata) });
+        }
+
+        await logger.debug.log(input.jobId || 'unknown', `5-batch-${batchIndex + 1}`, batchResult);
+        logger.generator.generated(batchResult.slides.length);
+        
+        return batchResult;
+      } catch (error) {
+         console.error(`[Pipeline] Batch ${batchIndex + 1} failed:`, error);
+         await logger.debug.log(input.jobId || 'unknown', `5-batch-${batchIndex + 1}-error`, { error: error instanceof Error ? error.message : String(error) });
+         return null;
+      }
+  });
+
+  const batchResults = await Promise.all(batchPromises);
+
+  // Aggregate results in order
+  batchResults.forEach(result => {
+      if (result) {
+          allSlides.push(...result.slides);
+          // We can't easily chain summaries in parallel, so we might lose the "evolving story" aspect slightly,
+          // but the Director's detailed plan should compensate.
+      }
+  });
   
   let finalSlides = insertAssetUrls(allSlides, assetMetadata);
   
@@ -271,7 +290,7 @@ export async function runEditPipeline(input: PipelineInput): Promise<PipelineOut
 }
 
 export async function run(input: PipelineInput): Promise<PipelineOutput> {
-  const isEditMode = !!(input.existingSlides && input.editInstruction);
+  const isEditMode = !!(input.existingSlides && input.existingSlides.length > 0 && input.editInstruction);
   
   if (isEditMode) {
     return runEditPipeline(input);

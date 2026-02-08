@@ -4,7 +4,9 @@ import { Slide, SlideBackground } from './types';
 interface LeftPanel_SlideSettingsProps {
     selectedSlide: Slide;
     onUpdateSlideBackground: (slideId: string, bg: SlideBackground) => void;
-    onUploadAsset: (file: File, type: 'image') => void; 
+    onUploadAsset: (file: File, type: 'image') => void;
+    onSlideAIEdit: (slideId: string, instruction: string) => void;
+    isGenerating: boolean;
 }
 
 const PRESET_COLORS = ['#000000', '#18181b', '#1e1b4b', '#1e293b', '#064e3b', '#4c1d95'];
@@ -19,7 +21,9 @@ const PRESET_GRADIENTS = [
 export const LeftPanel_SlideSettings: React.FC<LeftPanel_SlideSettingsProps> = ({
     selectedSlide,
     onUpdateSlideBackground,
-    onUploadAsset
+    onUploadAsset,
+    onSlideAIEdit,
+    isGenerating
 }) => {
     const bgInputRef = useRef<HTMLInputElement>(null);
     const [aiEditPrompt, setAiEditPrompt] = useState('');
@@ -50,17 +54,30 @@ export const LeftPanel_SlideSettings: React.FC<LeftPanel_SlideSettingsProps> = (
                 </label>
                 <div className="relative group">
                     <textarea 
-                        className="w-full bg-[#09090b] border-2 border-zinc-900 focus:border-purple-600 rounded-none p-3 text-xs font-mono text-zinc-300 focus:outline-none resize-none h-24 placeholder-zinc-700 transition-colors"
+                        className="w-full bg-[#09090b] border-2 border-zinc-900 focus:border-purple-600 rounded-none p-3 text-xs font-mono text-zinc-300 focus:outline-none resize-none h-24 placeholder-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         placeholder="> Describe slide changes..."
                         value={aiEditPrompt} 
                         onChange={(e) => setAiEditPrompt(e.target.value)}
+                        disabled={isGenerating}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                if (aiEditPrompt.trim()) {
+                                    onSlideAIEdit(selectedSlide.id, aiEditPrompt);
+                                    setAiEditPrompt('');
+                                }
+                            }
+                        }}
                     />
                     <button 
-                        className="absolute bottom-3 right-3 p-1.5 bg-zinc-900 border border-zinc-800 hover:bg-purple-600 hover:border-purple-500 text-zinc-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                        className="absolute bottom-3 right-3 p-1.5 bg-zinc-900 border border-zinc-800 hover:bg-purple-600 hover:border-purple-500 text-zinc-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => {
-                            console.log("Applying Slide Prompt:", aiEditPrompt);
-                            setAiEditPrompt('');
+                            if (aiEditPrompt.trim()) {
+                                onSlideAIEdit(selectedSlide.id, aiEditPrompt);
+                                setAiEditPrompt('');
+                            }
                         }}
+                        disabled={isGenerating || !aiEditPrompt.trim()}
                     >
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </button>

@@ -15,11 +15,12 @@ const PatchSchema = z.object({
   value: z.any().describe('New value to set at the path'),
 });
 
-const SmartEditPatchOutput = z.object({
+export const SmartEditPatchOutput = z.object({
   action: z.literal('patch'),
   patches: z.array(PatchSchema),
   summary: z.string(),
 });
+
 
 // Classification structure
 const ClassificationSchema = z.object({
@@ -28,7 +29,8 @@ const ClassificationSchema = z.object({
   affectedSlideIds: z.array(z.string()),
   reasoning: z.string(),
 });
-type ClassificationResult = z.infer<typeof ClassificationSchema>;
+export type ClassificationResult = z.infer<typeof ClassificationSchema>;
+
 
 export interface SmartEditRequest {
   existingSlides: Slide[];
@@ -70,16 +72,18 @@ Generate minimal JSON patches to modify a slide. Use dot-notation paths.
 - "elements.0.content" → Change first element's content
 - "elements.2.textColor" → Change third element's text color
 - "elements.0.animation.delay" → Change animation delay
+- "elements.0.content.layout.children.1.text" → Deeply change text in a custom component
+- "elements.0.content.animations.title.transition.delay" → Change animation delay in custom component
 - "duration" → Change slide duration
 
 ## OUTPUT FORMAT
 {
   "action": "patch",
   "patches": [
-    { "path": "elements.0.content", "value": "New Title" },
+    { "path": "elements.0.content.layout.children.1.text", "value": "New Text" },
     { "path": "background.value", "value": "#1a1a2e" }
   ],
-  "summary": "Changed title and background color"
+  "summary": "Changed card text and background color"
 }
 
 ## RULES
@@ -88,7 +92,8 @@ Generate minimal JSON patches to modify a slide. Use dot-notation paths.
 3. Never regenerate entire elements when a single property change suffices
 4. For nested objects, merge at the deepest level`;
 
-async function classifyEdit(instruction: string, slideSummaries: string): Promise<ClassificationResult> {
+export async function classifyEdit(instruction: string, slideSummaries: string): Promise<ClassificationResult> {
+
   try {
     const result = await aiGenerateStructured({
       model: 'cheap',
@@ -116,7 +121,7 @@ function getModelForEditType(editType: EditType): 'cheap' | 'medium' | 'main' {
   }
 }
 
-function buildPatchPrompt(slide: Slide, instruction: string, themeConfig?: ThemeConfig): string {
+function buildPatchPrompt(slide: Slide, instruction: string, themeConfig?: ThemeConfig, projectContext?: string): string {
   const parts: string[] = [];
   
   parts.push('## INSTRUCTION');
@@ -136,20 +141,28 @@ function buildPatchPrompt(slide: Slide, instruction: string, themeConfig?: Theme
     parts.push('');
   }
   
+  if (projectContext) {
+    parts.push('## PROJECT CONTEXT');
+    parts.push(projectContext);
+    parts.push('');
+  }
+  
   parts.push('Generate patches now.');
   return parts.join('\n');
 }
 
-async function generatePatches(
+export async function generatePatches(
   slide: Slide,
   instruction: string,
   editType: EditType,
-  themeConfig?: ThemeConfig
+  themeConfig?: ThemeConfig,
+  projectContext?: string
 ): Promise<{ patches: Array<{ path: string; value: any }>; summary: string }> {
+
   const model = getModelForEditType(editType);
   console.log(`[SmartEditor] Generating patches with ${model} model`);
   
-  const prompt = buildPatchPrompt(slide, instruction, themeConfig);
+  const prompt = buildPatchPrompt(slide, instruction, themeConfig, projectContext);
   
   const result = await aiGenerateStructured({
     model,
@@ -166,7 +179,8 @@ async function generatePatches(
 
 
 
-function applyPatches(slide: Slide, patches: Array<{ path: string; value: any }>): Slide {
+export function applyPatches(slide: Slide, patches: Array<{ path: string; value: any }>): Slide {
+
   const result = JSON.parse(JSON.stringify(slide));
   
   for (const patch of patches) {
@@ -201,12 +215,13 @@ async function smartEditSingleSlide(
     return await regenerateSlide({ slide, instruction, projectContext, themePrompt });
   }
   
-  const { patches } = await generatePatches(slide, instruction, editType, themeConfig);
+  const { patches } = await generatePatches(slide, instruction, editType, themeConfig, projectContext);
   return applyPatches(slide, patches);
 }
 
 // Internal helper for legacy support/single slide ops
-async function regenerateSlide(req: { slide: Slide, instruction: string, projectContext?: string, themePrompt?: string }): Promise<Slide> {
+export async function regenerateSlide(req: { slide: Slide, instruction: string, projectContext?: string, themePrompt?: string }): Promise<Slide> {
+
   console.log('[SmartEditor] Regenerating slide with main model');
   
   const redesignPrompt = `

@@ -102,7 +102,9 @@ export type AIJobResult = {
     elements?: SlideElement[];
     patches?: any[];
     explanation?: string;
+    isPartial?: boolean;
     metadata?: {
+        presentationTitle?: string;
         summary?: string;
         generatedAt?: string;
         themeName?: string;

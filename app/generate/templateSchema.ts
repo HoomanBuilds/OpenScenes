@@ -35,7 +35,9 @@ const SlideSchema = z.object({
 
 export const TemplateSchema = z.object({
     name: z.string(),
+    globalPrompt: z.string().optional(),
     slides: z.array(SlideSchema),
+    metadata: z.record(z.string(), z.any()).optional(),
 }).passthrough();
 
 export type ImportedTemplate = z.infer<typeof TemplateSchema>;

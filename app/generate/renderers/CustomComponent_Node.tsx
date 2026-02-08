@@ -3,7 +3,7 @@ import { motion, useAnimation, useTransform, useMotionTemplate } from 'framer-mo
 import { CustomNode, AnimationConfig, DesignTokens } from './CustomComponent_Types';
 import { 
     COMPONENT_MAP, DANGEROUS_TAGS, VOID_ELEMENTS, 
-    sanitizeProps, resolveToken, resolveTokensInObj, resolveTarget 
+    sanitizeProps, resolveToken, resolveTokensInObj, resolveTarget, sanitizeEasing, sanitizeTransition 
 } from './CustomComponent_Utils';
 
 interface RenderNodeProps {
@@ -22,7 +22,8 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
     const { id, tag, className, style, text, children, props, states, a11y, effects, typing } = node;
     const controls = useAnimation();
     const elementRef = React.useRef<HTMLElement | null>(null);
-    const [displayText, setDisplayText] = React.useState(text || "");
+    const initialText = text || (typeof children === 'string' ? children : "");
+    const [displayText, setDisplayText] = React.useState(initialText);
 
     if (DANGEROUS_TAGS.includes(tag.toLowerCase())) return null;
 
@@ -45,8 +46,8 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
     
     initialAnimProps = resolveTokensInObj(initialAnimProps, tokens);
 
-    if (initialAnimProps.transition && initialAnimProps.transition.repeat === 'Infinity') {
-        initialAnimProps.transition.repeat = Infinity;
+    if (initialAnimProps.transition) {
+        initialAnimProps.transition = sanitizeTransition(initialAnimProps.transition);
     }
 
     const myOverrides = (id && overrides) ? overrides[id] : null;
@@ -217,9 +218,9 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
         );
     }
 
-    const childElements = children?.map((child, index) => (
+    const childElements = Array.isArray(children) ? children.map((child, index) => (
         <RenderNode key={index} node={child} animationMap={animationMap} registry={registry} rootRef={rootRef} onInteraction={onInteraction} tokens={tokens} mouse={mouse} focusedId={focusedId} overrides={overrides} />
-    ));
+    )) : null;
 
     let Component: any = tag;
     if (COMPONENT_MAP[tag]) {

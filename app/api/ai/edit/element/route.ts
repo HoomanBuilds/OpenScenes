@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
         elements: body.elements as SlideElement[],
         instruction: body.instruction,
         themePrompt: body.themePrompt,
+        projectSummary: body.projectSummary,
       },
       createdAt: Date.now(),
     };

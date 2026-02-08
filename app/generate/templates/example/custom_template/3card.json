@@ -5,7 +5,7 @@
       {
         "id": "slide-smart-1",
         "type": "default",
-        "duration": 500,
+        "duration": 5000,
         "background": {
           "type": "color",
           "value": "#000000"

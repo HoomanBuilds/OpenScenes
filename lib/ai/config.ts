@@ -1,9 +1,9 @@
 export const AI_MODELS = {
-  main: 'gemini-3.0-flash',
-  creative: 'gemini-3.0-pro',
-  cheap: 'gemini-3.0-flash',
-  medium: 'gemini-3.0-flash',
-  validator: 'gemini-3.0-flash',
+  main: 'gemini-3-flash-preview',
+  creative: 'gemini-3-flash-preview',
+  cheap: 'gemini-3-flash-preview',
+  medium: 'gemini-3-flash-preview',
+  validator: 'gemini-3-flash-preview',
 } as const;
 
 export const AI_IMAGE_CONFIG = {
@@ -18,7 +18,7 @@ export const AI_LIMITS = {
   MAX_SLIDES: 12,
   MAX_ASSETS_PER_RENDER: 5,
   MAX_ELEMENTS_PER_SLIDE: 20,
-  SUMMARIZE_THRESHOLD_CHARS: 8000,
+  SUMMARIZE_THRESHOLD_CHARS: 2000,
   BATCH_SIZE: 3,
   MAX_RETRIES: 2,
   MAX_PATCHES_PER_EDIT: 20,

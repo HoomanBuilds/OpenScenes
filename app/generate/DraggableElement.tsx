@@ -103,10 +103,12 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
             fontSize: fontSize,
             fontWeight: element.fontWeight || 'normal',
             fontFamily: (element.fontFamily && element.fontFamily !== 'Inter') ? `${element.fontFamily}, sans-serif` : 'Inter, sans-serif',
-            lineHeight: (element.type === 'headline' || element.type === 'subheadline' || element.type === 'text') ? 1 : (element.lineHeight || 1.5),
+            lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : (element.lineHeight || 1.1),
             textAlign: element.textAlign || 'left',
             backgroundColor: element.type === 'shape' ? (element.color || '#3b82f6') : undefined,
-            borderRadius: (element.type === 'shape' || element.type === 'video' || element.type === 'image') ? `${element.borderRadius || 0}px` : undefined,
+            borderRadius: (element.type === 'shape' || element.type === 'video' || element.type === 'image') 
+                ? (element.content?.toLowerCase() === 'circle' ? '50%' : `${element.borderRadius || 0}px`) 
+                : undefined,
             borderWidth: (element.type === 'shape' || element.type === 'image' || element.type === 'video') ? (element.strokeWidth || 0) : undefined,
             borderColor: (element.type === 'shape' || element.type === 'image' || element.type === 'video') ? (element.strokeColor || 'transparent') : undefined,
             borderStyle: (element.strokeWidth && element.strokeWidth > 0) ? 'solid' : 'none',

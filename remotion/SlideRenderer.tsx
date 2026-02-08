@@ -79,10 +79,12 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({ element, relativeFram
         fontSize: element.fontSize || 16,
         fontWeight: element.fontWeight || 'normal',
         fontFamily: element.fontFamily || 'Inter, sans-serif',
-        lineHeight: element.lineHeight || 1.5,
+        lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : (element.lineHeight || 1.2),
         textAlign: element.textAlign || 'left',
         backgroundColor: element.type === 'shape' ? (element.color || '#3b82f6') : undefined,
-        borderRadius: (element.type === 'shape' || element.type === 'image') ? (element.borderRadius || 0) : undefined,
+        borderRadius: (element.type === 'shape' || element.type === 'image') 
+            ? (element.content?.toLowerCase() === 'circle' ? '50%' : (element.borderRadius || 0)) 
+            : undefined,
         borderWidth: element.strokeWidth || 0,
         borderColor: element.strokeColor || 'transparent',
         borderStyle: (element.strokeWidth || 0) > 0 ? 'solid' : 'none',
@@ -231,7 +233,7 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                     fontSize: element.fontSize || 48,
                     fontWeight: element.fontWeight || 'bold',
                     fontFamily: getFontFamily(element.fontFamily || 'Inter'),
-                    lineHeight: element.lineHeight || 1.1,
+                    lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : (element.lineHeight || 1.1),
                     textAlign: element.textAlign || 'left',
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
@@ -248,7 +250,7 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                     fontSize: element.fontSize || 24,
                     fontWeight: element.fontWeight || 'normal',
                     fontFamily: getFontFamily(element.fontFamily || 'Inter'),
-                    lineHeight: element.lineHeight || 1.3,
+                    lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : (element.lineHeight || 1.375),
                     textAlign: element.textAlign || 'left',
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
@@ -298,16 +300,6 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
         case 'shape':
             const isDecorative = ['rect', 'circle', 'square'].includes((element.content || '').toLowerCase());
             if (isDecorative) {
-                if (element.content?.toLowerCase() === 'circle') {
-                    return (
-                        <div style={{
-                            width: '100%',
-                            height: '100%',
-                            borderRadius: '50%',
-                            backgroundColor: element.color || '#3b82f6',
-                        }} />
-                    );
-                }
                 return null;
             }
             return (

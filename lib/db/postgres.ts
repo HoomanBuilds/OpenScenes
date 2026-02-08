@@ -110,10 +110,25 @@ export async function updateJobStatus(
     values.push(extra.progress);
   }
 
-  await pool.query(
-    `UPDATE render_jobs SET ${sets.join(', ')} WHERE job_id = $1`,
-    values
-  );
+  let retries = 3;
+  while (retries > 0) {
+    try {
+      await pool.query(
+        `UPDATE render_jobs SET ${sets.join(', ')} WHERE job_id = $1`,
+        values
+      );
+      return;
+    } catch (err: any) {
+      retries--;
+      const isTimeout = err.message?.includes('timeout') || err.message?.includes('terminated');
+      if (retries === 0 || !isTimeout) {
+        console.error(`[DB] updateJobStatus failed for ${jobId}:`, err);
+        throw err;
+      }
+      console.warn(`[DB] updateJobStatus failed, retrying... (${retries} left): ${err.message}`);
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
 }
 
 export { pool };

@@ -157,6 +157,7 @@ export interface EditOutput {
 }
 
 export interface GenerationMetadata {
+  presentationTitle?: string;
   topic?: string;
   intent?: string;
   summary?: string;
@@ -171,9 +172,10 @@ export interface GenerationMetadata {
 }
 
 export interface PipelineInput {
-  jobId?: string;
+  jobId: string;
   userQuery: string;
   themeName: string;
+  onProgress?: (data: Partial<PipelineOutput>) => void;
   uploadedFileContent?: string;
   urlContent?: string;
   requestedSlideCount?: number;

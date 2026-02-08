@@ -82,7 +82,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                             fontSize: el.fontSize || 16,
                             fontWeight: el.fontWeight || 'normal',
                             fontFamily: el.fontFamily ? `${el.fontFamily}, sans-serif` : 'Inter, sans-serif',
-                            lineHeight: el.lineHeight || 1.4,
+                            lineHeight: (el.lineHeight && el.lineHeight > 5) ? `${el.lineHeight}px` : (el.lineHeight || 1.4),
                             textAlign: el.textAlign || 'left',
                             backgroundColor: el.type === 'shape' ? (el.color || '#3b82f6') : undefined,
                             borderRadius: (el.type === 'shape' || el.type === 'image') ? `${el.borderRadius || 0}px` : undefined,
@@ -97,7 +97,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                          {el.type === 'headline' && <h1 className="leading-[1.1] drop-shadow-md text-balance">{el.content as string}</h1>}
                          {el.type === 'subheadline' && <p className="leading-snug drop-shadow-sm text-balance opacity-90">{el.content as string}</p>}
                          {el.type === 'text' && (
-                             <div className="leading-relaxed prose prose-invert prose-lg max-w-none drop-shadow-sm text-pretty">
+                             <div className="leading-relaxed drop-shadow-sm text-pretty w-full h-full">
                                  {el.textFormat === 'markdown' ? (
                                      <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkBreaks]}>
                                          {el.content as string}

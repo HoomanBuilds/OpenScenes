@@ -103,6 +103,21 @@ function createSlideSummary(slide: Slide): string {
   return parts.join('\n');
 }
 
+function formatAssetsForPrompt(sceneId: string, assetMetadata?: Map<string, AssetMetadata>): string {
+  if (!assetMetadata) return '';
+  const relevantAssets: string[] = [];
+  
+  for (const [key, asset] of assetMetadata.entries()) {
+    if (asset.targetSlideId === sceneId) {
+      relevantAssets.push(`- ${key}: ${asset.url} (Prompt: ${asset.prompt})`);
+    }
+  }
+  
+  return relevantAssets.length > 0 
+    ? relevantAssets.join('\n') 
+    : '';
+}
+
 export async function generateSlides(
   input: SlideGeneratorInput
 ): Promise<SlideGeneratorOutput> {
@@ -110,15 +125,15 @@ export async function generateSlides(
   const freeFormScenes: SceneGuidance[] = [];
   const freeFormIndices: number[] = [];
 
-  for (let i = 0; i < input.sceneGuidance.length; i++) {
-    const scene = input.sceneGuidance[i];
+  const slidePromises = input.sceneGuidance.map(async (scene, i) => {
     if (scene.mode === 'custom') {
         try {
-            console.log(`[SlideGenerator] Generating custom component for scene ${scene.sceneId}`);
-            
+            const assetsContext = formatAssetsForPrompt(scene.sceneId, input.assetMetadata);
             const customPrompt = buildCustomComponentPrompt(
                 scene.slidePrompt, 
-                input.themePrompt || 'Modern Dark Theme'
+                input.themePrompt || 'Modern Dark Theme',
+                input.commonPrompt,
+                assetsContext
             );
 
             if (input.jobId) {
@@ -132,11 +147,11 @@ export async function generateSlides(
                 agentType: 'generator'
             });
 
-            slides[i] = {
+            return {
                 id: scene.sceneId || `slide-${i}`,
                 type: 'custom',
                 duration: scene.durationMs,
-                background: { type: 'color', value: '#0a0a0a' },
+                background: { type: 'color' as 'color' | 'image' | 'gradient', value: '#0a0a0a' },
                 elements: [
                     {
                         id: `custom-${Math.random().toString(36).substr(2, 9)}`,
@@ -150,26 +165,51 @@ export async function generateSlides(
                     }
                 ]
             };
-            continue; 
-
         } catch (e) {
             console.warn(`[SlideGenerator] Custom generation failed for ${scene.sceneId}`, e);
-            freeFormScenes.push(scene);
-            freeFormIndices.push(i);
+            return null;
+        }
+    } 
+    
+    if (scene.mode === 'generative') {
+        try {
+            const prompt = buildSlideGeneratorPrompt({
+                ...input,
+                sceneGuidance: [scene]
+            });
+            if (input.jobId) await logger.debug.prompt(input.jobId, `slide-${i}`, prompt, SLIDE_GENERATOR_SYSTEM_PROMPT);
+
+            const result = await aiGenerateJSON({
+                model: 'main',
+                systemPrompt: SLIDE_GENERATOR_SYSTEM_PROMPT,
+                prompt,
+                agentType: 'generator',
+            });
+            
+            let slide: Slide;
+            if (Array.isArray(result)) slide = result[0] as Slide;
+            else if (result && typeof result === 'object' && 'slides' in result) slide = (result as { slides: Slide[] }).slides[0];
+            else slide = result as Slide;
+
+            return validateSlide(slide, i);
+        } catch (error) {
+            console.error(`[SlideGenerator] Standard generation failed for slide ${i}:`, error);
         }
     }
-    else if (scene.mode === 'component' && scene.componentId) {
+    
+    if (scene.mode === 'component' && scene.componentId) {
         try {
-            console.log(`[SlideGenerator] Component mode for ${scene.componentId}`);
-            
             const componentExample = COMPONENT_REGISTRY[scene.componentId];
             const componentContext = componentExample 
                 ? `\n\nREFERENCE COMPONENT JSON:\n${JSON.stringify(componentExample).slice(0, 5000)}... (truncated)` 
                 : '';
 
+            const assetsContext = formatAssetsForPrompt(scene.sceneId, input.assetMetadata);
             const customPrompt = buildCustomComponentPrompt(
                 `STRICTLY based on component '${scene.componentId}'. ${scene.slidePrompt}. ${componentContext}`, 
-                input.themePrompt || 'Modern Dark Theme'
+                input.themePrompt || 'Modern Dark Theme',
+                input.commonPrompt,
+                assetsContext
             );
 
             if (input.jobId) {
@@ -183,11 +223,11 @@ export async function generateSlides(
                  agentType: 'generator'
              });
              
-             slides[i] = {
+             return {
                 id: scene.sceneId || `slide-${i}`,
                 type: 'custom', 
                 duration: scene.durationMs,
-                background: { type: 'color', value: '#0a0a0a' },
+                background: { type: 'color' as 'color' | 'image' | 'gradient', value: '#0a0a0a' },
                 elements: [
                     {
                         id: `custom-${Math.random().toString(36).substr(2, 9)}`,
@@ -201,36 +241,23 @@ export async function generateSlides(
                     }
                 ]
             };
-            console.log(`[SlideGenerator] Component slide added at index ${i}: ${slides[i]?.id}`);
-            continue;
-            
         } catch (e) {
-             console.error(`[SlideGenerator] CUSTOM MODE FAILED for Scene ${scene.sceneId}. Falling back to Template.`, e);
-             freeFormScenes.push(scene);
-             freeFormIndices.push(i);
+             console.error(`[SlideGenerator] COMPONENT MODE FAILED for Scene ${scene.sceneId}`, e);
+             return null;
         }
     }
-    else {
-       freeFormScenes.push(scene);
-       freeFormIndices.push(i);
-    }
-  }
 
-  if (freeFormScenes.length > 0) {
-      const prompt = buildSlideGeneratorPrompt({
-          ...input,
-          sceneGuidance: freeFormScenes
-      });
+    // Default or fallback to standard mode
+    try {
+        const prompt = buildSlideGeneratorPrompt({
+            ...input,
+            sceneGuidance: [scene]
+        });
 
-      if (input.jobId) {
-          const batchId = freeFormScenes[0].sceneIndex;
-          await logger.debug.prompt(input.jobId, `batch-slides-${batchId}`, prompt);
-      }
+        if (input.jobId) {
+            await logger.debug.prompt(input.jobId, `slide-${i}`, prompt);
+        }
 
-      console.log(`[SlideGenerator] Executing BATCH GENERATION for ${freeFormScenes.length} slides.`);
-      console.log(`[SlideGenerator] Batch includes scenes: ${freeFormScenes.map(s => s.sceneId).join(', ')}`);
-
-      try {
         const result = await aiGenerateJSON({
           model: 'main',
           systemPrompt: SLIDE_GENERATOR_SYSTEM_PROMPT,
@@ -238,48 +265,44 @@ export async function generateSlides(
           agentType: 'generator',
         });
         
-        let generatedFromBatch: Slide[];
+        let slide: Slide;
         if (Array.isArray(result)) {
-          generatedFromBatch = result as Slide[];
+            slide = result[0] as Slide;
         } else if (result && typeof result === 'object' && 'slides' in result) {
-          generatedFromBatch = (result as { slides: Slide[] }).slides;
+            slide = (result as { slides: Slide[] }).slides[0];
         } else {
-          throw new Error('Unexpected response format - expected array of slides');
+            slide = result as Slide;
         }
 
-        generatedFromBatch.forEach((slide, idx) => {
-            const originalIndex = freeFormIndices[idx];
-            slides[originalIndex] = validateSlide(slide, originalIndex);
-        });
+        return validateSlide(slide, i);
+    } catch (error) {
+        console.error(`[SlideGenerator] Generation failed for slide ${i}, creating placeholder:`, error);
+        return {
+            id: scene.sceneId || `slide-${i}`,
+            type: scene.slideType as any || 'default',
+            duration: scene.durationMs || 5000,
+            background: { type: 'color' as 'color' | 'image' | 'gradient', value: '#0a0a0a' },
+            elements: [
+                {
+                    id: `placeholder-headline-${i}`,
+                    type: 'headline',
+                    content: scene.intent || 'Slide Content',
+                    x: 100,
+                    y: 200,
+                    width: 800,
+                    height: 100,
+                    fontSize: 48,
+                    textColor: '#ffffff',
+                    textAlign: 'center' as any,
+                    zIndex: 10,
+                }
+            ]
+        };
+    }
+  });
 
-      } catch (error) {
-          console.error(`[SlideGenerator] Batch generation failed, creating placeholder slides:`, error);
-          freeFormScenes.forEach((scene, idx) => {
-              const originalIndex = freeFormIndices[idx];
-              slides[originalIndex] = {
-                  id: scene.sceneId || `slide-${originalIndex}`,
-                  type: scene.slideType as any || 'default',
-                  duration: scene.durationMs || 5000,
-                  background: { type: 'color', value: '#0a0a0a' },
-                  elements: [
-                      {
-                          id: `placeholder-headline-${originalIndex}`,
-                          type: 'headline',
-                          content: scene.intent || 'Slide Content',
-                          x: 100,
-                          y: 200,
-                          width: 800,
-                          height: 100,
-                          fontSize: 48,
-                          textColor: '#ffffff',
-                          textAlign: 'center' as any,
-                          zIndex: 10,
-                      }
-                  ]
-              };
-          });
-      }
-  }
+  const generatedSlides = await Promise.all(slidePromises);
+  generatedSlides.forEach(s => { if(s) slides.push(s); });
 
   console.log(`[SlideGenerator] Before filter: slides array length=${slides.length}, defined entries=${slides.filter(Boolean).length}`);
   slides.forEach((s, i) => { if(s) console.log(`  [${i}] ${s.id}`); });

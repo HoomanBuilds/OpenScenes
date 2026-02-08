@@ -4,6 +4,7 @@ import type { AIJobStatus, AIJobResult } from '../types';
 interface UseAIStatusOptions {
     pollInterval?: number;
     onComplete?: (result: AIJobResult) => void;
+    onProgress?: (result: AIJobResult) => void;
     onError?: (error: string) => void;
 }
 
@@ -71,12 +72,23 @@ export function useAIStatus(jobId: string | null, options: UseAIStatusOptions = 
                 
                 if (!mountedRef.current) return;
 
+                const previousResult = state.result;
+                const newResult = data.result || null;
+
                 setState(prev => ({
                     ...prev,
                     status: data.status,
-                    result: data.result || null,
+                    result: newResult,
                     error: data.error || null
                 }));
+
+                // Trigger onProgress if we have new slides in a processing state
+                if (data.status === 'processing' && newResult?.slides && options.onProgress) {
+                    const prevCount = previousResult?.slides?.length || 0;
+                    if (newResult.slides.length > prevCount) {
+                        options.onProgress(newResult);
+                    }
+                }
 
                 if (data.status === 'completed') {
                     stopPolling();

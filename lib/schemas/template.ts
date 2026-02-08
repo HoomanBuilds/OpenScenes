@@ -21,6 +21,7 @@ export interface Slide {
 }
 
 export interface GenerationMetadata {
+  presentationTitle?: string;
   topic?: string;
   intent?: string;
   summary?: string;

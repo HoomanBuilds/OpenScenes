@@ -35,6 +35,7 @@ export interface AIJob {
     elements: unknown[];
     instruction: string;
     themePrompt?: string;
+    projectSummary?: string;
   };
   createdAt: number;
 }

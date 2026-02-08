@@ -23,12 +23,12 @@ interface ElementRendererProps {
 export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontSizeValue }) => {
     switch (element.type) {
         case 'headline':
-            return <motion.h1 className="leading-[1.1] drop-shadow-md whitespace-pre-wrap w-full min-w-0 break-words text-balance" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight, fontWeight: element.fontWeight }}>{element.content as string}</motion.h1>;
+            return <motion.h1 className="leading-[1.1] drop-shadow-md whitespace-pre-wrap w-full min-w-0 break-words text-balance" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : element.lineHeight, fontWeight: element.fontWeight }}>{element.content as string}</motion.h1>;
         case 'subheadline':
-            return <motion.p className="leading-snug drop-shadow-sm whitespace-pre-wrap w-full min-w-0 break-words text-balance opacity-90" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight, fontWeight: element.fontWeight }}>{element.content as string}</motion.p>;
+            return <motion.p className="leading-snug drop-shadow-sm whitespace-pre-wrap w-full min-w-0 break-words text-balance opacity-90" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : element.lineHeight, fontWeight: element.fontWeight }}>{element.content as string}</motion.p>;
         case 'text':
             return (
-                <motion.div className="leading-relaxed w-full max-w-none min-w-0 break-words drop-shadow-sm text-pretty" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: element.lineHeight, fontWeight: element.fontWeight }}>
+                <motion.div className="w-full max-w-none min-w-0 break-words drop-shadow-sm text-pretty" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : element.lineHeight, fontWeight: element.fontWeight }}>
                     {element.textFormat === 'markdown' ? (
                         <ReactMarkdown 
                             components={useMemo(() => createMarkdownComponents('dark', element.fontFamily, element.textColor || element.color), [element.fontFamily, element.textColor, element.color])} 

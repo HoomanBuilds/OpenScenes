@@ -208,6 +208,7 @@ export const LeftPanel_ElementStyle: React.FC<LeftPanel_ElementStyleProps> = ({ 
                                     <input 
                                         type="checkbox"
                                         checked={element.color === 'transparent'}
+                                        onChange={(e) => onUpdate({ color: e.target.checked ? 'transparent' : (element.textColor || '#ffffff') })}
                                         className="rounded border-zinc-700 bg-zinc-900 accent-purple-600"
                                     />
                                     <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500 group-hover:text-zinc-300">Enable Hollow Mode</span>

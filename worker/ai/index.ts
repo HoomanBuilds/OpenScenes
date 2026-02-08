@@ -6,8 +6,12 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 import { queue, AIJob } from '../../lib/queue/adapter';
 import { redis } from '../../lib/redis/adapter';
 import { run, type PipelineInput, type PipelineOutput } from '../../lib/ai';
-import { generateSlideEdit, applySlideEdit, type SlideEditRequest } from '../../lib/ai/slideEditor';
-import { generateElementEdit, applyElementEdits, type ElementEditRequest } from '../../lib/ai/elementEditor';
+import { 
+  generatePatches, 
+  applyPatches, 
+  classifyEdit, 
+  regenerateSlide 
+} from '../../lib/ai/smartEditor';
 import { initTracing, shutdownTracing } from '../../lib/ai/tracing';
 import { setJobContext, clearJobContext } from '../../lib/ai/adapter';
 import { initDatabase } from '../../lib/db/postgres';
@@ -63,28 +67,35 @@ async function processAIJob(job: AIJob): Promise<void> {
   await updateJobStatus(job.jobId, 'processing');
   
   try {
-    // Handle element-edit jobs
     if (job.type === 'element-edit' && job.elementEditData) {
-      const elementEditRequest: ElementEditRequest = {
-        slideId: job.elementEditData.slideId,
+      const tempSlide: Slide = {
+        id: job.elementEditData.slideId || 'temp-slide',
+        type: 'custom',
+        duration: 5000,
         elements: job.elementEditData.elements as SlideElement[],
-        instruction: job.elementEditData.instruction,
-        themeName: job.themeName,
-        themePrompt: job.elementEditData.themePrompt,
+        background: { type: 'color', value: '#FFFFFF' }
       };
 
-      const editResult = await generateElementEdit(elementEditRequest);
-      const updatedElements = applyElementEdits(elementEditRequest.elements, editResult.patches);
+      const { patches, summary } = await generatePatches(
+        tempSlide,
+        job.elementEditData.instruction,
+        'style', // Default to style for element edits
+        undefined, // No theme config available in this context
+        job.elementEditData.projectSummary
+      );
+      
+      const updatedSlide = applyPatches(tempSlide, patches);
+      const updatedElements = updatedSlide.elements || [];
 
       const duration = Date.now() - startTime;
-      logger.worker.jobComplete(job.jobId, editResult.patches.length, duration);
+      logger.worker.jobComplete(job.jobId, patches.length, duration);
 
       await updateJobStatus(job.jobId, 'completed', {
         result: {
           slideId: job.elementEditData.slideId,
           elements: updatedElements,
-          patches: editResult.patches,
-          explanation: editResult.explanation,
+          patches: patches,
+          explanation: summary,
         },
       });
       return;
@@ -92,17 +103,38 @@ async function processAIJob(job: AIJob): Promise<void> {
 
     // Handle slide-edit jobs
     if (job.type === 'slide-edit' && job.slideEditData) {
-      const slideEditRequest: SlideEditRequest = {
-        slideId: job.slideEditData.slideId,
-        slide: job.slideEditData.slide as Slide,
-        instruction: job.slideEditData.instruction,
-        themeName: job.themeName,
-        themePrompt: job.slideEditData.themePrompt,
-        projectSummary: job.slideEditData.projectSummary,
-      };
+      const slide = job.slideEditData.slide as Slide;
+      const instruction = job.slideEditData.instruction;
+      
+      // Classify the edit
+      const headlineEl = slide.elements?.find(el => el.type === 'headline');
+      const slideSummary = `ID: ${slide.id} | Title: ${headlineEl?.content || 'Untitled'}`;
+      
+      const classification = await classifyEdit(instruction, slideSummary);
+      const editType = classification.editType || 'style';
+      
+      let updatedSlide: Slide;
+      let explanation: string;
 
-      const editResult = await generateSlideEdit(slideEditRequest);
-      const updatedSlide = applySlideEdit(slideEditRequest.slide, editResult);
+      if (editType === 'redesign') {
+        updatedSlide = await regenerateSlide({
+          slide,
+          instruction,
+          themePrompt: job.slideEditData.themePrompt,
+          projectContext: job.slideEditData.projectSummary
+        });
+        explanation = "Regenerated slide design";
+      } else {
+        const result = await generatePatches(
+          slide, 
+          instruction, 
+          editType, 
+          undefined, 
+          job.slideEditData.projectSummary
+        );
+        updatedSlide = applyPatches(slide, result.patches);
+        explanation = result.summary;
+      }
 
       const duration = Date.now() - startTime;
       logger.worker.jobComplete(job.jobId, 1, duration);
@@ -110,8 +142,8 @@ async function processAIJob(job: AIJob): Promise<void> {
       await updateJobStatus(job.jobId, 'completed', {
         result: {
           slide: updatedSlide,
-          editMode: editResult.mode,
-          explanation: editResult.explanation,
+          editMode: editType,
+          explanation: explanation,
         },
       });
       return;
@@ -125,6 +157,18 @@ async function processAIJob(job: AIJob): Promise<void> {
       urlContent: job.urlContent,
       requestedSlideCount: job.requestedSlideCount,
       additionalInstructions: job.additionalInstructions,
+      onProgress: async (partial) => {
+        if (partial.slides) {
+          // Update status with partial results
+          await updateJobStatus(job.jobId, 'processing', {
+            result: {
+              slides: partial.slides,
+              metadata: partial.metadata,
+              isPartial: true
+            }
+          });
+        }
+      }
     };
     
     if (job.type === 'edit' && job.existingSlides) {

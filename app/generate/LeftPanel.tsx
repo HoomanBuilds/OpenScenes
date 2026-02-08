@@ -206,6 +206,8 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
                                     selectedSlide={selectedSlide!}
                                     onUpdateSlideBackground={onUpdateSlideBackground}
                                     onUploadAsset={onUploadAsset}
+                                    onSlideAIEdit={onSlideAIEdit}
+                                    isGenerating={generationStatus === 'generating'}
                                 />
 
                                 <div className="space-y-4 pt-4 border-t-2 border-zinc-900">

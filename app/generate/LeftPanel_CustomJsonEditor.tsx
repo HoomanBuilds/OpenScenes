@@ -657,6 +657,11 @@ const StructureEditor = ({ parsed, onUpdate }: { parsed: any, onUpdate: (p: any)
                              <div className="col-span-2">
                                 <label className="text-[8px] text-zinc-600 uppercase font-black mb-1 block flex justify-between">
                                     <span>Inner Style (JSON)</span>
+                                    {selectedNode.className && selectedNode.style && Object.keys(selectedNode.style).length > 0 && (
+                                        <span className="text-[7px] text-amber-500 font-bold animate-pulse flex items-center gap-0.5">
+                                            <LucideIcons.AlertTriangle size={8} /> STYLE OVERRIDES CLASS
+                                        </span>
+                                    )}
                                 </label>
                                  <textarea className="w-full bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-[10px] text-yellow-300 font-mono resize-y min-h-[40px] focus:border-purple-500 focus:outline-none focus:bg-zinc-900 transition-colors"
                                     placeholder='{ "backgroundColor": "..." }' 

@@ -1,10 +1,10 @@
 import React from 'react';
 import { animate, useMotionValue } from 'framer-motion';
 import { CustomNode, AnimationConfig, DesignTokens, CustomComponentRendererProps } from './CustomComponent_Types';
-import { resolveTarget } from './CustomComponent_Utils';
+import { resolveTarget, sanitizeTransition } from './CustomComponent_Utils';
 import { RenderNode } from './CustomComponent_Node';
 
-export const CustomComponentRenderer: React.FC<CustomComponentRendererProps> = ({ content, scale }) => {
+export const CustomComponentRenderer: React.FC<CustomComponentRendererProps> = ({ content, scale, frame, fps }) => {
     const registry = React.useRef<Record<string, HTMLElement | null>>({});
     const rootRef = React.useRef<HTMLDivElement>(null);
     const signalRef = React.useRef<{ type: string; payload: any } | null>(null);
@@ -31,7 +31,66 @@ export const CustomComponentRenderer: React.FC<CustomComponentRendererProps> = (
         } catch { return null; }
     }, [content]);
 
+    const [overrides, setOverrides] = React.useState<Record<string, any>>({});
+
+    const frameSpecificOverrides = React.useMemo(() => {
+        if (frame === undefined || !parsed || !parsed.timeline) return null;
+        
+        const fpsVal = fps || 30;
+        const seekTime = frame / fpsVal;
+        const results: Record<string, any> = {};
+        let currentTime = 0;
+        if (parsed.animations) {
+            Object.keys(parsed.animations).forEach(id => {
+                results[id] = { ...parsed.animations[id].initial };
+            });
+        }
+
+        // Process timeline
+        parsed.timeline.forEach((step: any) => {
+            const { id, animate, transition, delay = 0, parallel = false, guide } = step;
+            
+            const stepDelay = delay;
+            const stepDuration = transition?.duration || 0.8;
+            
+            const start = currentTime + stepDelay;
+            const end = start + stepDuration;
+
+            if (id && animate) {
+                if (seekTime >= start) {
+                    const progress = Math.min(1, Math.max(0, (seekTime - start) / stepDuration));
+                    // Basic linear interpolation for now, but respect targeting
+                    if (!results[id]) results[id] = {};
+                    
+                    Object.keys(animate).forEach(key => {
+                        const targetVal = animate[key];
+                        const startVal = results[id][key] ?? 0;
+
+                        if (typeof targetVal === 'number' && typeof startVal === 'number') {
+                            results[id][key] = startVal + (targetVal - startVal) * progress;
+                        } else if (progress >= 1) {
+                            results[id][key] = targetVal;
+                        }
+                    });
+                }
+            }
+
+            if (guide && guide.target) {
+                // Handle guide (zoom/camera) similarly if needed
+            }
+
+            if (!parallel) {
+                currentTime = end;
+            } else {
+                currentTime = Math.max(currentTime, start);
+            }
+        });
+
+        return results;
+    }, [parsed, frame, fps]);
+
     React.useEffect(() => {
+        if (frame !== undefined) return; // Use deterministic mode
         if (!parsed || !parsed.timeline || !Array.isArray(parsed.timeline)) return;
 
         let isCancelled = false;
@@ -170,14 +229,18 @@ export const CustomComponentRenderer: React.FC<CustomComponentRendererProps> = (
                      }
                  });
 
-                 try {
-                     const controls = animate(el, resolvedAnim, transition);
-                     if (!parallel && wait) {
-                         await controls.then(() => {}); 
-                     }
-                 } catch (err) {
-                    console.warn("Animation failed", err);
-                 }
+                  const resolvedTransition = sanitizeTransition(transition);
+
+                  const shouldWait = (wait && !parallel) && resolvedTransition.repeat !== Infinity;
+
+                  try {
+                      const controls = animate(el, resolvedAnim, resolvedTransition);
+                      if (shouldWait) {
+                          await controls.then(() => {}); 
+                      }
+                  } catch (err) {
+                     console.warn("Animation failed", err);
+                  }
 
                  stepIndex++;
              }
@@ -218,6 +281,7 @@ export const CustomComponentRenderer: React.FC<CustomComponentRendererProps> = (
                 tokens={tokens}
                 mouse={{ x: mouseX, y: mouseY }}
                 focusedId={focusedId}
+                overrides={frameSpecificOverrides || undefined}
             />
         </div>
     );
