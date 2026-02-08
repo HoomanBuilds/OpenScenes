@@ -13,7 +13,11 @@
     "all": "bash scripts/start-all.sh",
     "infra:up": "docker-compose up -d",
     "infra:down": "docker-compose down",
-    "db:init": "tsx scripts/init-db.ts"
+    "db:init": "tsx scripts/init-db.ts",
+    "test:slide-edit": "tsx scripts/test-slide-edit.ts",
+    "test:slide-edit-scenarios": "tsx scripts/test-slide-edit-scenarios.ts",
+    "test:slide-edit-api-flow": "tsx scripts/test-slide-edit-api-flow.ts",
+    "test:global-edit": "tsx scripts/test-global-edit.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.21",

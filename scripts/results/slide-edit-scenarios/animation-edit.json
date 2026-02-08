@@ -1,0 +1,541 @@
+{
+  "scenario": "animation-edit",
+  "description": "Animation modifications",
+  "instruction": "Add a fade-in animation with 0.5s delay to the title",
+  "original": {
+    "id": "intro-hero",
+    "type": "custom",
+    "duration": 6000,
+    "background": {
+      "type": "color",
+      "value": "#0a0a0a"
+    },
+    "elements": [
+      {
+        "id": "custom-qa3h5syvb",
+        "type": "custom",
+        "x": 0,
+        "y": 0,
+        "width": 1000,
+        "height": 562,
+        "zIndex": 10,
+        "content": {
+          "layout": {
+            "tag": "div",
+            "className": "w-[1000px] h-[562px] bg-slate-950 text-white flex flex-col items-center justify-center font-sans overflow-hidden perspective-[1500px] relative",
+            "children": [
+              {
+                "id": "grid-floor",
+                "tag": "div",
+                "className": "absolute inset-0 opacity-20 origin-bottom",
+                "style": {
+                  "backgroundImage": "linear-gradient(to right, #4f46e530 1px, transparent 1px), linear-gradient(to bottom, #4f46e530 1px, transparent 1px)",
+                  "backgroundSize": "50px 50px",
+                  "transform": "rotateX(70deg) translateY(100px) scale(2.5)"
+                }
+              },
+              {
+                "id": "header-container",
+                "tag": "div",
+                "className": "absolute top-12 flex flex-col items-center z-20",
+                "children": [
+                  {
+                    "tag": "h1",
+                    "id": "main-title",
+                    "className": "text-5xl font-black tracking-tighter bg-gradient-to-b from-white to-zinc-500 bg-clip-text text-transparent",
+                    "text": "WealthSync AI"
+                  },
+                  {
+                    "tag": "div",
+                    "id": "title-underline",
+                    "className": "h-1 w-24 bg-indigo-500 mt-2 rounded-full"
+                  }
+                ]
+              },
+              {
+                "tag": "div",
+                "className": "flex gap-8 w-full max-w-5xl px-12 z-10 mt-12",
+                "children": [
+                  {
+                    "id": "net-worth-card",
+                    "tag": "div",
+                    "className": "flex-[1.5] bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col justify-between h-[280px]",
+                    "children": [
+                      {
+                        "tag": "div",
+                        "children": [
+                          {
+                            "tag": "p",
+                            "className": "text-zinc-500 font-medium uppercase tracking-widest text-xs",
+                            "text": "Total Portfolio"
+                          },
+                          {
+                            "tag": "h2",
+                            "className": "text-2xl font-bold text-indigo-300",
+                            "text": "Net Worth"
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "div",
+                        "className": "flex items-baseline gap-2",
+                        "children": [
+                          {
+                            "tag": "span",
+                            "className": "text-7xl font-black tracking-tighter",
+                            "text": "$1.2M"
+                          },
+                          {
+                            "tag": "span",
+                            "className": "text-emerald-400 font-bold text-xl",
+                            "text": "▲ 8.4%"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "className": "flex-1 flex flex-col gap-6",
+                    "children": [
+                      {
+                        "id": "market-vol-card",
+                        "tag": "div",
+                        "className": "flex-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 flex flex-col justify-center",
+                        "children": [
+                          {
+                            "tag": "p",
+                            "className": "text-zinc-400 text-sm font-semibold mb-1",
+                            "text": "Market Volume"
+                          },
+                          {
+                            "tag": "h3",
+                            "className": "text-4xl font-bold text-white",
+                            "text": "14.2%"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "status-card",
+                        "tag": "div",
+                        "className": "flex-1 bg-indigo-600/20 backdrop-blur-md border border-indigo-500/30 rounded-2xl p-6 flex flex-col justify-center",
+                        "children": [
+                          {
+                            "tag": "p",
+                            "className": "text-indigo-300 text-sm font-semibold mb-1",
+                            "text": "AI Confidence"
+                          },
+                          {
+                            "tag": "h3",
+                            "className": "text-4xl font-bold text-white",
+                            "text": "99.8%"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "animations": {
+            "grid-floor": {
+              "initial": {
+                "opacity": 0,
+                "y": 100
+              }
+            },
+            "main-title": {
+              "initial": {
+                "opacity": 0,
+                "y": -20,
+                "scale": 0.9
+              }
+            },
+            "title-underline": {
+              "initial": {
+                "width": 0,
+                "opacity": 0
+              }
+            },
+            "net-worth-card": {
+              "initial": {
+                "opacity": 0,
+                "x": -60,
+                "rotateY": 30,
+                "scale": 0.9
+              }
+            },
+            "market-vol-card": {
+              "initial": {
+                "opacity": 0,
+                "x": 60,
+                "rotateY": -20
+              }
+            },
+            "status-card": {
+              "initial": {
+                "opacity": 0,
+                "x": 60,
+                "rotateY": -20
+              }
+            }
+          },
+          "timeline": [
+            {
+              "id": "grid-floor",
+              "animate": {
+                "opacity": 0.25,
+                "y": 0
+              },
+              "transition": {
+                "duration": 1.5,
+                "ease": "easeOut"
+              },
+              "parallel": true
+            },
+            {
+              "id": "main-title",
+              "animate": {
+                "opacity": 1,
+                "y": 0,
+                "scale": 1
+              },
+              "transition": {
+                "duration": 0.8,
+                "ease": "backOut"
+              },
+              "parallel": true,
+              "delay": 0.2
+            },
+            {
+              "id": "title-underline",
+              "animate": {
+                "width": 96,
+                "opacity": 1
+              },
+              "transition": {
+                "duration": 0.6
+              },
+              "parallel": true,
+              "delay": 0.6
+            },
+            {
+              "id": "net-worth-card",
+              "animate": {
+                "opacity": 1,
+                "x": 0,
+                "rotateY": 0,
+                "scale": 1
+              },
+              "transition": {
+                "duration": 1,
+                "type": "spring",
+                "stiffness": 60
+              },
+              "parallel": true,
+              "delay": 0.4
+            },
+            {
+              "id": "market-vol-card",
+              "animate": {
+                "opacity": 1,
+                "x": 0,
+                "rotateY": 0
+              },
+              "transition": {
+                "duration": 0.8,
+                "ease": "circOut"
+              },
+              "parallel": true,
+              "delay": 0.7
+            },
+            {
+              "id": "status-card",
+              "animate": {
+                "opacity": 1,
+                "x": 0,
+                "rotateY": 0
+              },
+              "transition": {
+                "duration": 0.8,
+                "ease": "circOut"
+              },
+              "parallel": true,
+              "delay": 0.9
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "edited": {
+    "id": "intro-hero",
+    "type": "custom",
+    "duration": 6000,
+    "background": {
+      "type": "color",
+      "value": "#0a0a0a"
+    },
+    "elements": [
+      {
+        "id": "custom-qa3h5syvb",
+        "type": "custom",
+        "x": 0,
+        "y": 0,
+        "width": 1000,
+        "height": 562,
+        "zIndex": 10,
+        "content": {
+          "layout": {
+            "tag": "div",
+            "className": "w-[1000px] h-[562px] bg-slate-950 text-white flex flex-col items-center justify-center font-sans overflow-hidden perspective-[1500px] relative",
+            "children": [
+              {
+                "id": "grid-floor",
+                "tag": "div",
+                "className": "absolute inset-0 opacity-20 origin-bottom",
+                "style": {
+                  "backgroundImage": "linear-gradient(to right, #4f46e530 1px, transparent 1px), linear-gradient(to bottom, #4f46e530 1px, transparent 1px)",
+                  "backgroundSize": "50px 50px",
+                  "transform": "rotateX(70deg) translateY(100px) scale(2.5)"
+                }
+              },
+              {
+                "id": "header-container",
+                "tag": "div",
+                "className": "absolute top-12 flex flex-col items-center z-20",
+                "children": [
+                  {
+                    "tag": "h1",
+                    "id": "main-title",
+                    "className": "text-5xl font-black tracking-tighter bg-gradient-to-b from-white to-zinc-500 bg-clip-text text-transparent",
+                    "text": "WealthSync AI"
+                  },
+                  {
+                    "tag": "div",
+                    "id": "title-underline",
+                    "className": "h-1 w-24 bg-indigo-500 mt-2 rounded-full"
+                  }
+                ]
+              },
+              {
+                "tag": "div",
+                "className": "flex gap-8 w-full max-w-5xl px-12 z-10 mt-12",
+                "children": [
+                  {
+                    "id": "net-worth-card",
+                    "tag": "div",
+                    "className": "flex-[1.5] bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col justify-between h-[280px]",
+                    "children": [
+                      {
+                        "tag": "div",
+                        "children": [
+                          {
+                            "tag": "p",
+                            "className": "text-zinc-500 font-medium uppercase tracking-widest text-xs",
+                            "text": "Total Portfolio"
+                          },
+                          {
+                            "tag": "h2",
+                            "className": "text-2xl font-bold text-indigo-300",
+                            "text": "Net Worth"
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "div",
+                        "className": "flex items-baseline gap-2",
+                        "children": [
+                          {
+                            "tag": "span",
+                            "className": "text-7xl font-black tracking-tighter",
+                            "text": "$1.2M"
+                          },
+                          {
+                            "tag": "span",
+                            "className": "text-emerald-400 font-bold text-xl",
+                            "text": "▲ 8.4%"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "className": "flex-1 flex flex-col gap-6",
+                    "children": [
+                      {
+                        "id": "market-vol-card",
+                        "tag": "div",
+                        "className": "flex-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 flex flex-col justify-center",
+                        "children": [
+                          {
+                            "tag": "p",
+                            "className": "text-zinc-400 text-sm font-semibold mb-1",
+                            "text": "Market Volume"
+                          },
+                          {
+                            "tag": "h3",
+                            "className": "text-4xl font-bold text-white",
+                            "text": "14.2%"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "status-card",
+                        "tag": "div",
+                        "className": "flex-1 bg-indigo-600/20 backdrop-blur-md border border-indigo-500/30 rounded-2xl p-6 flex flex-col justify-center",
+                        "children": [
+                          {
+                            "tag": "p",
+                            "className": "text-indigo-300 text-sm font-semibold mb-1",
+                            "text": "AI Confidence"
+                          },
+                          {
+                            "tag": "h3",
+                            "className": "text-4xl font-bold text-white",
+                            "text": "99.8%"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "animations": {
+            "grid-floor": {
+              "initial": {
+                "opacity": 0,
+                "y": 100
+              }
+            },
+            "main-title": {
+              "initial": {
+                "opacity": 0,
+                "y": -20,
+                "scale": 0.9
+              }
+            },
+            "title-underline": {
+              "initial": {
+                "width": 0,
+                "opacity": 0
+              }
+            },
+            "net-worth-card": {
+              "initial": {
+                "opacity": 0,
+                "x": -60,
+                "rotateY": 30,
+                "scale": 0.9
+              }
+            },
+            "market-vol-card": {
+              "initial": {
+                "opacity": 0,
+                "x": 60,
+                "rotateY": -20
+              }
+            },
+            "status-card": {
+              "initial": {
+                "opacity": 0,
+                "x": 60,
+                "rotateY": -20
+              }
+            }
+          },
+          "timeline": [
+            {
+              "id": "grid-floor",
+              "animate": {
+                "opacity": 0.25,
+                "y": 0
+              },
+              "transition": {
+                "duration": 1.5,
+                "ease": "easeOut"
+              },
+              "parallel": true
+            },
+            {
+              "id": "main-title",
+              "animate": {
+                "opacity": 1,
+                "y": 0,
+                "scale": 1
+              },
+              "transition": {
+                "duration": 0.8,
+                "ease": "backOut"
+              },
+              "parallel": true,
+              "delay": 0.5
+            },
+            {
+              "id": "title-underline",
+              "animate": {
+                "width": 96,
+                "opacity": 1
+              },
+              "transition": {
+                "duration": 0.6
+              },
+              "parallel": true,
+              "delay": 0.6
+            },
+            {
+              "id": "net-worth-card",
+              "animate": {
+                "opacity": 1,
+                "x": 0,
+                "rotateY": 0,
+                "scale": 1
+              },
+              "transition": {
+                "duration": 1,
+                "type": "spring",
+                "stiffness": 60
+              },
+              "parallel": true,
+              "delay": 0.4
+            },
+            {
+              "id": "market-vol-card",
+              "animate": {
+                "opacity": 1,
+                "x": 0,
+                "rotateY": 0
+              },
+              "transition": {
+                "duration": 0.8,
+                "ease": "circOut"
+              },
+              "parallel": true,
+              "delay": 0.7
+            },
+            {
+              "id": "status-card",
+              "animate": {
+                "opacity": 1,
+                "x": 0,
+                "rotateY": 0
+              },
+              "transition": {
+                "duration": 0.8,
+                "ease": "circOut"
+              },
+              "parallel": true,
+              "delay": 0.9
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "processingTime": 12016,
+  "timestamp": "2026-02-08T23:18:43.124Z"
+}

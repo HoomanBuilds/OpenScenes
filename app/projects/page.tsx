@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -10,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import SlidePreview from '../generate/SlidePreview';
 import { CreateProjectModal } from './CreateProjectModal';
 import { UserMenu } from '../components/UserMenu';
+import { initializeTemplatesIfNeeded } from '@/lib/templates/preexisting';
 
 export default function ProjectsPage() {
     const router = useRouter();
@@ -17,21 +19,23 @@ export default function ProjectsPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const loadProjects = async () => {
+            setLoading(true);
+            let list = await storage.listProjects();
+            
+            await initializeTemplatesIfNeeded(list, storage.saveProject);
+            
+            list = await storage.listProjects();
+            setProjects(list);
+            setLoading(false);
+        };
         loadProjects();
     }, []);
-
-    const loadProjects = async () => {
-        setLoading(true);
-        const list = await storage.listProjects();
-        setProjects(list);
-        setLoading(false);
-    };
-
     const [showCreateModal, setShowCreateModal] = useState(false);
 
     const handleCreateProject = async (name: string, description: string, themeId: string) => {
         const newProject: Project = {
-            id: `proj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            id: `proj_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
             name: name || 'Untitled Project',
             description: description || 'New video generation project',
             createdAt: Date.now(),
@@ -50,9 +54,13 @@ export default function ProjectsPage() {
         e.stopPropagation();
         if (confirm('Are you sure you want to delete this project?')) {
             await storage.deleteProject(id);
-            loadProjects();
+                setLoading(true);
+                const list = await storage.listProjects();
+                setProjects(list);
+                setLoading(false);
         }
     };
+    
 
     return (
         <div className="min-h-screen bg-[#09090b] text-white font-sans selection:bg-purple-500/30 overflow-x-hidden">
