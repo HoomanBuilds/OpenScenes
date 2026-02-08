@@ -28,6 +28,33 @@ function deepMerge(target: any, source: any): any {
   return output;
 }
 
+export function applyPathPatch(obj: any, path: string, value: any): void {
+  const parts = path.split('.');
+  let current = obj;
+  
+  for (let i = 0; i < parts.length - 1; i++) {
+    const part = parts[i];
+    const index = parseInt(part, 10);
+    
+    if (!isNaN(index)) {
+      if (!current[index]) current[index] = {};
+      current = current[index];
+    } else {
+      if (!current[part]) current[part] = {};
+      current = current[part];
+    }
+  }
+  
+  const lastPart = parts[parts.length - 1];
+  const lastIndex = parseInt(lastPart, 10);
+  
+  if (!isNaN(lastIndex)) {
+    current[lastIndex] = value;
+  } else {
+    current[lastPart] = value;
+  }
+}
+
 function applyUpdatePatch(
   slides: Slide[],
   patch: JSONPatch

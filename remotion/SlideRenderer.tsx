@@ -444,6 +444,26 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                 </div>
             );
             
+        case 'icon':
+            const iconName = (element.content as string).split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('');
+            // @ts-ignore
+            const IconComp = LucideIcons[iconName] || LucideIcons[element.content as string] || LucideIcons.HelpCircle;
+            return (
+                <div style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    <IconComp 
+                        size={Math.min(element.width || 32, element.height || 32)} 
+                        color={element.textColor || element.color || 'inherit'}
+                        strokeWidth={element.strokeWidth || 2}
+                    />
+                </div>
+            );
+
         default:
             return null;
     }

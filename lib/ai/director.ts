@@ -16,7 +16,7 @@ import { getDirectorSystemPrompt } from './prompts';
 const SceneGuidanceSchema = z.object({
   sceneIndex: z.number(),
   sceneId: z.string(),
-  mode: z.enum(['component', 'custom', 'template']).describe('Generation mode'),
+  mode: z.enum(['component', 'custom', 'generative']).describe('Generation mode'),
   slideType: z.enum([
     'title', 'problem', 'solution', 'features', 'metrics', 
     'comparison', 'testimonial', 'pricing', 'roadmap', 
@@ -24,20 +24,9 @@ const SceneGuidanceSchema = z.object({
   ]).describe('Categorical type of slide'),
   intent: z.string(),
   durationMs: z.number().min(2000).max(15000),
-  keyContent: z.object({
-    headline: z.string().optional(),
-    subheadline: z.string().optional(),
-    body: z.string().optional(),
-    items: z.array(z.string()).optional(),
-    label: z.string().optional(),
-  }),
-  visualGuidance: z.string().describe('Structural layout instructions (e.g., "Split screen", "Grid", "Hero center")'),
-  animationNotes: z.string().optional(),
-  elementsHint: z.array(z.string()).optional(),
+  slidePrompt: z.string().describe('Detailed, narrative prompt for this specific slide, including visual, animation, and content details.'),
   
   componentId: z.string().optional().describe('ID of the component to use (for component mode)'),
-  templateId: z.string().optional().describe('ID of the template to use (for template mode)'),
-  templateContext: z.string().optional().describe('Instructions for the template filler (if templateId is set)'),
 });
 
 const DirectorOutputSchema = z.object({
@@ -52,7 +41,7 @@ const DirectorOutputSchema = z.object({
     animationStyle: z.enum(['smooth', 'punchy', 'minimal']).optional(),
     pacing: z.enum(['slow', 'moderate', 'fast']).optional(),
   }),
-  commonPrompt: z.string(),
+  commonPrompt: z.string().describe('Global visual and stylistic prompt applied to all slides'),
   globalPrompt: z.string().describe('Global visual prompt for consistency'),
   scenes: z.array(SceneGuidanceSchema),
   batches: z.array(z.object({
@@ -140,29 +129,29 @@ function createBatchesFromScenes(
     if (currentBatch.length === 0) return;
     
     const slideIndices = currentBatch.map(s => s.sceneIndex);
-    const batchPrompt = currentBatch.map(scene => 
-      `Slide ${scene.sceneIndex + 1} (${scene.slideType}): ${scene.intent}`
-    ).join('\n');
+    const batchPrompt = `[BATCH: ${currentBatch[0].mode.toUpperCase()}] Slides ${slideIndices.map(i => i + 1).join(', ')}`;
     
     batches.push({ slides: slideIndices, prompt: batchPrompt });
     currentBatch = [];
   };
 
   for (const scene of scenes) {
-    if (scene.mode === 'custom' || scene.mode === 'component') {
-      flushBatch(); 
+    if (scene.mode === 'custom' || scene.mode === 'generative') {
+      flushBatch();
       
       batches.push({
         slides: [scene.sceneIndex],
-        prompt: `Slide ${scene.sceneIndex + 1} (${scene.slideType}): ${scene.intent} [MODE: ${scene.mode}]`
+        prompt: `[BATCH: ${scene.mode}] Slide ${scene.sceneIndex + 1} - ${scene.slideType}`
       });
       continue;
     }
 
-    currentBatch.push(scene);
-    
-    if (currentBatch.length >= batchSize) {
-      flushBatch();
+    // Component mode: Group them
+    if (scene.mode === 'component') {
+      currentBatch.push(scene);
+      if (currentBatch.length >= batchSize) {
+        flushBatch();
+      }
     }
   }
 
@@ -293,8 +282,7 @@ export function createMinimalPlan(
     slideType: 'title',
     intent: 'Hook the viewer with the main topic',
     durationMs: 6000,
-    keyContent: { headline: 'Title', subheadline: 'Subtitle' },
-    visualGuidance: 'Center-aligned hero text',
+    slidePrompt: 'A title slide. Center-aligned hero text with a bold, modern font. The background should be dark and abstract. The title should be "Title" and the subtitle "Subtitle".',
   });
   
   const middleCount = Math.max(1, slideCount - 2);
@@ -309,8 +297,7 @@ export function createMinimalPlan(
       slideType: type,
       intent: `Present ${type} content`,
       durationMs: 6000,
-      keyContent: { body: `${type} content` },
-      visualGuidance: 'Follow theme guidelines',
+      slidePrompt: `A ${type} slide. Follow the theme guidelines. Display clear, concise content related to ${type}.`,
     });
   }
   
@@ -321,8 +308,7 @@ export function createMinimalPlan(
     slideType: 'cta',
     intent: 'Call to action',
     durationMs: 6000,
-    keyContent: { headline: 'Get Started', label: 'Learn More' },
-    visualGuidance: 'Bold, centered call to action',
+    slidePrompt: 'A Call to Action slide. Bold, centered text "Get Started" with a "Learn More" label or button style. High contrast and impactful.',
   });
   
   return {

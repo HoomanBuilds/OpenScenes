@@ -1,0 +1,217 @@
+{
+  "id": "generated-comparison",
+  "name": "AI Comparison",
+  "slides": [
+    {
+      "id": "comparison-slide-1",
+      "type": "comparison",
+      "props": {},
+      "duration": 10000,
+      "elements": [
+        {
+          "id": "bg-base",
+          "type": "shape",
+          "content": "rect",
+          "x": 0,
+          "y": 0,
+          "width": 1000,
+          "height": 562,
+          "color": "#111111",
+          "zIndex": 0
+        },
+        {
+          "id": "bg-patch-1",
+          "type": "shape",
+          "content": "circle",
+          "x": 700,
+          "y": -100,
+          "width": 500,
+          "height": 500,
+          "color": "#252525",
+          "opacity": 0.5,
+          "zIndex": 0,
+          "animation": {
+            "type": "pulse",
+            "duration": 8
+          }
+        },
+        {
+          "id": "bg-patch-2",
+          "type": "shape",
+          "content": "circle",
+          "x": -100,
+          "y": 300,
+          "width": 600,
+          "height": 600,
+          "color": "#1a1a1a",
+          "opacity": 0.4,
+          "zIndex": 0
+        },
+        {
+          "id": "main-heading",
+          "type": "headline",
+          "x": 50,
+          "y": 40,
+          "width": 900,
+          "height": 50,
+          "content": "Comparison",
+          "fontSize": 48,
+          "fontWeight": "bold",
+          "textAlign": "center",
+          "textColor": "#ffffff",
+          "zIndex": 10,
+          "letterSpacing": -1,
+          "animation": {
+            "type": "fade",
+            "duration": 0.8
+          }
+        },
+        {
+          "id": "card-left-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 50,
+          "y": 140,
+          "width": 430,
+          "height": 380,
+          "color": "#1c1c1c",
+          "borderRadius": 12,
+          "zIndex": 5,
+          "animation": {
+            "type": "slide",
+            "direction": "up",
+            "duration": 0.6,
+            "delay": 0.2
+          }
+        },
+        {
+          "id": "left-header",
+          "type": "subheadline",
+          "content": "OLD WAY",
+          "x": 90,
+          "y": 170,
+          "width": 350,
+          "height": 30,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "textColor": "#737373",
+          "textAlign": "left",
+          "zIndex": 10,
+          "letterSpacing": 2,
+          "animation": {
+            "type": "fade",
+            "duration": 0.6,
+            "delay": 0.4
+          }
+        },
+        {
+          "id": "left-list",
+          "type": "list",
+          "listType": "disc",
+          "content": "Hours of manual work\nInconsistent designs\nHard to update",
+          "x": 90,
+          "y": 220,
+          "width": 350,
+          "height": 280,
+          "fontSize": 20,
+          "textColor": "#a3a3a3",
+          "lineHeight": 1.8,
+          "zIndex": 10,
+          "animation": {
+            "type": "fade",
+            "duration": 0.6,
+            "delay": 0.5
+          }
+        },
+        {
+          "id": "card-right-bg",
+          "type": "shape",
+          "content": "rect",
+          "x": 520,
+          "y": 140,
+          "width": 430,
+          "height": 380,
+          "color": "#262626",
+          "borderRadius": 12,
+          "zIndex": 5,
+          "border": "1px solid #404040",
+          "animation": {
+            "type": "slide",
+            "direction": "up",
+            "duration": 0.6,
+            "delay": 0.4
+          }
+        },
+        {
+          "id": "right-header",
+          "type": "subheadline",
+          "content": "CLARITY AI",
+          "x": 560,
+          "y": 170,
+          "width": 350,
+          "height": 30,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "textColor": "#ffffff",
+          "textAlign": "left",
+          "zIndex": 10,
+          "letterSpacing": 2,
+          "animation": {
+            "type": "fade",
+            "duration": 0.6,
+            "delay": 0.6
+          }
+        },
+        {
+          "id": "right-list",
+          "type": "list",
+          "listType": "disc",
+          "content": "Instant generation\nPerfect consistency\nOne-click updates",
+          "x": 560,
+          "y": 220,
+          "width": 350,
+          "height": 280,
+          "fontSize": 20,
+          "textColor": "#ffffff",
+          "lineHeight": 1.8,
+          "zIndex": 10,
+          "animation": {
+            "type": "fade",
+            "duration": 0.6,
+            "delay": 0.7
+          }
+        },
+        {
+          "id": "accent-bar",
+          "type": "shape",
+          "content": "rect",
+          "x": 520,
+          "y": 140,
+          "width": 430,
+          "height": 4,
+          "color": "#3b82f6",
+          "borderRadius": 4,
+          "zIndex": 11,
+          "animation": {
+            "type": "scale",
+            "duration": 0.6,
+            "delay": 0.8
+          }
+        }
+      ],
+      "background": {
+        "type": "color",
+        "value": "#0a0a0a"
+      },
+      "transition": {
+        "type": "fade",
+        "duration": 0.5
+      }
+    }
+  ],
+  "metadata": {
+    "generatedAt": "2026-02-07T07:32:31.356Z",
+    "themeName": "modern",
+    "userQuery": "comparison slide"
+  }
+}

@@ -115,7 +115,7 @@ const AnimatedElement: React.FC<{ element: SlideElement; slideKey: string }> = (
                 width: el.width ? el.width : 'auto',
                 height: el.height ? el.height : 'auto',
                 zIndex: el.zIndex || 1,
-                transform: `rotate(${el.rotation || 0}deg)`,
+                rotate: el.rotation || 0,
                 
                 color: el.textColor || el.color || 'inherit',
                 fontSize: el.fontSize || 16,

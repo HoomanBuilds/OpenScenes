@@ -90,6 +90,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                             borderColor: (el.type === 'shape' || el.type === 'image') ? (el.strokeColor || 'transparent') : undefined,
                             borderStyle: (el.strokeWidth && el.strokeWidth > 0) ? 'solid' : 'none',
                             whiteSpace: el.type === 'custom' ? 'normal' : 'pre-wrap',
+                            opacity: el.opacity ?? 1,
                             letterSpacing: el.letterSpacing || 'normal'
                         }}
                     >
@@ -207,6 +208,21 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({ slide, scale = 1, className
                                 </ResponsiveContainer>
                             </div>
                         )}
+
+                        {el.type === 'icon' && (() => {
+                             const iconName = (el.content as string).split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('');
+                             // @ts-ignore
+                             const IconComp = LucideIcons[iconName] || LucideIcons[el.content as string] || LucideIcons.HelpCircle;
+                             return (
+                                 <div className="w-full h-full flex items-center justify-center">
+                                     <IconComp 
+                                        size={Math.min(el.width || 32, el.height || 32)} 
+                                        color={el.textColor || el.color || 'currentColor'}
+                                        strokeWidth={el.strokeWidth || 2}
+                                     />
+                                 </div>
+                             );
+                        })()}
 
                         {el.type === 'custom' && (
                              <CustomComponentRenderer content={el.content} scale={scale} />

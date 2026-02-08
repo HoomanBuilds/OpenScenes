@@ -197,6 +197,19 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontS
                     <CustomComponentRenderer content={element.content} scale={1} />
                 </div>
             );
+        case 'icon':
+            const iconName = (element.content as string).split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('');
+            // @ts-ignore
+            const IconComp = LucideIcons[iconName] || LucideIcons[element.content as string] || LucideIcons.HelpCircle;
+            return (
+                <div className="w-full h-full flex items-center justify-center text-center select-none pointer-events-none">
+                    <IconComp 
+                        size={Math.min(element.width || 32, element.height || 32)} 
+                        color={element.textColor || element.color || 'inherit'}
+                        strokeWidth={element.strokeWidth || 2}
+                    />
+                </div>
+            );
         default:
             return null;
     }

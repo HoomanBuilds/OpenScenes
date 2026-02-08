@@ -1,6 +1,6 @@
-import GalacticGrind from '../../app/generate/templates/example/jsonTemplate/GalacticGrind.json';
-import CosmicCoffee from '../../app/generate/templates/example/jsonTemplate/CosmicCoffee.json';
-import NeoTokyoComics from '../../app/generate/templates/example/jsonTemplate/NeoTokyoComics.json';
+import GalacticGrind from '../../app/generate/templates/example/GalacticGrind.json';
+import CosmicCoffee from '../../app/generate/templates/example/CosmicCoffee.json';
+import NeoTokyoComics from '../../app/generate/templates/example/NeoTokyoComics.json';
 
 // Simple registry mapping component IDs to their full JSON structure
 // This allows the AI to "see" the component it is supposed to copy.

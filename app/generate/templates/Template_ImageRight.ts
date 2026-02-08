@@ -5,7 +5,7 @@ export const Template_ImageRight = (id: string, prompt?: string): Slide => {
         id,
         type: 'Image Right',
         props: {},
-        duration: 90, // 3 seconds at 30fps
+        duration: 300,
         background: { type: 'color', value: '#09090b' },
         elements: [
             { 

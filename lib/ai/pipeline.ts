@@ -4,7 +4,7 @@ import { planPresentation, createMinimalPlan } from './director';
 import { generateSlides, insertAssetUrls } from './slideGenerator';
 import { generateAssets, collectAssetDirectives } from './assetGenerator';
 import { validateSlideJSON, autoFixSlides } from './validator';
-import { generateEditPatches, createEditRequest } from './editor';
+import { smartEditPresentation } from './smartEditor';
 import { applyPatches } from './apply';
 import { logger } from './logger';
 import type {
@@ -237,34 +237,24 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
 }
 
 export async function runEditPipeline(input: PipelineInput): Promise<PipelineOutput> {
-  console.log('[Pipeline] Starting edit pipeline...');
+  console.log('[Pipeline] Starting smart edit pipeline...');
   console.log(`[Pipeline] Instruction: "${input.editInstruction?.slice(0, 100)}..."`);
   
   if (!input.existingSlides || !input.editInstruction) {
     throw new Error('Edit pipeline requires existingSlides and editInstruction');
   }
+
+  const themeConfig = await loadThemeConfig(input.themeName);
   
-  const editRequest = createEditRequest(
-    input.existingSlides,
-    input.editInstruction,
-    input.previousMetadata
-  );
+  const editResult = await smartEditPresentation({
+    existingSlides: input.existingSlides,
+    instruction: input.editInstruction,
+    themePrompt: getThemePrompt(themeConfig, input.themeName),
+    themeConfig: themeConfig || undefined,
+    projectContext: input.previousMetadata?.topic,
+  });
   
-  const editResult = await generateEditPatches(editRequest);
-  
-  console.log(`[Pipeline] Generated ${editResult.patches.length} patches`);
-  
-  let editedSlides: Slide[];
-  
-  try {
-    editedSlides = applyPatches(input.existingSlides, editResult.patches, {
-      validate: true,
-      autoFix: true,
-    });
-  } catch (error) {
-    console.error('[Pipeline] Patch application failed:', error);
-    throw new Error(`Failed to apply edits: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
+  console.log(`[Pipeline] Smart edit complete. Global: ${editResult.isGlobal}, Affected: ${editResult.affectedSlideIds.length}`);
   
   const metadata: GenerationMetadata = {
     ...input.previousMetadata,
@@ -273,13 +263,10 @@ export async function runEditPipeline(input: PipelineInput): Promise<PipelineOut
     userQuery: input.editInstruction,
   };
   
-  console.log(`[Pipeline] Edit complete: ${editedSlides.length} slides`);
-  
   return {
-    slides: editedSlides,
+    slides: editResult.slides,
     metadata,
     isEdit: true,
-    appliedPatches: editResult.patches,
   };
 }
 

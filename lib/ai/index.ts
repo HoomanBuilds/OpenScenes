@@ -1,13 +1,3 @@
-/**
- * AI Pipeline - Public API
- * 
- * Export all public interfaces and functions for the AI generation pipeline.
- */
-
-// ============================================================================
-// MAIN PIPELINE
-// ============================================================================
-
 export {
   runPipeline,
   runEditPipeline,
@@ -15,10 +5,6 @@ export {
   willSummarize,
   estimateSlideCount,
 } from './pipeline';
-
-// ============================================================================
-// CONFIGURATION
-// ============================================================================
 
 export {
   AI_CONFIG,
@@ -34,61 +20,43 @@ export {
   type ModelAlias,
 } from './config';
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
 export type {
-  // Summarizer
   SummarizerInput,
   SummarizerOutput,
   
-  // Director
   DirectorInput,
   DirectorOutput,
   AssetDirective,
   SlideBatch,
   SceneGuidance,
   
-  // Generator
   SlideGeneratorInput,
   SlideGeneratorOutput,
   
-  // Assets
   AssetGeneratorInput,
   AssetGeneratorOutput,
   GeneratedAsset,
   
-  // Validator
   ValidationResult,
   ValidationError,
   
-  // Editor
   EditRequest,
   EditOutput,
   JSONPatch,
   
-  // Pipeline
   PipelineInput,
   PipelineOutput,
   GenerationMetadata,
   
-  // Theme
   ThemeConfig,
   ThemeColors,
   ThemeTypography,
   ThemeRegistry,
   
-  // Prompts
   AgentConfig,
   PromptConfig,
 } from './types';
 
-// ============================================================================
-// INDIVIDUAL MODULES (for advanced usage)
-// ============================================================================
-
-// Summarizer
 export {
   summarizeContent,
   needsSummarization,
@@ -96,29 +64,24 @@ export {
   formatSummaryForPrompt,
 } from './summarizer';
 
-// Director
 export {
   planPresentation,
   createMinimalPlan,
   getSuggestedSlideCount,
 } from './director';
 
-// Slide Generator
 export {
   generateSlides,
   generateSingleSlide,
   insertAssetUrls,
 } from './slideGenerator';
 
-// Asset Generator
 export {
   generateAssets,
   generateSingleAsset,
   collectAssetDirectives,
-  isUsingRealImageGeneration,
 } from './assetGenerator';
 
-// Validator
 export {
   validateSlideJSON,
   autoFixSlides,
@@ -126,26 +89,23 @@ export {
   formatValidationErrors,
 } from './validator';
 
-// Editor
 export {
-  generateEditPatches,
-  createEditRequest,
-  quickTextReplace,
-  quickBackgroundChange,
-  canQuickEdit,
-} from './editor';
+  smartEditSlide,
+  smartEditPresentation,
+} from './smartEditor';
 
-// Apply
+export type {
+  SmartEditRequest,
+  SmartEditResult,
+  EditType,
+} from './smartEditor';
+
 export {
   applyPatches,
   previewPatches,
   reversePatch,
   mergePatches,
 } from './apply';
-
-// ============================================================================
-// ADAPTER (for custom AI calls)
-// ============================================================================
 
 export {
   aiGenerateText,

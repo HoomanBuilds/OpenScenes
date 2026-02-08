@@ -1,4 +1,4 @@
-import { aiGenerateJSON, aiGenerateStructured } from './adapter';
+import { aiGenerateJSON } from './adapter';
 import { AI_LIMITS, CANVAS, SUPPORTED_ELEMENT_TYPES, SUPPORTED_SLIDE_TYPES } from './config';
 import { logger } from './logger';
 import type { 
@@ -8,13 +8,9 @@ import type {
   SceneGuidance,
 } from './types';
 import type { Slide, SlideElement } from '../schemas/template';
-import { TEMPLATE_REGISTRY, TemplateId } from './templates';
-import { ZodType } from 'zod';
 import { 
   SLIDE_GENERATOR_SYSTEM_PROMPT, 
   buildSlideGeneratorPrompt,
-  buildTemplateFillerPrompt,
-  DATA_FILLER_SYSTEM_PROMPT,
   CUSTOM_COMPONENT_SYSTEM_PROMPT,
   buildCustomComponentPrompt
 } from './prompts';
@@ -61,7 +57,7 @@ function validateSlide(slide: Slide, index: number): Slide {
   }
   
   if (typeof validated.duration !== 'number' || validated.duration <= 0) {
-    validated.duration = 180;
+    validated.duration = 5000;
   }
   
   if (!validated.background) {
@@ -107,28 +103,6 @@ function createSlideSummary(slide: Slide): string {
   return parts.join('\n');
 }
 
-async function fillTemplateData(
-    templateId: string, 
-    context: string, 
-    _commonPrompt: string,
-    _themePrompt: string
-): Promise<any> {
-    const template = TEMPLATE_REGISTRY[templateId as TemplateId];
-    if (!template) throw new Error(`Template ${templateId} not found`);
-
-    const prompt = buildTemplateFillerPrompt(context);
-
-    return await aiGenerateStructured({
-        model: 'cheap',
-        schema: template.schema as unknown as ZodType<any>,
-        schemaName: `TemplateData_${templateId}`,
-        schemaDescription: `Content for ${template.name}`,
-        systemPrompt: DATA_FILLER_SYSTEM_PROMPT,
-        prompt,
-        agentType: 'generator'
-    });
-}
-
 export async function generateSlides(
   input: SlideGeneratorInput
 ): Promise<SlideGeneratorOutput> {
@@ -138,45 +112,12 @@ export async function generateSlides(
 
   for (let i = 0; i < input.sceneGuidance.length; i++) {
     const scene = input.sceneGuidance[i];
-
-    if (scene.mode === 'template' && scene.templateId && TEMPLATE_REGISTRY[scene.templateId as TemplateId]) {
-       try {
-         if (input.jobId) {
-             const fillerPrompt = buildTemplateFillerPrompt(scene.templateContext || scene.intent);
-             await logger.debug.prompt(input.jobId, `template-filler-${scene.templateId}-${i}`, fillerPrompt);
-         }
-
-         const data = await fillTemplateData(
-             scene.templateId, 
-             scene.templateContext || scene.intent, 
-             input.commonPrompt,
-             input.themePrompt
-         );
-         
-         const template = TEMPLATE_REGISTRY[scene.templateId as TemplateId];
-         const elements = template.render(data, {}); 
-         
-         slides[i] = {
-             id: scene.sceneId || `slide-${i}`,
-             type: template.slideType,
-             duration: scene.durationMs,
-             background: { type: 'color', value: '#0a0a0a' }, 
-             elements
-         };
-         continue;
-         
-       } catch (error) {
-           console.error(`[SlideGenerator] Template generation failed for ${scene.templateId}`, error);
-           freeFormScenes.push(scene);
-           freeFormIndices.push(i);
-       }
-    } 
-    else if (scene.mode === 'custom') {
+    if (scene.mode === 'custom') {
         try {
             console.log(`[SlideGenerator] Generating custom component for scene ${scene.sceneId}`);
             
             const customPrompt = buildCustomComponentPrompt(
-                `${scene.visualGuidance}. Intent: ${scene.intent}`, 
+                scene.slidePrompt, 
                 input.themePrompt || 'Modern Dark Theme'
             );
 
@@ -227,7 +168,7 @@ export async function generateSlides(
                 : '';
 
             const customPrompt = buildCustomComponentPrompt(
-                `STRICTLY based on component '${scene.componentId}'. ${scene.visualGuidance}. ${componentContext}`, 
+                `STRICTLY based on component '${scene.componentId}'. ${scene.slidePrompt}. ${componentContext}`, 
                 input.themePrompt || 'Modern Dark Theme'
             );
 
@@ -286,6 +227,9 @@ export async function generateSlides(
           await logger.debug.prompt(input.jobId, `batch-slides-${batchId}`, prompt);
       }
 
+      console.log(`[SlideGenerator] Executing BATCH GENERATION for ${freeFormScenes.length} slides.`);
+      console.log(`[SlideGenerator] Batch includes scenes: ${freeFormScenes.map(s => s.sceneId).join(', ')}`);
+
       try {
         const result = await aiGenerateJSON({
           model: 'main',
@@ -309,7 +253,31 @@ export async function generateSlides(
         });
 
       } catch (error) {
-          throw new Error(`Slide generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          console.error(`[SlideGenerator] Batch generation failed, creating placeholder slides:`, error);
+          freeFormScenes.forEach((scene, idx) => {
+              const originalIndex = freeFormIndices[idx];
+              slides[originalIndex] = {
+                  id: scene.sceneId || `slide-${originalIndex}`,
+                  type: scene.slideType as any || 'default',
+                  duration: scene.durationMs || 5000,
+                  background: { type: 'color', value: '#0a0a0a' },
+                  elements: [
+                      {
+                          id: `placeholder-headline-${originalIndex}`,
+                          type: 'headline',
+                          content: scene.intent || 'Slide Content',
+                          x: 100,
+                          y: 200,
+                          width: 800,
+                          height: 100,
+                          fontSize: 48,
+                          textColor: '#ffffff',
+                          textAlign: 'center' as any,
+                          zIndex: 10,
+                      }
+                  ]
+              };
+          });
       }
   }
 

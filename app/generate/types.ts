@@ -41,6 +41,7 @@ export type SlideElement = {
     borderRadius?: number; 
     strokeWidth?: number;
     strokeColor?: string;
+    letterSpacing?: string | number;
     chartType?: 'bar' | 'line' | 'pie' | 'area';
     chartProps?: {
         showGrid?: boolean;

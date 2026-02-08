@@ -96,7 +96,7 @@ const Dashboard: React.FC = () => {
             id: `slide-${Date.now()}`,
             type: 'default',
             props: {},
-            duration: 90,
+            duration: 3000,
             background: { type: 'color', value: '#18181b' },
             elements: []
         };
@@ -133,11 +133,11 @@ const Dashboard: React.FC = () => {
         setSlides(newSlides);
     };
 
-    const handleDurationChange = (slideId: string, deltaFrames: number) => {
+    const handleDurationChange = (slideId: string, deltaMs: number) => {
         saveToHistory();
         setSlides(prev => prev.map(s => {
             if (s.id !== slideId) return s;
-            const newDuration = Math.max(30, s.duration + deltaFrames);
+            const newDuration = Math.max(500, s.duration + deltaMs);
             return { ...s, duration: newDuration };
         }));
     };
@@ -450,8 +450,9 @@ const Dashboard: React.FC = () => {
     };
 
     const handleExport = () => {
-        const totalDurationFrames = slides.reduce((acc, s) => acc + (s.duration || 90), 0);
+        const totalDurationMs = slides.reduce((acc, s) => acc + (s.duration || 3000), 0);
         const fps = 30;
+        const totalDurationFrames = Math.ceil((totalDurationMs / 1000) * fps);
 
         const templateData = {
             name: globalPrompt || 'Untitled Export',

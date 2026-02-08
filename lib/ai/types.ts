@@ -56,25 +56,14 @@ export interface SlideBatch {
 export interface SceneGuidance {
   sceneIndex: number;
   sceneId: string;
-  mode: 'component' | 'custom' | 'template'; // NEW: Explicit mode
-  slideType: string; // Keep for backward compat or categorical description
+  mode: 'component' | 'custom' | 'generative';
+  slideType: string; 
   intent: string;
   durationMs: number;
-  keyContent: {
-    headline?: string;
-    subheadline?: string;
-    body?: string;
-    items?: string[];
-    label?: string;
-  };
-  visualGuidance: string;
-  animationNotes?: string;
-  elementsHint?: string[];
+  slidePrompt: string; // Consolidated prompt for the slide generator
   
   // Mode-specific fields
-  componentId?: string; // For 'component' mode
-  templateId?: string; // For 'template' mode
-  templateContext?: string; // For 'template' mode
+  componentId?: string; 
 }
 
 export interface DirectorOutput {

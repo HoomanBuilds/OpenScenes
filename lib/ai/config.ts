@@ -1,9 +1,9 @@
 export const AI_MODELS = {
-  main: 'gemini-2.5-flash',
-  creative: 'gemini-2.5-pro',
-  cheap: 'gemini-2.5-flash-lite',
-  medium: 'gemini-2.5-flash',
-  validator: 'gemini-2.5-flash-lite',
+  main: 'gemini-3.0-flash',
+  creative: 'gemini-3.0-pro',
+  cheap: 'gemini-3.0-flash',
+  medium: 'gemini-3.0-flash',
+  validator: 'gemini-3.0-flash',
 } as const;
 
 export const AI_IMAGE_CONFIG = {
@@ -119,6 +119,7 @@ export const SUPPORTED_ANIMATION_TYPES = [
   'pop',
   'slide',
   'scale',
+  'pulse',
 ] as const;
 
 export const SUPPORTED_BACKGROUND_TYPES = [
