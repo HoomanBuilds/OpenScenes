@@ -17,6 +17,12 @@ const GeminiIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
+const RemotionIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 100 100" fill="currentColor" className={className}>
+         <path d="M90 50L10 90V10L90 50Z" />
+    </svg>
+);
+
 export default function LandingPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,15 +43,28 @@ export default function LandingPage() {
             <div className="relative z-10 flex flex-col items-center space-y-16 scale-100 md:scale-110">
                 
                 <div className="flex flex-col items-center space-y-6">
-                    {/* Gemini Logo & Text */}
+                    {/* Gemini & Remotion Branding */}
                     <div className="flex flex-col items-center space-y-2 mb-4">
                         <span className="text-xs font-bold tracking-[0.3em] text-zinc-500 uppercase">Built with</span>
-                        <div className="flex items-center space-x-3 relative group cursor-default">
-                             <div className="absolute -inset-4 bg-purple-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                             <GeminiIcon className="w-10 h-10 drop-shadow-[0_0_15px_rgba(147,51,234,0.5)] animate-custom-pulse" />
-                             <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 drop-shadow-lg tracking-tight">
-                                GEMINI 3
-                             </span>
+                        <div className="flex items-center space-x-8">
+                            {/* Gemini */}
+                            <div className="flex items-center space-x-3 relative group cursor-default">
+                                <div className="absolute -inset-4 bg-purple-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                                <GeminiIcon className="w-10 h-10 drop-shadow-[0_0_15px_rgba(147,51,234,0.5)] animate-custom-pulse" />
+                                <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 drop-shadow-lg tracking-tight">
+                                    GEMINI 3
+                                </span>
+                            </div>
+
+                            <span className="text-zinc-700 font-mono text-xl">+</span>
+
+                            {/* Remotion */}
+                            <div className="flex items-center space-x-3 group cursor-default">
+                                <RemotionIcon className="w-8 h-8 text-zinc-100 group-hover:text-blue-400 transition-colors" />
+                                <span className="text-3xl font-black text-zinc-200 tracking-tight group-hover:text-white transition-colors">
+                                    REMOTION
+                                </span>
+                            </div>
                         </div>
                     </div>
 
