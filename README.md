@@ -9,7 +9,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Remotion](https://img.shields.io/badge/Remotion-4.0-purple?style=for-the-badge)](https://remotion.dev/)
-[![Google AI](https://img.shields.io/badge/Gemini-AI-orange?style=for-the-badge&logo=google)](https://ai.google.dev/)
+# Gemini <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg" height="28" /> 3
 
 ![Dashboard Preview](/.github/assets/dashboard.png)
 
@@ -19,16 +19,16 @@
 
 ## ✨ Features
 
-- 🧠 **AI Generation** — Multi-agent pipeline transforms prompts into complete presentations
-- ✏️ **Intelligent Editing** — Natural language editing at global, slide, and element levels
-- 🎥 **Video Export** — Distributed render engine with Remotion
-- 🎨 **Theme Engine** — 10+ curated visual themes with AI-aware styling
-- 📁 **File Context** — Upload documents (PDF, MD, CSV) for AI-informed generation
-- ⚡ **Real-time Preview** — Interactive canvas with drag-and-drop editing
+- **AI Generation** — Multi-agent pipeline transforms prompts into complete presentations
+- **Intelligent Editing** — Natural language editing at global, slide, and element levels
+- **Video Export** — Distributed render engine with Remotion
+- **Theme Engine** — 10+ curated visual themes with AI-aware styling
+- **File Context** — Upload documents (PDF, MD, CSV) for AI-informed generation
+- **Real-time Preview** — Interactive canvas with drag-and-drop editing
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technologies |
 |-------|-------------|
@@ -40,16 +40,16 @@
 
 ---
 
-## ✏️ Tiered Edit System
+## Tiered Edit System
 
 Natural language editing at three granularity levels:
 
 ```mermaid
 flowchart LR
     subgraph "Edit Levels"
-        L1["🌍 Global<br/>All slides"]
-        L2["📄 Slide<br/>Single slide"]
-        L3["🔲 Element<br/>Selected items"]
+        L1["- Global<br/>All slides"]
+        L2["- Slide<br/>Single slide"]
+        L3["- Element<br/>Selected items"]
     end
     
     L1 --> Classifier
@@ -62,13 +62,13 @@ flowchart LR
 ```
 
 **Examples:**
-- 🌍 *"Make all headlines use brand color #6366f1"*
-- 📄 *"Convert this slide to a two-column comparison"*
-- 🔲 *"Make the selected text larger and bold"*
+-  *"Make all headlines use brand color #6366f1"*
+-  *"Convert this slide to a two-column comparison"*
+-  *"Make the selected text larger and bold"*
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TB
@@ -100,7 +100,7 @@ graph TB
     Render --> S3
 ```
 
-### ⚡ Event-Driven Architecture
+### Event-Driven Architecture
 
 The system uses a **distributed, event-driven architecture** for scalable async processing:
 
@@ -136,7 +136,7 @@ sequenceDiagram
 
 ---
 
-## 🧠 AI Pipeline
+## AI Pipeline
 
 ```mermaid
 flowchart LR
@@ -158,7 +158,7 @@ flowchart LR
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ├── app/                    # Next.js App Router
@@ -174,7 +174,7 @@ flowchart LR
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Install dependencies
@@ -200,13 +200,13 @@ npm run worker:render
 
 ---
 
-## 📊 Editor
+## Editor
 
 ![Editor View](/.github/assets/editor.png)
 
 ---
 
-## 📖 Documentation
+## Documentation
 
 - [API Reference](docs/API.md)
 - [AI Worker](worker/ai/README.md)
