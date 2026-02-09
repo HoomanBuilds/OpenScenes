@@ -31,20 +31,23 @@ export default function LandingPage() {
                     <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">System Ready</span>
                 </div>
-                
-                <div className="group relative flex items-center space-x-3 px-4 py-1.5 bg-zinc-900/40 border border-zinc-800 rounded-full transition-all hover:bg-zinc-900/60 hover:border-zinc-700">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/0 via-purple-500/20 to-pink-500/0 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <GeminiIcon className="w-4 h-4 relative" />
-                    <div className="flex flex-col relative">
-                        <span className="text-[8px] font-black text-purple-400 uppercase tracking-tighter leading-none">Built for</span>
-                        <span className="text-[11px] font-black text-white uppercase tracking-tight leading-none">Gemini 3 Hackathon</span>
-                    </div>
-                </div>
             </div>
 
             <div className="relative z-10 flex flex-col items-center space-y-16 scale-100 md:scale-110">
                 
                 <div className="flex flex-col items-center space-y-6">
+                    {/* Gemini Logo & Text */}
+                    <div className="flex flex-col items-center space-y-2 mb-4">
+                        <span className="text-xs font-bold tracking-[0.3em] text-zinc-500 uppercase">Built with</span>
+                        <div className="flex items-center space-x-3 relative group cursor-default">
+                             <div className="absolute -inset-4 bg-purple-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                             <GeminiIcon className="w-10 h-10 drop-shadow-[0_0_15px_rgba(147,51,234,0.5)] animate-custom-pulse" />
+                             <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 drop-shadow-lg tracking-tight">
+                                GEMINI 3
+                             </span>
+                        </div>
+                    </div>
+
                     <div className="flex items-center space-x-2">
                         {['O','P','E','N','S','C',"E" , "N" , "E" , "S"].map((l, i) => (
                             <div key={i} 

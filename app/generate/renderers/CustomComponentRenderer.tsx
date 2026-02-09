@@ -341,8 +341,18 @@ export const CustomComponentRenderer: React.FC<CustomComponentRendererProps> = (
                     continue;
                 }
 
-                const el = registry.current[id];
+                // Poll for element existence (up to 500ms) to allow for render delays
+                let el = registry.current[id];
+                if (!el) {
+                    for (let i = 0; i < 10; i++) {
+                        await new Promise(r => setTimeout(r, 50));
+                        el = registry.current[id];
+                        if (el) break;
+                    }
+                }
+
                  if (!el) {
+                     // If still missing, just skip this animation
                      if (delay && !id) await new Promise(r => setTimeout(r, delay * 1000));
                      stepIndex++;
                      continue;
