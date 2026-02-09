@@ -25,7 +25,7 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
     const initialText = text || (typeof children === 'string' ? children : "");
     const [displayText, setDisplayText] = React.useState(initialText);
 
-    if (DANGEROUS_TAGS.includes(tag.toLowerCase())) return null;
+    if (!tag || DANGEROUS_TAGS.includes(tag.toLowerCase())) return null;
 
     const resolvedStyle: any = resolveTokensInObj(style, tokens);
     const resolvedClassName = resolveToken(className, tokens);

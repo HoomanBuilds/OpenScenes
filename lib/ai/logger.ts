@@ -170,7 +170,7 @@ export const logger = {
     },
     
     generated: (count: number) => {
-      console.log('   ' + symbols.success + ' Generated ' + c.green.bold(String(count)) + ' valid slides');
+      // console.log('   ' + symbols.success + ' Generated ' + c.green.bold(String(count)) + ' valid slides');
     },
   },
 

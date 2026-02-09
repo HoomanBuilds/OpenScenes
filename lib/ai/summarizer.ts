@@ -51,11 +51,31 @@ You receive raw user content and extract ONLY the information relevant for creat
 ## RULES
 1. Extract ONLY factual, usable content. No opinions or interpretations.
 2. Prioritize: Headlines > Stats > Features > Details > Filler
-3. If content is vague, mark content_density: "sparse" and reduce suggestedSlideCount.
+3. If content is vague, mark contentDensity: "sparse" and reduce suggestedSlideCount.
 4. Never fabricate information. If something is missing, omit the field.
 5. Keep keyPoints to max 8 items, ordered by priority.
 6. The summary should be 2-4 sentences max.
-7. suggestedSlideCount should be between 4-12 based on content density.`;
+7. suggestedSlideCount should be between 4-12 based on content density.
+
+## OUTPUT JSON STRUCTURE
+You must output a JSON object with the following structure:
+{
+  "topic": "Main topic string",
+  "intent": "product_launch" | "educational" | "pitch_deck" | "report" | "showcase" | "explainer" | "general",
+  "summary": "Concise summary",
+  "keyPoints": [
+    { "priority": 1, "point": "Key point text", "details": "Optional details" }
+  ],
+  "entities": {
+    "productName": "...",
+    "companyName": "...",
+    "features": ["..."],
+    "metrics": [{ "label": "...", "value": "..." }]
+  },
+  "tone": "professional" | "playful" | "bold" | "minimal" | "corporate",
+  "suggestedSlideCount": number,
+  "contentDensity": "sparse" | "balanced" | "dense"
+}`;
 
 
 export function needsSummarization(input: SummarizerInput): boolean {
@@ -129,16 +149,12 @@ export async function summarizeContent(
   forceRun: boolean = false
 ): Promise<SummarizerOutput> {
   if (!forceRun && !needsSummarization(input)) {
-    console.log('[Summarizer] Content below threshold, using minimal summary');
     return createMinimalSummary(input);
   }
-  
-  console.log('[Summarizer] Running content summarization...');
   
   const prompt = buildSummarizerPrompt(input);
   
   const estimatedTokens = estimateTokens(prompt);
-  console.log(`[Summarizer] Input tokens (est): ${estimatedTokens}`);
   
   if (input.jobId) {
     await logger.debug.prompt(input.jobId, '1-summarizer', prompt);
@@ -154,9 +170,6 @@ export async function summarizeContent(
       prompt,
       agentType: 'summarizer',
     });
-    
-    console.log(`[Summarizer] Extracted topic: "${result.topic}", intent: ${result.intent}`);
-    console.log(`[Summarizer] Key points: ${result.keyPoints.length}, suggested slides: ${result.suggestedSlideCount}`);
     
     return result;
   } catch (error) {

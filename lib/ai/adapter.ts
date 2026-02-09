@@ -66,7 +66,6 @@ export async function aiGenerateText(options: GenerateTextOptions): Promise<stri
   const { model, systemPrompt, prompt, temperature, maxTokens, agentType } = options;
   const modelId = resolveModel(model);
   const startTime = Date.now();
-  console.log(`[Adapter] Generating text with model: ${modelId}`);
   
   try {
     const result = await generateText({
@@ -120,7 +119,7 @@ export async function aiGenerateStructured<T>(options: GenerateStructuredOptions
   const { model, schema, schemaName, schemaDescription, systemPrompt, prompt, temperature, maxTokens, agentType } = options;
   const modelId = resolveModel(model);
   const startTime = Date.now();
-  console.log(`[Adapter] Generating structured object with model: ${modelId}`);
+  // console.log(`[Adapter] Generating structured object with model: ${modelId}`);
 
   try {
     const result = await generateObject({

@@ -24,6 +24,7 @@ function getPlaceholderUrl(keyword?: string): string {
 }
 
 function detectAspectRatio(prompt: string): "1:1" | "16:9" | "9:16" | "4:3" | "3:4" {
+  if (!prompt) return "16:9";
   const lower = prompt.toLowerCase();
   
   if (lower.includes('portrait') || lower.includes('vertical') || lower.includes('mobile') || lower.includes('phone') || lower.includes('tall')) {
