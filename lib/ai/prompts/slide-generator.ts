@@ -55,6 +55,7 @@ Optional properties:
 - fontFamily: string
 - textColor: hex color
 - textAlign: "left" | "center" | "right"
+- verticalAlign: "top" | "center" | "bottom"
 - lineHeight: number
 - color: hex color (for shapes)
 - background: string (gradient or color)
@@ -162,6 +163,13 @@ export function buildSlideGeneratorPrompt(input: SlideGeneratorInput): string {
       parts.push(`  Description: ${meta.prompt}`);
     }
     parts.push('### END AVAILABLE ASSETS ###');
+  }
+
+  if (input.referenceExample) {
+    parts.push('');
+    parts.push('### REFERENCE STRUCTURE EXAMPLE (Technical Blueprint ONLY - DO NOT CLONE LAYOUT) ###');
+    parts.push(input.referenceExample);
+    parts.push('### END REFERENCE EXAMPLE ###');
   }
 
   parts.push('');

@@ -81,8 +81,12 @@ export const resolveTarget = (
     const targetRect = targetEl.getBoundingClientRect();
     const rootRect = rootRef.current.getBoundingClientRect();
 
-    const scaleX = rootRect.width / rootRef.current.offsetWidth;
-    const scale = scaleX || 1;
+    if (rootRect.width === 0 || rootRect.height === 0) return 0;
+    if (targetRect.width === 0 && targetRect.height === 0) return 0;
+
+    const currentWidth = rootRef.current.offsetWidth || rootRect.width || 1;
+    const scaleX = rootRect.width / currentWidth;
+    const scale = (Number.isFinite(scaleX) && scaleX > 0) ? scaleX : 1;
 
     if (type === 'target') {
         const parentEl = element.offsetParent || document.body;

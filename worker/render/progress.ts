@@ -1,9 +1,19 @@
 import cliProgress from 'cli-progress';
 import colors from 'ansi-colors';
 
+const symbols = {
+  success: colors.green('✔'),
+  error: colors.red('✖'),
+  warning: colors.yellow('⚠'),
+  info: colors.blue('ℹ'),
+  bullet: colors.gray('•'),
+};
+
 class ProgressManager {
   private multibar: cliProgress.MultiBar;
   private bars: Map<string, cliProgress.SingleBar>;
+  private originalLog: typeof console.log = console.log.bind(console);
+  private originalError: typeof console.error = console.error.bind(console);
 
   constructor() {
     this.multibar = new cliProgress.MultiBar({
@@ -49,6 +59,46 @@ class ProgressManager {
 
   log(message: string) {
       this.multibar.log(message + '\n');
+  }
+
+  logRaw(message: string) {
+      this.originalLog(message);
+  }
+
+  logErrorRaw(message: string) {
+      this.originalError(colors.red('[Error] ') + message);
+  }
+
+  start() {
+    this.originalLog('');
+    this.originalLog(colors.bgBlue.white.bold(' RENDER WORKER ') + ' ' + colors.blue('Starting up...'));
+    this.divider();
+  }
+
+  ready() {
+    this.divider();
+    this.originalLog(symbols.success + ' ' + colors.blue.bold('Worker Ready') + ' ' + colors.gray('Waiting for jobs...'));
+    this.originalLog('');
+  }
+
+  connection(service: string, status: 'connecting' | 'connected' | 'error', details?: string) {
+    if (status === 'connecting') {
+      this.originalLog(symbols.bullet + ' Connecting to ' + colors.yellow(service) + '...');
+    } else if (status === 'connected') {
+      const detailStr = details ? colors.gray(` (${details})`) : '';
+      this.originalLog(symbols.success + ' Connected to ' + colors.green(service) + detailStr);
+    } else {
+      const detailStr = details ? colors.gray(` (${details})`) : '';
+      this.originalLog(symbols.error + ' Failed to connect to ' + colors.red(service) + detailStr);
+    }
+  }
+
+  divider() {
+    this.originalLog(colors.gray('─'.repeat(50)));
+  }
+
+  blank() {
+    this.originalLog('');
   }
 
   stop() {

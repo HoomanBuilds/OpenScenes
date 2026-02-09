@@ -122,13 +122,14 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
 
                         if (!isTransparent && (bgType === 'color' || bgType === 'gradient')) {
                             return {
-                                background: bgValue,
+                                backgroundImage: bgType === 'gradient' ? bgValue : undefined,
+                                backgroundColor: bgType === 'color' ? bgValue : undefined,
                                 backgroundSize: 'cover'
                             };
                         }
                         
                         return {
-                            background: 'radial-gradient(circle, rgba(255,255,255,0.08) 1.5px, transparent 1.5px)',
+                            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.08) 1.5px, transparent 1.5px)',
                             backgroundSize: '24px 24px',
                             backgroundColor: '#09090b',
                         };

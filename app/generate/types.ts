@@ -60,6 +60,7 @@ export type SlideElement = {
 
 export type Slide = {
     id: string;
+    name?: string;
     type: string;
     props: Record<string, any>;
     duration: number;

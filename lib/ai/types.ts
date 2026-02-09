@@ -56,13 +56,11 @@ export interface SlideBatch {
 export interface SceneGuidance {
   sceneIndex: number;
   sceneId: string;
-  mode: 'component' | 'custom' | 'generative';
+  mode: 'custom' | 'generative';
   slideType: string; 
   intent: string;
   durationMs: number;
-  slidePrompt: string; // Consolidated prompt for the slide generator
-  
-  // Mode-specific fields
+  slidePrompt: string;
   componentId?: string; 
 }
 
@@ -92,6 +90,7 @@ export interface SlideGeneratorInput {
   previousSlideSummary?: string;
   assetMetadata?: Map<string, AssetMetadata>;
   themeConfig?: ThemeConfig;
+  referenceExample?: string;
   jobId?: string;
 }
 

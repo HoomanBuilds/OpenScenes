@@ -51,42 +51,12 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
     }
 
     const myOverrides = (id && overrides) ? overrides[id] : null;
-    const resolvedOverrides = React.useMemo(() => {
-        if (!myOverrides) return null;
-        
-        const resolveValue = (key: string, val: any) => {
-            if (typeof val === 'string' && val.startsWith('target:')) {
-                const targetId = val.split(':')[1];
-                const targetEl = registry.current[targetId];
-                const myEl = elementRef.current;
-                
-                if (targetEl && myEl && rootRef.current) {
-                     const parentEl = myEl.offsetParent || document.body;
-                     const targetRect = targetEl.getBoundingClientRect();
-                     const parentRect = parentEl.getBoundingClientRect();
-                     const myRect = myEl.getBoundingClientRect();
-                     const rootDOM = rootRef.current;
-    
-                     const scaleX = rootDOM.getBoundingClientRect().width / rootDOM.offsetWidth;
-                     const scale = scaleX || 1;
-                     
-                     if (key === 'x') {
-                         return ((targetRect.left - parentRect.left + (targetRect.width / 2)) - (myRect.width / 2)) / scale;
-                     } else if (key === 'y') {
-                         return ((targetRect.top - parentRect.top + (targetRect.height / 2)) - (myRect.height / 2)) / scale;
-                     }
-                }
-                return 0; 
-            }
-            return val;
-        };
 
-        const resolved = { ...myOverrides };
-        Object.keys(resolved).forEach(key => {
-            resolved[key] = resolveValue(key, resolved[key]);
-        });
-        return resolved;
-    }, [myOverrides, registry, rootRef, elementRef.current]); 
+    React.useEffect(() => {
+        if (id && elementRef.current) {
+            registry.current[id] = elementRef.current;
+        }
+    }, [id]);
 
     React.useEffect(() => {
         if (!typing || !text) {
@@ -264,9 +234,9 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
         ...sanitizeProps(props),
         ...interactionProps,
         ...a11yProps,
-        initial: resolvedOverrides ? false : initialAnimProps.initial, // Disable initial if overrides active
-        animate: resolvedOverrides || controls, 
-        transition: resolvedOverrides ? { duration: 0 } : initialAnimProps.transition, // Snap if override
+        initial: myOverrides ? false : initialAnimProps.initial, 
+        animate: myOverrides || controls, 
+        transition: myOverrides ? { duration: 0 } : initialAnimProps.transition,
         ref: (el: HTMLElement | null) => {
             elementRef.current = el;
             if (id && el) registry.current[id] = el;

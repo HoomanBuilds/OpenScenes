@@ -25,24 +25,28 @@ async function handleJob(job: RenderJob): Promise<void> {
 import { progressManager } from './progress';
 
 async function main() {
-  console.log('Render Worker starting...');
+  progressManager.start();
   
-  // Handle graceful shutdown
   process.on('SIGINT', () => {
-      console.log('\nShutting down worker...');
+      progressManager.blank();
+      progressManager.divider();
+      console.log('Shutting down worker...');
       progressManager.stop();
       process.exit(0);
   });
 
   try {
     progressManager.captureConsole();
-    progressManager.log('Initializing database...');
+    
+    progressManager.connection('Database', 'connecting');
     await initDatabase();
+    progressManager.connection('Database', 'connected');
     
-    await queue.connect();
-    progressManager.log('Connected to RabbitMQ');
+    progressManager.connection('RabbitMQ', 'connecting');
+    const rabbitUrl = await queue.connect();
+    progressManager.connection('RabbitMQ', 'connected', rabbitUrl);
     
-    progressManager.log('Waiting for render jobs...');
+    progressManager.ready();
     await queue.consumeRenderJobs(handleJob);
     
   } catch (error) {

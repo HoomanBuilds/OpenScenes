@@ -11,6 +11,7 @@ export interface SlideElement {
 
 export interface Slide {
   id: string;
+  name?: string;
   type: string;
   duration: number;
   elements?: SlideElement[];

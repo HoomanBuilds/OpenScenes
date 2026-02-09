@@ -179,7 +179,6 @@ export async function processRenderJob(job: RenderJob): Promise<ProcessResult | 
           try {
             await updateJobStatus(job.jobId, 'processing', { progress: percent });
           } catch (err) {
-            // Silently fail progress updates to avoid crashing render
             progressManager.log(`[Warn] Progress DB update skipped: ${job.jobId}`);
           } finally {
             isUpdating = false;

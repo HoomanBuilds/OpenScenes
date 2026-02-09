@@ -185,7 +185,7 @@
                     { 
                         "id": "cursor", 
                         "animate": { "x": "target:sidebar-item-keys", "y": "target:sidebar-item-keys" }, 
-                        "transition": { "duration": 0.8, "ease": "easeOut" } 
+                        "transition": { "duration": 1.5, "ease": "easeOut" } 
                     },
                     
                     { "comment": "Click visual feedback" },
@@ -217,7 +217,7 @@
                     { 
                         "id": "cursor", 
                         "animate": { "x": "target:btn-create", "y": "target:btn-create" }, 
-                        "transition": { "duration": 0.8, "ease": "easeInOut" } 
+                        "transition": { "duration": 1.5, "ease": "easeInOut" } 
                     },
 
                     { "comment": "Click Create" },
@@ -248,7 +248,7 @@
                     { 
                         "id": "cursor", 
                         "animate": { "x": "target:btn-copy", "y": "target:btn-copy" }, 
-                        "transition": { "duration": 0.6, "ease": "easeOut" } 
+                        "transition": { "duration": 1.5, "ease": "easeOut" } 
                     },
 
                     { "comment": "Click Copy" },
@@ -304,7 +304,7 @@
                     { 
                         "id": "cursor", 
                         "animate": { "x": 500, "y": 300 }, 
-                        "transition": { "duration": 1, "ease": "easeInOut" },
+                        "transition": { "duration": 2, "ease": "easeInOut" },
                         "parallel": true
                     },
 

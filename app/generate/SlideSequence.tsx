@@ -98,7 +98,7 @@ const SlideSequence: React.FC<SlideSequenceProps> = ({
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <h3 className={`font-black text-sm uppercase tracking-wide ${selectedSlideId === slide.id ? 'text-white' : 'text-zinc-400'}`}>
-                                                        {slide.type === 'default' ? `SLIDE_SEQ_${String(index + 1).padStart(3, '0')}` : slide.type.toUpperCase()}
+                                                        {slide.name ? slide.name.slice(0, 25).toUpperCase() : (slide.type === 'default' ? `SLIDE_SEQ_${String(index + 1).padStart(3, '0')}` : slide.type.toUpperCase())}
                                                     </h3>
                                                     <p className="text-[10px] font-mono text-zinc-600 mt-1 line-clamp-1 w-[90%] uppercase">
                                                         {slide.elements?.filter(e => e.type === 'headline' || e.type === 'subheadline').map(e => e.content).join(' // ') || 'EMPTY_BUFFER'}

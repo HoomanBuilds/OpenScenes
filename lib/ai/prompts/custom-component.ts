@@ -68,41 +68,6 @@ export const CUSTOM_COMPONENT_SYSTEM_PROMPT = `You are a MASTER UI DESIGNER and 
   }
   \`\`\`
 
-  ### RECIPE 2: THE "HERO DASHBOARD" (Use for 'custom' or 'intro' slides)
-  *Uses 3D tilts and floating elements.*
-  \`\`\`json
-  {
-    "layout": {
-      "tag": "div",
-      "className": "w-full h-full bg-black text-white p-8 flex items-center justify-center perspective-[1200px] overflow-hidden",
-      "children": [
-        {
-           "id": "grid-floor",
-           "tag": "div",
-           "className": "absolute inset-0 opacity-20 origin-bottom",
-           "style": { "backgroundImage": "linear-gradient(to right, #333 1px, transparent 1px), linear-gradient(to bottom, #333 1px, transparent 1px)", "backgroundSize": "40px 40px", "transform": "rotateX(60deg) scale(2)" }
-        },
-        {
-           "id": "main-card",
-           "tag": "div",
-           "className": "w-[600px] h-[350px] bg-zinc-900/90 border border-zinc-700/50 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.5)] z-10 flex items-center justify-center",
-           "children": [
-              { "tag": "h1", "className": "text-4xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent", "text": "Platform V2" }
-           ]
-        }
-      ]
-    },
-    "animations": {
-       "grid-floor": { "initial": { "opacity": 0, "rotateX": 90 } },
-       "main-card": { "initial": { "opacity": 0, "rotateX": 25, "y": 100 } }
-    },
-    "timeline": [
-       { "id": "grid-floor", "animate": { "opacity": 0.3, "rotateX": 60 }, "transition": { "duration": 1.5 }, "parallel": true },
-       { "id": "main-card", "animate": { "opacity": 1, "rotateX": 0, "y": 0 }, "transition": { "duration": 1.2, "type": "spring" }, "parallel": true, "delay": 0.3 }
-    ]
-  }
-  \`\`\`
-
   ## CRITICAL RULES (CONTENT ADHERENCE)
   1. **STRICT CONTENT ADHERENCE**: Look at the DESIGN TASK "VISUAL GUIDANCE". You MUST find every number (e.g., "$1.2M", "14.2%"), every label (e.g., "Net Worth", "Market Volume"), and every heading (e.g., "WealthSync AI") and use them EXACTLY.
   2. **NO GENERIC DRIFT**: Do NOT use text from the Recipes like "Next-Gen Architecture", "Platform V2", or "Zero-Trust" unless the user explicitly requested them. If the user provided content, the Recipe content is FORBIDDEN.
@@ -122,7 +87,7 @@ export const CUSTOM_COMPONENT_SYSTEM_PROMPT = `You are a MASTER UI DESIGNER and 
   Return ONLY valid RAW JSON.
 `;
 
-export function buildCustomComponentPrompt(visualGuidance: string, themePrompt: string, commonPrompt?: string, assets?: string): string {
+export function buildCustomComponentPrompt(visualGuidance: string, themePrompt: string, commonPrompt?: string, assets?: string, referenceJson?: string): string {
   return `
     DESIGN TASK: Create a custom animated slide component following the CRITICAL RULES above.
     
@@ -130,6 +95,8 @@ export function buildCustomComponentPrompt(visualGuidance: string, themePrompt: 
     THEME: ${themePrompt}
     ${commonPrompt ? `GLOBAL CONTEXT: ${commonPrompt}` : ''}
     ${assets ? `AVAILABLE ASSETS (You can use these URLs in img tags):\n${assets}` : ''}
+    
+    ${referenceJson ? `\nREFERENCE STRUCTURE (Technical/Motion Blueprint ONLY. DO NOT clone layout or content. Use only as a guide for high-quality motion and schema; prioritize the unique VISUAL GUIDANCE provided below):\n${referenceJson}` : ''}
     
     Final Order: Transcribe every metric and label from VISUAL GUIDANCE. Use the structural recipes as a template for polished motion. Output RAW JSON ONLY.
     `;

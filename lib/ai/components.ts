@@ -1,13 +1,24 @@
-import GalacticGrind from '../../app/generate/templates/example/GalacticGrind.json';
-import CosmicCoffee from '../../app/generate/templates/example/CosmicCoffee.json';
-import NeoTokyoComics from '../../app/generate/templates/example/NeoTokyoComics.json';
+import GalacticGrind from '../../public/templates/example/GalacticGrind.json';
+import CosmicCoffee from '../../public/templates/example/CosmicCoffee.json';
+import NeoTokyoComics from '../../public/templates/example/NeoTokyoComics.json';
 
-// Simple registry mapping component IDs to their full JSON structure
-// This allows the AI to "see" the component it is supposed to copy.
-export const COMPONENT_REGISTRY: Record<string, any> = {
+import ThreeCard from '../../public/templates/example/custom_template/3card.json';
+import GuidedCursor from '../../public/templates/example/custom_template/apiKey_guide.json';
+
+export const GENERIC_COMPONENTS: Record<string, any> = {
     'GalacticGrind': GalacticGrind,
     'CosmicCoffee': CosmicCoffee,
     'NeoTokyoComics': NeoTokyoComics
+};
+
+export const CUSTOM_COMPONENTS: Record<string, any> = {
+    '3card': ThreeCard,
+    'guided_cursor': GuidedCursor
+};
+
+export const COMPONENT_REGISTRY = {
+    ...GENERIC_COMPONENTS,
+    ...CUSTOM_COMPONENTS
 };
 
 export type ComponentId = keyof typeof COMPONENT_REGISTRY;
