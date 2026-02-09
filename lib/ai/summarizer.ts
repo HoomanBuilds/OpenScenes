@@ -57,9 +57,7 @@ You receive raw user content and extract ONLY the information relevant for creat
 6. The summary should be 2-4 sentences max.
 7. suggestedSlideCount should be between 4-12 based on content density.`;
 
-/**
- * Check if content needs summarization
- */
+
 export function needsSummarization(input: SummarizerInput): boolean {
   const totalContent = [
     input.userQuery || '',
@@ -70,9 +68,6 @@ export function needsSummarization(input: SummarizerInput): boolean {
   return totalContent.length > AI_LIMITS.SUMMARIZE_THRESHOLD_CHARS;
 }
 
-/**
- * Build user prompt for summarizer
- */
 function buildSummarizerPrompt(input: SummarizerInput): string {
   const parts: string[] = [];
   
@@ -105,15 +100,14 @@ function buildSummarizerPrompt(input: SummarizerInput): string {
   return parts.join('\n');
 }
 
-/**
- * Create minimal summary from user query (when summarization is skipped)
- */
 export function createMinimalSummary(input: SummarizerInput): SummarizerOutput {
   const query = input.userQuery || 'Presentation';
   
-  // Extract basic info from query
   const words = query.split(/\s+/);
-  const topic = words.slice(0, 5).join(' ');
+  const topic = words.slice(0, 20).join(' '); // Increased from 10 to 20
+  
+  const slideCountMatch = query.match(/(\d+)\s+slide[s]?/i);
+  const suggestedSlideCount = slideCountMatch ? Math.min(parseInt(slideCountMatch[1]), AI_LIMITS.MAX_SLIDES) : 6;
   
   return {
     topic,
@@ -125,23 +119,15 @@ export function createMinimalSummary(input: SummarizerInput): SummarizerOutput {
     }],
     entities: {},
     tone: 'professional',
-    suggestedSlideCount: 6,
+    suggestedSlideCount,
     contentDensity: 'sparse',
   };
 }
 
-/**
- * Summarize content for the pipeline
- * 
- * @param input - User content to summarize
- * @param forceRun - Run summarization even if below threshold
- * @returns Summarized content or minimal summary if skipped
- */
 export async function summarizeContent(
   input: SummarizerInput,
   forceRun: boolean = false
 ): Promise<SummarizerOutput> {
-  // Check if summarization is needed
   if (!forceRun && !needsSummarization(input)) {
     console.log('[Summarizer] Content below threshold, using minimal summary');
     return createMinimalSummary(input);
@@ -151,7 +137,6 @@ export async function summarizeContent(
   
   const prompt = buildSummarizerPrompt(input);
   
-  // Log token estimate
   const estimatedTokens = estimateTokens(prompt);
   console.log(`[Summarizer] Input tokens (est): ${estimatedTokens}`);
   
@@ -176,14 +161,10 @@ export async function summarizeContent(
     return result;
   } catch (error) {
     console.error('[Summarizer] Error during summarization:', error);
-    // Fall back to minimal summary on error
     return createMinimalSummary(input);
   }
 }
 
-/**
- * Get summary as string for injection into other prompts
- */
 export function formatSummaryForPrompt(summary: SummarizerOutput): string {
   const parts: string[] = [];
   

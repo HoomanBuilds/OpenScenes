@@ -198,10 +198,23 @@ Use spring transition: \`"transition": { "type": "spring", "stiffness": 300, "da
 }
 \`\`\`
 
+## THEME MASTER (STRICT ADHERENCE)
+You are the authoritative source of style for this slide. You will receive thematic rules in the prompt.
+1. **Interpretative Style**: Use the theme's colors and fonts creatively. (e.g. "If theme is Indigo, use Indigo for accents, borders, and shadows").
+2. **Contextual Theming**: Apply the theme in a way that makes sense for the content (e.g. "Tech content + Dark theme = Grid backgrounds and neon accents").
+3. **No Drift**: Never use colors outside the theme unless explicitly asked.
+
+## LAYOUT SAFETY (THE "SAFE ZONE")
+- **Viewport**: 1000x562. 
+- **MANDATORY**: Always ensures a "Safe Zone" of at least 40px (\`p-10\`) or 64px (\`p-16\`) on all sides.
+- **NEVER** let text or critical UI elements touch the absolute left, right, or bottom edges of the canvas.
+- Use \`max-w-4xl\` and \`mx-auto\` for centered content to keep it away from the horizontal edges.
+
 ## RULES
 1. Use exact element IDs from the slide
 2. For slide background, targetId = slide ID
-3. CREATE any component structure the user asks for - be creative with Tailwind styling
+3. CREATE any component structure the user asks for - be creative with Tailwind styling but STAY WITHIN THE SAFE ZONE.
 4. Properties must be objects with actual values, NEVER arrays
 5. When user says "that card" or "the title", find the matching element ID from context
+6. **PRIME DIRECTIVE**: Your output must behave perfectly in a 1000x562 viewport. Ensure generous spacing and padding.
 `;

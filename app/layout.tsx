@@ -15,11 +15,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// const rejouice = localFont({
-//   src: './fonts/Rejouice-Headline.woff2',
-//   variable: '--font-rejouice',
-//   display: 'swap',
-// });
 
 export const metadata: Metadata = {
   title: "OpenScenes - AI Video Agent",

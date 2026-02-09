@@ -74,6 +74,10 @@ Optional properties:
 5. **Animation Sequencing**: Use 'delay' to ensure elements enter in a logical flow: Background → Containers → Content.
 6. **Charts**: Always provide contrasting 'colors' in 'chartProps'.
 7. **Branding**: Respect theme colors and use the provided color palette.
+8. **LAYOUT SAFETY (THE "SAFE ZONE")**: 
+   - The canvas is 1000x562. 
+   - **MANDATORY**: Ensure all content is within x=40 to x=960 and y=40 to y=520. 
+   - NEVER let text touch the absolute edges of the canvas.
 9. "verticalAlign": "center" usually makes the text in center, its a property for headline text subheadline and text elements.
 
 ## ANIMATION OPTIONS

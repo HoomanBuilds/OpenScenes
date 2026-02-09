@@ -10,7 +10,8 @@ export async function processSlideEditWithHistory(
     slide: Slide,
     instruction: string,
     history: ChatHistoryItem[] = [],
-    selectedElementIds: string[] = []
+    selectedElementIds: string[] = [],
+    themePrompt?: string
 ): Promise<{ slide: Slide, explanation: string }> {
     let contextInstruction = instruction;
     
@@ -22,5 +23,5 @@ export async function processSlideEditWithHistory(
         contextInstruction = `Conversation History:\n${historyText}\n\nCurrent Instruction: ${instruction}`;
     }
     
-    return await editSlideSmart(slide, contextInstruction, history, selectedElementIds);
+    return await editSlideSmart(slide, contextInstruction, history, selectedElementIds, themePrompt);
 }

@@ -113,7 +113,8 @@ async function processAIJob(job: AIJob): Promise<void> {
         slide as any,
         instruction,
         history,
-        job.slideEditData.selectedElementIds || []
+        job.slideEditData.selectedElementIds || [],
+        job.slideEditData.themePrompt || job.themePrompt
       );
 
       const duration = Date.now() - startTime;

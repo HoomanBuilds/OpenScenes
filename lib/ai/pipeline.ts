@@ -179,7 +179,7 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
 
       try {
         const batchResult = await generateSlides({
-          commonPrompt: directorPlan.commonPrompt,
+          commonPrompt: directorPlan.globalPrompt || directorPlan.commonPrompt,
           batchPrompt: batch.prompt,
           themePrompt,
           sceneGuidance: batchScenes,
@@ -190,9 +190,6 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
         });
 
         if (batchResult && input.onProgress) {
-            // Collect all slides completed so far to trigger progress
-            // Note: because this is parallel, we need to be careful with state
-            // For now, we'll just send the slides from THIS batch as they arrive
             input.onProgress({ slides: insertAssetUrls(batchResult.slides, assetMetadata) });
         }
 

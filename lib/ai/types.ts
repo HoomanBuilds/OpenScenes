@@ -56,7 +56,7 @@ export interface SlideBatch {
 export interface SceneGuidance {
   sceneIndex: number;
   sceneId: string;
-  mode: 'custom' | 'generative';
+  mode: 'component' | 'custom' | 'generative';
   slideType: string; 
   intent: string;
   durationMs: number;

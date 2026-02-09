@@ -71,14 +71,21 @@ export const CUSTOM_COMPONENT_SYSTEM_PROMPT = `You are a MASTER UI DESIGNER and 
   ## CRITICAL RULES (CONTENT ADHERENCE)
   1. **STRICT CONTENT ADHERENCE**: Look at the DESIGN TASK "VISUAL GUIDANCE". You MUST find every number (e.g., "$1.2M", "14.2%"), every label (e.g., "Net Worth", "Market Volume"), and every heading (e.g., "WealthSync AI") and use them EXACTLY.
   2. **NO GENERIC DRIFT**: Do NOT use text from the Recipes like "Next-Gen Architecture", "Platform V2", or "Zero-Trust" unless the user explicitly requested them. If the user provided content, the Recipe content is FORBIDDEN.
-  3. **LAYOUT SIZING**: The viewport is only 1000x562. If you have 2-3 cards, ensure they have enough gap (\`gap-8\`) and don't overflow. Use \`max-w-4xl\` for containers to keep things centered and professional.
-  4. **GLASSMORPHISM**: If requested, use \`bg-white/5 backdrop-blur-xl border border-white/10\`.
-  5. **3D GRID FLOOR**: If requested, use a div with \`perspective-[1000px]\` and a child with \`rotateX(60deg)\` and a CSS grid background: \`background-image: linear-gradient(to right, #4f46e530 1px, transparent 1px), linear-gradient(to bottom, #4f46e530 1px, transparent 1px); background-size: 40px 40px;\`.
-  6. **TEXT PROPERTY**: Use \`"text": "..."\` for content. NEVER put strings in \`"children"\`.
-  7. **CHILDREN ARRAY**: \`"children"\` must ALWAYS be an array \`[]\`.
-  8. **MAX HEIGHT 562px**: The canvas is small. Use \`p-8\`, \`text-5xl\` (max), and \`flex-1\`. 
-  9. **ANIMATION**: Use only standard Framer Motion eases (easeIn, easeOut, etc).
-  10. **BORDERS**: NEVER use \`border\` without a color. The default is white. Always use \`border-white/10\`.
+  3. **LAYOUT SAFETY (THE "SAFE ZONE")**: 
+     - The viewport is 1000x562. 
+     - **MANDATORY**: Always wrap your root content in a container with at least \`p-10\` (40px) or \`p-16\` (64px) padding.
+     - **NEVER** let text or critical UI elements touch the absolute left, right, or bottom edges of the canvas. 
+     - Use \`max-w-4xl\` and \`mx-auto\` to keep content away from the horizontal edges.
+  4. **THEME ADHERENCE**: 
+     - You MUST use the colors and fonts provided in the "THEME" section. 
+     - If the theme specifies "Dark Background", do NOT output a white background.
+     - If the theme specifies an accent color (e.g. Indigo), use it for borders, buttons, and highlights.
+  5. **MAX HEIGHT 562px**: The canvas is short. Avoid large vertical stacks. Use columns or grids (\`flex-row\` or \`grid-cols-X\`) to utilize the 1000px width.
+  6. **GLASSMORPHISM**: If requested, use \`bg-white/5 backdrop-blur-xl border border-white/10\`.
+  7. **3D GRID FLOOR**: If requested, use a div with \`perspective-[1000px]\` and a child with \`rotateX(60deg)\` and a CSS grid background: \`background-image: linear-gradient(to right, #4f46e530 1px, transparent 1px), linear-gradient(to bottom, #4f46e530 1px, transparent 1px); background-size: 40px 40px;\`.
+  8. **TEXT PROPERTY**: Use \`"text": "..."\` for content. NEVER put strings in \`"children"\`.
+  9. **CHILDREN ARRAY**: \`"children"\` must ALWAYS be an array \`[]\`.
+  10. **ANIMATION**: Use only standard Framer Motion eases (easeIn, easeOut, etc).
   11. **ITERATION**: For infinite loops, use \`"repeat": "Infinity"\` and \`"repeatType": "reverse"\` or \`"mirror"\`.
   12. **IMAGES & ASSETS**: If "AVAILABLE ASSETS" are provided, you SHOULD use them. Use the \`img\` tag. Set \`src\` to the asset's URL. You can also use background images via \`style: { backgroundImage: 'url(...)' }\`.
   13. **STYLING**: Prefer \`className\` for layout/colors. Use \`style\` ONLY for calculation-based dynamic values.
@@ -91,6 +98,15 @@ export function buildCustomComponentPrompt(visualGuidance: string, themePrompt: 
   return `
     DESIGN TASK: Create a custom animated slide component following the CRITICAL RULES above.
     
+    ## TAILWIND & STYLING RULES (STRICT):
+    1. **NO ARBITRARY CLASSES**: Do NOT use bracket syntax in className (e.g. \`w-[600px]\`, \`bg-[#123456]\`, \`top-[15%]\`). The build system will STRIP these.
+    2. **USE STANDARD CLASSES**: Use standard Tailwind utilities (e.g. \`w-full\`, \`p-10\`, \`bg-red-500\`, \`text-4xl\`).
+    3. **USE STYLE PROP FOR SPECIFICS**: If you need a specific pixel value, hex color, or percentage that isn't a standard class, use the \`style\` object.
+       - BAD: \`className="w-[500px] bg-[#00ff00]"\`
+       - GOOD: \`className="shadow-xl" style={{ width: 500, backgroundColor: '#00ff00' }}\`
+       - GOOD: \`className="absolute" style={{ top: '15%' }}\`
+    
+    VISUAL GUIDANCE: ${visualGuidance}
     VISUAL GUIDANCE: ${visualGuidance}
     THEME: ${themePrompt}
     ${commonPrompt ? `GLOBAL CONTEXT: ${commonPrompt}` : ''}

@@ -60,7 +60,8 @@ export async function planActions(
     slide: Slide, 
     instruction: string, 
     history?: { role: string, content: string }[],
-    selectedElementIds: string[] = []
+    selectedElementIds: string[] = [],
+    themePrompt?: string
 ): Promise<PipelineOutput> {
     const simplifiedSlide = simplifySlideForContext(slide);
     
@@ -75,10 +76,14 @@ export async function planActions(
             "\n--- END OF CONTEXT ---\n";
     }
 
+    const themeContext = themePrompt 
+        ? `\n--- THEME RULES (STRICT ADHERENCE REQUIRED) ---\n${themePrompt}\n`
+        : "";
+
     const prompt = `
 Slide Context (Current State):
 ${JSON.stringify(simplifiedSlide, null, 2)}
-${historyContext}
+${historyContext}${themeContext}${selectionContext}
 
 CRITICAL: The current request below is what you must solve NOW. 
 The context above is for reference to understand what has been done or discussed.

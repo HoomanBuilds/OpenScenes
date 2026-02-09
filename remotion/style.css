@@ -1,10 +1,8 @@
 @import "tailwindcss";
-@source "..";
 @source ".";
 @source "../app";
 @source "../registry";
 
 body {
-  margin: 0;
-  background-color: black;
+  margin: 0
 }

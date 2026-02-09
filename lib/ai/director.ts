@@ -159,7 +159,21 @@ function createBatchesFromScenes(
   return batches;
 }
 
-export function validateDirectorOutput(output: DirectorOutput): DirectorOutput {
+export function validateDirectorOutput(output: DirectorOutput, requestedSlideCount?: number): DirectorOutput {
+  if (requestedSlideCount && requestedSlideCount > 0) {
+    const targetCount = Math.min(requestedSlideCount, AI_LIMITS.MAX_SLIDES);
+    if (output.totalSlides !== targetCount || output.scenes.length !== targetCount) {
+      console.warn(`[Director] Requested ${targetCount} slides, but got ${output.totalSlides}. Adjusting.`);
+      output.totalSlides = targetCount;
+      
+      if (output.scenes.length > targetCount) {
+        output.scenes = output.scenes.slice(0, targetCount);
+      }
+      // If fewer, we'll let it be for now or the user might get empty slides, 
+      // but usually the LLM over-generates.
+    }
+  }
+
   if (output.totalSlides > AI_LIMITS.MAX_SLIDES) {
     console.warn(`[Director] Capping slides from ${output.totalSlides} to ${AI_LIMITS.MAX_SLIDES}`);
     output.totalSlides = AI_LIMITS.MAX_SLIDES;
@@ -252,7 +266,7 @@ export async function planPresentation(
       agentType: 'director',
     });
     
-    const validatedResult = validateDirectorOutput(result);
+    const validatedResult = validateDirectorOutput(result, input.requestedSlideCount);
     
     return validatedResult;
   } catch (error) {

@@ -19,12 +19,12 @@ export async function editSlideSmart(
     slide: Slide, 
     instruction: string, 
     history?: { role: string, content: string }[],
-    selectedElementIds: string[] = []
+    selectedElementIds: string[] = [],
+    themePrompt?: string
 ): Promise<{ slide: Slide, explanation: string }> {
     console.log(`[SmartPipeline] Processing: "${instruction}" for slide ${slide.id}`);
     
-    // 1. Plan
-    const plan = await planActions(slide, instruction, history, selectedElementIds);
+    const plan = await planActions(slide, instruction, history, selectedElementIds, themePrompt);
     console.log(`[SmartPipeline] Plan:`, JSON.stringify(plan, null, 2));
 
     if (!plan.actions || plan.actions.length === 0) {
