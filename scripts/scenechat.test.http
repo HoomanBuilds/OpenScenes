@@ -1,0 +1,67 @@
+### AI Scene Chat Edit Test
+@baseUrl = http://localhost:3000/api
+@slideId = slide-demo-123
+
+# @name triggerEdit
+POST {{baseUrl}}/ai/edit/slide
+Content-Type: application/json
+
+{
+  "slideId": "{{slideId}}",
+  "slide": {
+    "id": "{{slideId}}",
+    "background": { "type": "color", "value": "#18181b" },
+    "elements": [
+      { "id": "title-1", "type": "headline", "content": { "text": "Old Title" } }
+    ]
+  },
+  "instruction": "Change the title to 'Welcome to the Future' and make it purple",
+  "themeName": "minimal_dark",
+  "history": []
+}
+
+###
+
+# @name pollStatus
+@jobId = {{triggerEdit.response.body.jobId}}
+GET {{baseUrl}}/ai/status/{{jobId}}
+
+###
+
+# @name selectionContextTest
+POST {{baseUrl}}/ai/edit/slide
+Content-Type: application/json
+
+{
+  "slideId": "{{slideId}}",
+  "slide": {
+    "id": "{{slideId}}",
+    "background": { "type": "color", "value": "#18181b" },
+    "elements": [
+      { "id": "box-1", "type": "shape", "content": "" },
+      { "id": "box-2", "type": "shape", "content": "" }
+    ]
+  },
+  "instruction": "Make this one much bigger and red",
+  "selectedElementIds": ["box-1"],
+  "themeName": "minimal_dark"
+}
+
+###
+
+# @name redesignTest
+POST {{baseUrl}}/ai/edit/slide
+Content-Type: application/json
+
+{
+  "slideId": "{{slideId}}",
+  "slide": {
+    "id": "{{slideId}}",
+    "elements": [
+      { "id": "old-1", "type": "text", "content": "Lots of messy old items" },
+      { "id": "old-2", "type": "text", "content": "More clutter" }
+    ]
+  },
+  "instruction": "I don't like any of this. Start over and create a clean futuristic landing page slide with just a title and a button",
+  "themeName": "minimal_dark"
+}

@@ -113,3 +113,9 @@ export type AIJobResult = {
 
 export type ViewMode = 'sequence' | 'focus';
 export type GenerationStatus = 'idle' | 'generating' | 'done';
+
+export type ChatMessage = {
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: number;
+};

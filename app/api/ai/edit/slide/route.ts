@@ -13,32 +13,31 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    if (!body.slideId || typeof body.slideId !== 'string') {
-      return NextResponse.json(
-        { error: 'slideId is required' },
-        { status: 400 }
-      );
+    const { 
+      slideId, 
+      slide, 
+      instruction, 
+      themeName, 
+      themePrompt, 
+      projectSummary, 
+      history, 
+      selectedElementIds 
+    } = body;
+
+    if (!slideId || typeof slideId !== 'string') {
+      return NextResponse.json({ error: 'slideId is required' }, { status: 400 });
     }
     
-    if (!body.slide || typeof body.slide !== 'object') {
-      return NextResponse.json(
-        { error: 'slide object is required' },
-        { status: 400 }
-      );
+    if (!slide || typeof slide !== 'object') {
+      return NextResponse.json({ error: 'slide object is required' }, { status: 400 });
     }
     
-    if (!body.instruction || typeof body.instruction !== 'string') {
-      return NextResponse.json(
-        { error: 'instruction is required and must be a string' },
-        { status: 400 }
-      );
+    if (!instruction || typeof instruction !== 'string') {
+      return NextResponse.json({ error: 'instruction is required' }, { status: 400 });
     }
     
-    if (!body.themeName || typeof body.themeName !== 'string') {
-      return NextResponse.json(
-        { error: 'themeName is required' },
-        { status: 400 }
-      );
+    if (!themeName || typeof themeName !== 'string') {
+      return NextResponse.json({ error: 'themeName is required' }, { status: 400 });
     }
     
     const jobId = generateJobId();
@@ -46,31 +45,38 @@ export async function POST(request: NextRequest) {
     const aiJob: AIJob = {
       jobId,
       type: 'slide-edit',
-      userQuery: body.instruction,
-      themeName: body.themeName,
+      userQuery: instruction,
+      themeName,
       slideEditData: {
-        slideId: body.slideId,
-        slide: body.slide as Slide,
-        instruction: body.instruction,
-        themePrompt: body.themePrompt,
-        projectSummary: body.projectSummary,
+        slideId,
+        slide: slide as Slide,
+        instruction,
+        themePrompt: themePrompt || themeName,
+        projectSummary,
+        history: history || [],
+        selectedElementIds: selectedElementIds || []
       },
       createdAt: Date.now(),
     };
+
+    // Store initial status in Redis (ignore errors if Redis is down for local dev)
+    try {
+      await redis.setex(
+        `${AI_JOB_PREFIX}${jobId}`,
+        3600,
+        JSON.stringify({
+          jobId,
+          status: 'queued',
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        })
+      );
+    } catch (redisError) {
+      console.warn('[API] Redis failed to store job status:', redisError instanceof Error ? redisError.message : String(redisError));
+      // Continue anyway, RabbitMQ is the source of truth for execution
+    }
     
-    // Store initial status
-    await redis.setex(
-      `${AI_JOB_PREFIX}${jobId}`,
-      3600,
-      JSON.stringify({
-        jobId,
-        status: 'queued',
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      })
-    );
-    
-    // Publish to queue
+    // Publish to RabbitMQ
     await queue.publishAIJob(aiJob);
     
     console.log(`[API] Queued AI slide-edit job: ${jobId}`);

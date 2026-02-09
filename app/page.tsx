@@ -4,6 +4,18 @@ import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { LoginModal } from './components/LoginModal';
 
+const GeminiIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+        <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" fill="url(#gemini-gradient)" />
+        <defs>
+            <linearGradient id="gemini-gradient" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#4E8AFF" />
+                <stop offset="1" stopColor="#9333EA" />
+            </linearGradient>
+        </defs>
+    </svg>
+);
+
 export default function LandingPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -14,12 +26,19 @@ export default function LandingPage() {
             
             <div className="absolute inset-0 z-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[40px_40px] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,black_40%,transparent_100%)] pointer-events-none"></div>
 
-            <div className="absolute top-0 left-0 right-0 h-12 border-b border-zinc-900 bg-zinc-950/50 backdrop-blur-sm flex items-center justify-between px-6 z-20">
-                <div className="flex items-center space-x-4">
-                    <div className="w-2 h-2 bg-purple-500 animate-pulse" />
+            <div className="absolute top-0 left-0 right-0 h-16 border-b border-zinc-900 bg-zinc-950/50 backdrop-blur-md flex items-center justify-between px-8 z-20">
+                <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">System Ready</span>
                 </div>
-                <div className="flex items-center space-x-8">
-                    
+                
+                <div className="group relative flex items-center space-x-3 px-4 py-1.5 bg-zinc-900/40 border border-zinc-800 rounded-full transition-all hover:bg-zinc-900/60 hover:border-zinc-700">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/0 via-purple-500/20 to-pink-500/0 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <GeminiIcon className="w-4 h-4 relative" />
+                    <div className="flex flex-col relative">
+                        <span className="text-[8px] font-black text-purple-400 uppercase tracking-tighter leading-none">Built for</span>
+                        <span className="text-[11px] font-black text-white uppercase tracking-tight leading-none">Gemini 3 Hackathon</span>
+                    </div>
                 </div>
             </div>
 
@@ -45,13 +64,20 @@ export default function LandingPage() {
                         ))}
                     </div>
                     
-                    <div className="flex items-center space-x-6 opacity-0 animate-[fadeIn_1s_ease-out_0.5s_forwards]">
-                         <div className="h-px w-24 bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
-                         <span className="font-mono text-xs uppercase tracking-[0.4em] text-zinc-500 font-bold">
-                            Agentic Video Interface
-                         </span>
-                         <div className="h-px w-24 bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
-                    </div>
+                     <div className="flex flex-col items-center space-y-4 opacity-0 animate-[fadeIn_1s_ease-out_0.5s_forwards]">
+                         <div className="flex items-center space-x-6">
+                            <div className="h-px w-24 bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
+                                <span className="font-mono text-xs uppercase tracking-[0.4em] text-zinc-500 font-bold">
+                                    Agentic Video Interface
+                                </span>
+                            <div className="h-px w-24 bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
+                         </div>
+                         
+                         <div className="flex items-center space-x-2 px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-md">
+                            <GeminiIcon className="w-3 h-3" />
+                            <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Powered by Gemini 1.5 Pro</span>
+                         </div>
+                     </div>
                 </div>
 
                 <button 

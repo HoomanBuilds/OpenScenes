@@ -1,0 +1,25 @@
+### Test Element Edit (Sync)
+POST http://localhost:3000/api/ai/edit/element
+Content-Type: application/json
+
+{
+    "slideId": "test-slide-1",
+    "themeName": "minimal_dark",
+    "instruction": "Make the text red and change content to 'Updated via HTTP'",
+    "projectSummary": "A presentation about AI editing",
+    "elements": [
+        {
+            "id": "el-1",
+            "type": "headline",
+            "content": "Original Headline",
+            "x": 100,
+            "y": 100,
+            "width": 600,
+            "height": 100,
+            "fontSize": 48,
+            "fontFamily": "Inter",
+            "textAlign": "center",
+            "color": "#ffffff"
+        }
+    ]
+}

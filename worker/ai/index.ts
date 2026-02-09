@@ -105,36 +105,16 @@ async function processAIJob(job: AIJob): Promise<void> {
     if (job.type === 'slide-edit' && job.slideEditData) {
       const slide = job.slideEditData.slide as Slide;
       const instruction = job.slideEditData.instruction;
+      const history = job.slideEditData.history || [];
       
-      // Classify the edit
-      const headlineEl = slide.elements?.find(el => el.type === 'headline');
-      const slideSummary = `ID: ${slide.id} | Title: ${headlineEl?.content || 'Untitled'}`;
+      const { processSlideEditWithHistory } = await import('../../lib/ai/slide-integration');
       
-      const classification = await classifyEdit(instruction, slideSummary);
-      const editType = classification.editType || 'style';
-      
-      let updatedSlide: Slide;
-      let explanation: string;
-
-      if (editType === 'redesign') {
-        updatedSlide = await regenerateSlide({
-          slide,
-          instruction,
-          themePrompt: job.slideEditData.themePrompt,
-          projectContext: job.slideEditData.projectSummary
-        });
-        explanation = "Regenerated slide design";
-      } else {
-        const result = await generatePatches(
-          slide, 
-          instruction, 
-          editType, 
-          undefined, 
-          job.slideEditData.projectSummary
-        );
-        updatedSlide = applyPatches(slide, result.patches);
-        explanation = result.summary;
-      }
+      const { slide: updatedSlide, explanation } = await processSlideEditWithHistory(
+        slide as any,
+        instruction,
+        history,
+        job.slideEditData.selectedElementIds || []
+      );
 
       const duration = Date.now() - startTime;
       logger.worker.jobComplete(job.jobId, 1, duration);
@@ -142,7 +122,6 @@ async function processAIJob(job: AIJob): Promise<void> {
       await updateJobStatus(job.jobId, 'completed', {
         result: {
           slide: updatedSlide,
-          editMode: editType,
           explanation: explanation,
         },
       });

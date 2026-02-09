@@ -166,6 +166,7 @@ const RightPanel: React.FC<RightPanelProps> = ({
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900/20 via-zinc-950 to-zinc-950 pointer-events-none" />
             
             <div className="h-16 border-b-2 border-black flex items-center justify-between px-6 z-10 bg-[#09090b]">
+                {/* Header content unchanged */}
                 <div className="flex items-center gap-4">
                      <a href="/projects" className="flex items-center gap-2 group">
                         <div className="w-8 h-8 bg-zinc-900 border border-zinc-700 flex items-center justify-center rounded hover:bg-zinc-800 transition-colors">
@@ -254,6 +255,22 @@ const RightPanel: React.FC<RightPanelProps> = ({
         </div>
 
             <div className="flex-1 overflow-y-auto overflow-x-hidden relative z-0 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+                
+                {/* Generation Loading Overlay */}
+                {generationStatus === 'generating' && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-zinc-950/40 backdrop-blur-sm transition-all duration-500">
+                        <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-300">
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-purple-500/20 blur-xl rounded-full"></div>
+                                <div className="w-12 h-12 border-4 border-zinc-800 border-t-purple-500 rounded-full animate-spin relative z-10"></div>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-1">AI Generating</p>
+                                <p className="text-[9px] font-mono text-zinc-500">{log || 'Processing request...'}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 
                 {renderStatus === 'rendering' && (
                     <div className="absolute inset-0 bg-zinc-950/80 z-20 flex items-center justify-center">

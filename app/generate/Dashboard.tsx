@@ -10,7 +10,8 @@ import { RenderOptions } from './LeftPanel_Global';
 import { getAllThemes } from '../lib/themes';
 import { LoginModal } from '../components/LoginModal';
 
-import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation, RawFile, AIJobResult } from './types';
+import { Slide, SlideElement, Asset, ViewMode, GenerationStatus, SlideBackground, AnimationType, AnimationDirection, ElementAnimation, RawFile, AIJobResult, ChatMessage } from './types';
+import { editSlideSmart } from '@/lib/ai/slide/pipeline';
 import { useSearchParams } from 'next/navigation';
 import { useProjectPersistence } from './hooks/useProjectPersistence';
 import { useEditorHistory } from './hooks/useEditorHistory';
@@ -288,15 +289,22 @@ const Dashboard: React.FC = () => {
         setSelectedElementIds([]);
     };
 
+    const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+
     const ai = useAI({
         onJobStarted: (jobId) => {
             setAiJobId(jobId);
             setGenerationLog('Processing...');
         },
-        onError: (error) => {
+        onError: (error: any) => {
             console.error('AI Error:', error);
             setGenerationStatus('idle');
             setGenerationLog('');
+            setChatHistory(prev => [...prev, {
+                role: 'assistant',
+                content: `Error: ${error?.message || String(error) || 'Something went wrong'}`,
+                timestamp: Date.now()
+            }]);
             setSlides([]);
         }
     });
@@ -330,6 +338,20 @@ const Dashboard: React.FC = () => {
             setGenerationStatus('done');
             setGenerationLog('');
             setAiJobId(null);
+            
+            if (result.explanation) {
+                 setChatHistory(prev => [...prev, {
+                    role: 'assistant',
+                    content: result.explanation || 'Generation complete',
+                    timestamp: Date.now()
+                }]);
+            } else {
+                 setChatHistory(prev => [...prev, {
+                    role: 'assistant',
+                    content: "Completed successfully.",
+                    timestamp: Date.now()
+                }]);
+            }
         } else {
             setGenerationLog(`Generating slides... (${result.slides?.length || 0} ready)`);
         }
@@ -338,11 +360,16 @@ const Dashboard: React.FC = () => {
     useAIStatus(aiJobId, {
         onComplete: handleAIComplete,
         onProgress: handleAIComplete,
-        onError: (error) => {
+        onError: (error: any) => {
             console.error('AI Status Error:', error);
             setGenerationStatus('idle');
             setGenerationLog('');
             setAiJobId(null);
+             setChatHistory(prev => [...prev, {
+                role: 'assistant',
+                content: `Error: ${error?.message || String(error) || 'Unknown error'}`,
+                timestamp: Date.now()
+            }]);
         }
     });
 
@@ -371,11 +398,33 @@ const Dashboard: React.FC = () => {
         const slide = slides.find(s => s.id === slideId);
         if (!slide || !instruction.trim()) return;
 
+        saveToHistory();
+        setChatHistory(prev => [...prev, {
+            role: 'user',
+            content: instruction,
+            timestamp: Date.now()
+        }]);
+
         setGenerationStatus('generating');
-        setGenerationLog('Processing slide edit...');
-        const themeName = getThemeName();
-        await ai.editSlide(slideId, slide, instruction, themeName, projectSummary);
-    }, [slides, ai, getThemeName, projectSummary]);
+        setGenerationLog('Analyzing request...');
+
+        try {
+            const themeName = getThemeName();
+            const history = chatHistory.map(m => ({ role: m.role, content: m.content }));
+            
+            await ai.editSlide(slideId, slide, instruction, themeName, projectSummary, history, selectedElementIds);
+            // Result will be handled by useAIStatus hook in Dashboard
+            
+        } catch (error: any) {
+             console.error("AI Edit Failed:", error);
+             setGenerationStatus('idle');
+             setChatHistory(prev => [...prev, {
+                role: 'assistant',
+                content: `Failed to edit: ${error.message || String(error) || 'Unknown error'}`,
+                timestamp: Date.now()
+            }]);
+        }
+    }, [slides, ai, getThemeName, projectSummary, chatHistory]);
 
     const handleElementAIEdit = useCallback(async (slideId: string, elementIds: string[], instruction: string) => {
         const slide = slides.find(s => s.id === slideId);
@@ -575,6 +624,8 @@ const Dashboard: React.FC = () => {
                 setVisualStyle={setVisualStyle}
                 onSlideAIEdit={handleSlideAIEdit}
                 onElementAIEdit={handleElementAIEdit}
+                chatHistory={chatHistory}
+                onUndo={undo}
             />
 
             <RightPanel

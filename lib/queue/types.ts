@@ -28,6 +28,8 @@ export interface AIJob {
     instruction: string;
     themePrompt?: string;
     projectSummary?: string;
+    history?: { role: 'user' | 'assistant', content: string }[];
+    selectedElementIds?: string[];
   };
   // Element-level edit data
   elementEditData?: {

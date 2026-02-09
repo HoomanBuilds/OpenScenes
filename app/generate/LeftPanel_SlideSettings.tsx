@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Slide, SlideBackground } from './types';
+import React, { useRef, useState, useEffect } from 'react';
+import { Slide, SlideBackground, ChatMessage } from './types';
 
 interface LeftPanel_SlideSettingsProps {
     selectedSlide: Slide;
@@ -7,6 +7,7 @@ interface LeftPanel_SlideSettingsProps {
     onUploadAsset: (file: File, type: 'image') => void;
     onSlideAIEdit: (slideId: string, instruction: string) => void;
     isGenerating: boolean;
+    chatHistory: ChatMessage[];
 }
 
 const PRESET_COLORS = ['#000000', '#18181b', '#1e1b4b', '#1e293b', '#064e3b', '#4c1d95'];
@@ -23,13 +24,23 @@ export const LeftPanel_SlideSettings: React.FC<LeftPanel_SlideSettingsProps> = (
     onUpdateSlideBackground,
     onUploadAsset,
     onSlideAIEdit,
-    isGenerating
+    isGenerating,
+    chatHistory
 }) => {
     const bgInputRef = useRef<HTMLInputElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const [aiEditPrompt, setAiEditPrompt] = useState('');
     const [activeTab, setActiveTab] = useState<'solid' | 'gradient' | 'image'>(
         selectedSlide.background?.type === 'color' ? 'solid' : (selectedSlide.background?.type || 'solid')
     );
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [chatHistory, isGenerating]);
 
     const handleBgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -46,46 +57,6 @@ export const LeftPanel_SlideSettings: React.FC<LeftPanel_SlideSettingsProps> = (
 
     return (
         <div className="space-y-6 mt-4">
-            {/* Slide AI Prompt */}
-            <div className="space-y-3">
-                <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-black flex items-center space-x-2 border-l-2 border-purple-600 pl-2">
-                    <svg className="w-3 h-3 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                    <span>Slide Prompt</span>
-                </label>
-                <div className="relative group">
-                    <textarea 
-                        className="w-full bg-[#09090b] border-2 border-zinc-900 focus:border-purple-600 rounded-none p-3 text-xs font-mono text-zinc-300 focus:outline-none resize-none h-24 placeholder-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        placeholder="> Describe slide changes..."
-                        value={aiEditPrompt} 
-                        onChange={(e) => setAiEditPrompt(e.target.value)}
-                        disabled={isGenerating}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                if (aiEditPrompt.trim()) {
-                                    onSlideAIEdit(selectedSlide.id, aiEditPrompt);
-                                    setAiEditPrompt('');
-                                }
-                            }
-                        }}
-                    />
-                    <button 
-                        className="absolute bottom-3 right-3 p-1.5 bg-zinc-900 border border-zinc-800 hover:bg-purple-600 hover:border-purple-500 text-zinc-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                        onClick={() => {
-                            if (aiEditPrompt.trim()) {
-                                onSlideAIEdit(selectedSlide.id, aiEditPrompt);
-                                setAiEditPrompt('');
-                            }
-                        }}
-                        disabled={isGenerating || !aiEditPrompt.trim()}
-                    >
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                    </button>
-                    {/* Corner Accent */}
-                    <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-zinc-800 pointer-events-none"></div>
-                </div>
-            </div>
-
             <div className="space-y-4 pt-4 border-t-2 border-zinc-900">
                 <div className="flex items-center justify-between gap-2">
                     <label className="text-[9px] uppercase tracking-widest text-zinc-600 font-black whitespace-nowrap">Background Layer</label>

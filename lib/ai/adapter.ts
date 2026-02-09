@@ -38,9 +38,9 @@ export const clearJobContext = () => { currentJobId = undefined; currentTraceId 
 async function logCall(record: Omit<AICallRecord, 'jobId' | 'traceId'>) {
   try {
     await logAICall({ ...record, jobId: currentJobId, traceId: currentTraceId });
-  } catch (error) {
-    console.warn('[Adapter] Log failed:', error);
-  }
+    } catch (e) {
+        // Silently fail logging to avoid cluttering test output
+    }
 }
 
 const resolveModel = (m: ModelAlias) => AI_MODELS[m];
@@ -133,6 +133,11 @@ export async function aiGenerateStructured<T>(options: GenerateStructuredOptions
       temperature: temperature ?? (agentType ? getTemperature(agentType) : 0.5),
       maxTokens: maxTokens ?? (agentType ? AI_MAX_TOKENS[agentType].output : 4000),
       experimental_telemetry: getTelemetryConfig(`${agentType || 'structured'}-generate`),
+      providerOptions: {
+        google: {
+          structuredOutputs: false,
+        },
+      },
     });
     
     await logCall({

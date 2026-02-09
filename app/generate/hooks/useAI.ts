@@ -108,7 +108,9 @@ export function useAI(options: UseAIOptions = {}) {
         slide: Slide,
         instruction: string,
         themeName: string,
-        projectSummary?: string
+        projectSummary?: string,
+        history?: { role: 'user' | 'assistant', content: string }[],
+        selectedElementIds: string[] = []
     ): Promise<string | null> => {
         setState({ isLoading: true, jobId: null, error: null });
 
@@ -121,7 +123,9 @@ export function useAI(options: UseAIOptions = {}) {
                     slide,
                     instruction,
                     themeName,
-                    projectSummary
+                    projectSummary,
+                    history,
+                    selectedElementIds
                 })
             });
 
