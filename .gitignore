@@ -44,3 +44,4 @@ next-env.d.ts
 generate-logs/
 generate-logs/metadata.json
 .dev/
+service-account.json
