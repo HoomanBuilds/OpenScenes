@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { queue, AIJob } from '@/lib/queue/adapter';
 import { redis } from '@/lib/redis/adapter';
 import { checkAuth } from '@/lib/auth/api-middleware';
+import { checkRateLimits, getRateLimitHeaders, aiGenerateLimits } from '@/lib/config/rate-limit';
 
 const AI_JOB_PREFIX = 'ai:job:';
 
@@ -11,10 +12,26 @@ function generateJobId(): string {
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
     const authResult = await checkAuth(request);
     if (!authResult.isAuthenticated) {
       return authResult.error;
+    }
+
+    const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const rateLimitResult = await checkRateLimits(`ai:generate:${clientIp}`, aiGenerateLimits);
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          error: 'AI generation limit exceeded. Please try again later.',
+          exceeded: rateLimitResult.exceeded,
+          remaining: rateLimitResult.remaining,
+        },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(rateLimitResult),
+        }
+      );
     }
 
     const body = await request.json();

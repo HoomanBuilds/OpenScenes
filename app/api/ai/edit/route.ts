@@ -3,6 +3,7 @@ import { queue, AIJob } from '@/lib/queue/adapter';
 import { redis } from '@/lib/redis/adapter';
 import type { Slide } from '@/lib/schemas/template';
 import { checkAuth } from '@/lib/auth/api-middleware';
+import { checkRateLimits, getRateLimitHeaders, aiEditLimits } from '@/lib/config/rate-limit';
 
 const AI_JOB_PREFIX = 'ai:job:';
 
@@ -18,6 +19,23 @@ export async function POST(request: NextRequest): Promise<Response> {
       return (
         authResult.error ??
         NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      );
+    }
+
+    const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const rateLimitResult = await checkRateLimits(`ai:edit:${clientIp}`, aiEditLimits);
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          error: 'AI edit limit exceeded. Please try again later.',
+          exceeded: rateLimitResult.exceeded,
+          remaining: rateLimitResult.remaining,
+        },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(rateLimitResult),
+        }
       );
     }
 

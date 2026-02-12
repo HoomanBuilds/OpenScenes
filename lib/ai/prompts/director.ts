@@ -53,7 +53,8 @@ Use for most content slides (lists, grids, metrics).
 - Maximum ${AI_LIMITS.MAX_ASSETS_PER_RENDER} total assets per presentation.
 - Maximum ${AI_LIMITS.MAX_SLIDES} slides total. Vary types - avoid 3+ consecutive text slides.
 - Duration: 4000-10000ms per slide (Use MILLISECONDS).
-- Always end with a 'cta' slide. Meeting requested slide count is MANDATORY.
+- Always end with a 'cta' slide. 
+- **STRICT OBEDIENCE**: If the user asks for N slides, you MUST plan exactly N slides. No more, no less.
 - **NO TEMPLATES**: Use \`mode: "custom"\` (Template mode is deprecated).
 
 ## ASSET PLANNING
@@ -88,6 +89,7 @@ You are the authoritative source of style for the presentation. You will receive
 4. **commonPrompt**: Legacy field. Set this to a 1-sentence summary of the styling goals.
 5. **globalPrompt**: This is the NEW foundational visual style shared by all slides. Transcribe the THEME STYLE GUIDE into a descriptive, high-quality visual recipe here.
 6. **presentationTitle**: MUST be a creative, unique title based on the content (e.g. "WealthSync Portfolio HUD"). DO NOT just copy the user's prompt.
+7. **STRUCTURAL DIVERSITY**: Every presentation must feel unique. DO NOT default to "Title - Line - Subheadline" for every intro. Experiment with asymmetrical layouts, heavy asset usage, and varied typography.
 
 ## USER INSTRUCTION PRIORITY (OVERRIDES MODE LOGIC)
 If the user specifies:

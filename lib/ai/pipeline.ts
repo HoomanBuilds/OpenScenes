@@ -92,8 +92,9 @@ function buildMetadata(
     assetUrls,
     generatedAt: new Date().toISOString(),
     themeName: input.themeName,
-    userQuery: input.userQuery,
+    userQuery: input.userQuery, // Raw query preserved
     narrativeArc: directorPlan?.narrativeArc,
+    detailedContent: summary?.detailedContent,
   };
 }
 
@@ -127,7 +128,7 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
       summary: summary || undefined,
       themeName: input.themeName,
       themePrompt,
-      requestedSlideCount: input.requestedSlideCount,
+      requestedSlideCount: input.requestedSlideCount || summary?.suggestedSlideCount,
       additionalInstructions: input.additionalInstructions,
       jobId: input.jobId,
     });
@@ -206,12 +207,9 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
 
   const batchResults = await Promise.all(batchPromises);
 
-  // Aggregate results in order
   batchResults.forEach(result => {
       if (result) {
           allSlides.push(...result.slides);
-          // We can't easily chain summaries in parallel, so we might lose the "evolving story" aspect slightly,
-          // but the Director's detailed plan should compensate.
       }
   });
   

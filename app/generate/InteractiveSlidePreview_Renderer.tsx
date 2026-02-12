@@ -18,9 +18,10 @@ import { CustomComponentRenderer } from './renderers/CustomComponentRenderer';
 interface ElementRendererProps {
     element: SlideElement;
     fontSizeValue: any;
+    scale?: number;
 }
 
-export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontSizeValue }) => {
+export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontSizeValue, scale = 1 }) => {
     switch (element.type) {
         case 'headline':
             return <motion.h1 className="leading-[1.1] drop-shadow-md whitespace-pre-wrap w-full min-w-0 break-words text-balance" style={{ textAlign: element.textAlign, fontFamily: element.fontFamily || 'inherit', fontSize: fontSizeValue, color: element.textColor || element.color, lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : element.lineHeight, fontWeight: element.fontWeight }}>{element.content as string}</motion.h1>;
@@ -194,7 +195,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, fontS
         case 'custom':
             return (
                 <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
-                    <CustomComponentRenderer content={element.content} scale={1} />
+                    <CustomComponentRenderer content={element.content} scale={scale} />
                 </div>
             );
         case 'icon':

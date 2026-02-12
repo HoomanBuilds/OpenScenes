@@ -1,12 +1,13 @@
 import { redis } from '../redis/adapter';
 import { limits, shouldEnforceLimits } from './limits';
 
-export type RateLimitWindow = 'minute' | 'hour' | 'day';
+export type RateLimitWindow = 'minute' | 'hour' | 'day' | 'month';
 
 export interface RateLimitConfig {
   perMinute?: number;
   perHour?: number;
   perDay?: number;
+  perMonth?: number;
 }
 
 export interface RateLimitResult {
@@ -15,11 +16,13 @@ export interface RateLimitResult {
     minute: number;
     hour: number;
     day: number;
+    month: number;
   };
   resetAt: {
     minute: number;
     hour: number;
     day: number;
+    month: number;
   };
   exceeded?: RateLimitWindow;
 }
@@ -28,6 +31,7 @@ const WINDOW_SECONDS: Record<RateLimitWindow, number> = {
   minute: 60,
   hour: 3600,
   day: 86400,
+  month: 2592000, // 30 days
 };
 
 async function getWindowCount(key: string, window: RateLimitWindow): Promise<{ count: number; ttl: number }> {
@@ -49,8 +53,8 @@ export async function checkRateLimits(
   if (!shouldEnforceLimits()) {
     return {
       allowed: true,
-      remaining: { minute: 999, hour: 999, day: 999 },
-      resetAt: { minute: 0, hour: 0, day: 0 },
+      remaining: { minute: 999, hour: 999, day: 999, month: 999 },
+      resetAt: { minute: 0, hour: 0, day: 0, month: 0 },
     };
   }
 
@@ -59,6 +63,7 @@ export async function checkRateLimits(
     minute: { count: 0, ttl: 60 },
     hour: { count: 0, ttl: 3600 },
     day: { count: 0, ttl: 86400 },
+    month: { count: 0, ttl: 2592000 },
   };
 
   if (config.perMinute) {
@@ -70,6 +75,9 @@ export async function checkRateLimits(
   if (config.perDay) {
     results.day = await getWindowCount(identifier, 'day');
   }
+  if (config.perMonth) {
+    results.month = await getWindowCount(identifier, 'month');
+  }
 
   let exceeded: RateLimitWindow | undefined;
   
@@ -79,6 +87,8 @@ export async function checkRateLimits(
     exceeded = 'hour';
   } else if (config.perDay && results.day.count > config.perDay) {
     exceeded = 'day';
+  } else if (config.perMonth && results.month.count > config.perMonth) {
+    exceeded = 'month';
   }
 
   return {
@@ -88,11 +98,13 @@ export async function checkRateLimits(
       minute: Math.max(0, (config.perMinute || 999) - results.minute.count),
       hour: Math.max(0, (config.perHour || 999) - results.hour.count),
       day: Math.max(0, (config.perDay || 999) - results.day.count),
+      month: Math.max(0, (config.perMonth || 999) - results.month.count),
     },
     resetAt: {
       minute: now + results.minute.ttl * 1000,
       hour: now + results.hour.ttl * 1000,
       day: now + results.day.ttl * 1000,
+      month: now + results.month.ttl * 1000,
     },
   };
 }
@@ -102,6 +114,7 @@ export function getRateLimitHeaders(result: RateLimitResult): Record<string, str
     'X-RateLimit-Remaining-Minute': result.remaining.minute.toString(),
     'X-RateLimit-Remaining-Hour': result.remaining.hour.toString(),
     'X-RateLimit-Remaining-Day': result.remaining.day.toString(),
+    'X-RateLimit-Remaining-Month': result.remaining.month.toString(),
   };
 }
 
@@ -109,4 +122,16 @@ export const renderLimits: RateLimitConfig = {
   perMinute: limits.render.perMinute,
   perHour: limits.render.perHour,
   perDay: limits.render.perDay,
+};
+
+export const aiGenerateLimits: RateLimitConfig = {
+  perMinute: limits.ai.generate.perMinute,
+  perDay: limits.ai.generate.perDay,
+  perMonth: limits.ai.generate.perMonth,
+};
+
+export const aiEditLimits: RateLimitConfig = {
+  perMinute: limits.ai.edit.perMinute,
+  perDay: limits.ai.edit.perDay,
+  perMonth: limits.ai.edit.perMonth,
 };

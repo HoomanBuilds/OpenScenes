@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { AIJobStatus, AIJobResult } from '../types';
+import { showAISuccess, showAIError } from '@/lib/utils/sonner';
 
 interface UseAIStatusOptions {
     pollInterval?: number;
@@ -92,9 +93,11 @@ export function useAIStatus(jobId: string | null, options: UseAIStatusOptions = 
 
                 if (data.status === 'completed') {
                     stopPolling();
+                    showAISuccess('AI Job Completed Successfully!');
                     onCompleteRef.current?.(data.result);
                 } else if (data.status === 'failed') {
                     stopPolling();
+                    showAIError(data.error || 'Job failed');
                     onErrorRef.current?.(data.error || 'Job failed');
                 }
             } catch (err) {

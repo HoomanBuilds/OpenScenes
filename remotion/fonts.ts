@@ -11,26 +11,37 @@ import { loadFont as loadLato } from '@remotion/google-fonts/Lato';
 import { loadFont as loadOpenSans } from '@remotion/google-fonts/OpenSans';
 import { loadFont as loadPoppins } from '@remotion/google-fonts/Poppins';
 import { loadFont as loadVT323 } from '@remotion/google-fonts/VT323';
-
 import { loadFont as loadOrbitron } from '@remotion/google-fonts/Orbitron';
+import { loadFont as loadOutfit } from '@remotion/google-fonts/Outfit';
 
-const options = { subsets: ['latin'], weights: ['400', '700'], ignoreTooManyRequestsWarning: true } as any;
-const normalOptions = { subsets: ['latin'], ignoreTooManyRequestsWarning: true } as any;
+// Use more stable loading options
+const options = { 
+    subsets: ['latin'], 
+    weights: ['400', '700', '900'],
+    ignoreTooManyRequestsWarning: true
+};
 
-const { fontFamily: interFamily } = loadInter('normal', options);
-const { fontFamily: robotoFamily } = loadRoboto('normal', options);
-const { fontFamily: robotoMonoFamily } = loadRobotoMono('normal', options);
-const { fontFamily: merriweatherFamily } = loadMerriweather('normal', options);
-const { fontFamily: oswaldFamily } = loadOswald('normal', options);
-const { fontFamily: playfairFamily } = loadPlayfairDisplay('normal', options);
-const { fontFamily: bebasFamily } = loadBebasNeue('normal', normalOptions);
-const { fontFamily: loraFamily } = loadLora('normal', options);
-const { fontFamily: montserratFamily } = loadMontserrat('normal', options);
-const { fontFamily: latoFamily } = loadLato('normal', options);
-const { fontFamily: openSansFamily } = loadOpenSans('normal', options);
-const { fontFamily: poppinsFamily } = loadPoppins('normal', options);
-const { fontFamily: vt323Family } = loadVT323('normal', normalOptions);
-const { fontFamily: orbitronFamily } = loadOrbitron('normal', options);
+const normalOnlyOptions = { 
+    subsets: ['latin'], 
+    weights: ['400'],
+    ignoreTooManyRequestsWarning: true
+};
+
+const { fontFamily: interFamily } = loadInter('normal', options as any);
+const { fontFamily: robotoFamily } = loadRoboto('normal', options as any);
+const { fontFamily: robotoMonoFamily } = loadRobotoMono('normal', options as any);
+const { fontFamily: merriweatherFamily } = loadMerriweather('normal', options as any);
+const { fontFamily: oswaldFamily } = loadOswald('normal', options as any);
+const { fontFamily: playfairFamily } = loadPlayfairDisplay('normal', options as any);
+const { fontFamily: bebasFamily } = loadBebasNeue('normal', normalOnlyOptions as any);
+const { fontFamily: loraFamily } = loadLora('normal', options as any);
+const { fontFamily: montserratFamily } = loadMontserrat('normal', options as any);
+const { fontFamily: latoFamily } = loadLato('normal', options as any);
+const { fontFamily: openSansFamily } = loadOpenSans('normal', options as any);
+const { fontFamily: poppinsFamily } = loadPoppins('normal', options as any);
+const { fontFamily: vt323Family } = loadVT323('normal', normalOnlyOptions as any);
+const { fontFamily: orbitronFamily } = loadOrbitron('normal', options as any);
+const { fontFamily: outfitFamily } = loadOutfit('normal', options as any);
 
 export const fontFamilyMap: Record<string, string> = {
     'Inter': interFamily,
@@ -47,6 +58,7 @@ export const fontFamilyMap: Record<string, string> = {
     'Poppins': poppinsFamily,
     'VT323': vt323Family,
     'Orbitron': orbitronFamily,
+    'Outfit': outfitFamily,
 };
 
 export const getFontFamily = (fontName: string): string => {

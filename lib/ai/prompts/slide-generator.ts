@@ -72,9 +72,12 @@ Optional properties:
 3. **Accent Elements**: Add small, vibrant 'shape' elements (rects or circles) as accent bars or dots to guide the eye.
 4. **Typography**: Use 'headline' (z-index: 15) for main impact and 'subheadline' (z-index: 10) for metadata or labels.
 5. **Animation Sequencing**: Use 'delay' to ensure elements enter in a logical flow: Background → Containers → Content.
-6. **Charts**: Always provide contrasting 'colors' in 'chartProps'.
 7. **Branding**: Respect theme colors and use the provided color palette.
-8. **LAYOUT SAFETY (THE "SAFE ZONE")**: 
+8. **ANTI-CLONING RULE (CRITICAL)**: You will be shown a "Reference Structure Example". This is only to show you how JSON properties work. **DO NOT COPY THE COORDINATES (x, y) OR COLORS FROM THE EXAMPLE.** 
+   - If the example has a headline at y=200, you should put yours at y=150, or y=50, or y=400. 
+   - DO NOT use the "Title-Line-Subheadline" sandwich pattern from the examples every time. It is boring.
+   - VARIETY IS KEY. Use different alignments, background shapes, and z-index layers.
+9. **LAYOUT SAFETY (THE "SAFE ZONE")**: 
    - The canvas is 1000x562. 
    - **MANDATORY**: Ensure all content is within x=40 to x=960 and y=40 to y=520. 
    - NEVER let text touch the absolute edges of the canvas.

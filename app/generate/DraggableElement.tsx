@@ -159,7 +159,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
                 justifyContent: element.verticalAlign === 'center' ? 'center' : element.verticalAlign === 'bottom' ? 'flex-end' : 'flex-start',
             }}
             >
-                <ElementRenderer element={element} fontSizeValue={fontSize} />
+                <ElementRenderer element={element} fontSizeValue={fontSize} scale={scale} />
             </div>
 
             <ResizeHandles 

@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { Slide, SlideElement, RawFile } from '../types';
+import { toast } from 'sonner';
+import { showAIError, showAISuccess } from '@/lib/utils/sonner';
 
 interface UseAIOptions {
     onJobStarted?: (jobId: string) => void;
@@ -60,10 +62,14 @@ export function useAI(options: UseAIOptions = {}) {
 
             const data = await response.json();
             setState({ isLoading: false, jobId: data.jobId, error: null });
+            showAISuccess('Presentation generation started!');
             onJobStarted?.(data.jobId);
             return data.jobId;
         } catch (err) {
-            handleError(err instanceof Error ? err.message : 'Generation failed');
+            const message = err instanceof Error ? err.message : 'Generation failed';
+            const isRateLimit = message.toLowerCase().includes('limit exceeded');
+            showAIError(message, isRateLimit);
+            handleError(message);
             return null;
         }
     }, [handleError, onJobStarted]);
@@ -95,10 +101,14 @@ export function useAI(options: UseAIOptions = {}) {
 
             const data = await response.json();
             setState({ isLoading: false, jobId: data.jobId, error: null });
+            showAISuccess('Edit request processing!');
             onJobStarted?.(data.jobId);
             return data.jobId;
         } catch (err) {
-            handleError(err instanceof Error ? err.message : 'Edit failed');
+            const message = err instanceof Error ? err.message : 'Edit failed';
+            const isRateLimit = message.toLowerCase().includes('limit exceeded');
+            showAIError(message, isRateLimit);
+            handleError(message);
             return null;
         }
     }, [handleError, onJobStarted]);
@@ -136,10 +146,14 @@ export function useAI(options: UseAIOptions = {}) {
 
             const data = await response.json();
             setState({ isLoading: false, jobId: data.jobId, error: null });
+            showAISuccess('Slide update started!');
             onJobStarted?.(data.jobId);
             return data.jobId;
         } catch (err) {
-            handleError(err instanceof Error ? err.message : 'Slide edit failed');
+            const message = err instanceof Error ? err.message : 'Slide edit failed';
+            const isRateLimit = message.toLowerCase().includes('limit exceeded');
+            showAIError(message, isRateLimit);
+            handleError(message);
             return null;
         }
     }, [handleError, onJobStarted]);
@@ -172,10 +186,14 @@ export function useAI(options: UseAIOptions = {}) {
 
             const data = await response.json();
             setState({ isLoading: false, jobId: data.jobId, error: null });
+            showAISuccess('Elements refined!');
             onJobStarted?.(data.jobId);
             return data.jobId;
         } catch (err) {
-            handleError(err instanceof Error ? err.message : 'Element edit failed');
+            const message = err instanceof Error ? err.message : 'Element edit failed';
+            const isRateLimit = message.toLowerCase().includes('limit exceeded');
+            showAIError(message, isRateLimit);
+            handleError(message);
             return null;
         }
     }, [handleError, onJobStarted]);

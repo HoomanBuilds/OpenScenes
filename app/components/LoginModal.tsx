@@ -22,7 +22,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
     const handleGuest = () => {
         onClose();
-        router.push('/generate');
+        router.push('/projects');
     };
 
     return (

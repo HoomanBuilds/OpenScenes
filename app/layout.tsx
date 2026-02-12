@@ -4,6 +4,7 @@ import localFont from 'next/font/local';
 import "./globals.css";
 import MobileBlock from "./components/MobileBlock";
 import { AuthProvider } from "./providers/AuthProvider";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,23 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
+          <Toaster 
+            richColors 
+            position="bottom-right" 
+            theme="dark"
+            toastOptions={{
+              style: {
+                background: '#09090b',
+                border: '2px solid #18181b',
+                borderRadius: '0px',
+                color: '#f4f4f5',
+                fontFamily: 'var(--font-geist-mono)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                boxShadow: '8px 8px 0px rgba(0,0,0,1)',
+              },
+            }}
+          />
           <MobileBlock />
           {children}
         </AuthProvider>

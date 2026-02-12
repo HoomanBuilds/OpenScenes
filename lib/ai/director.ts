@@ -76,28 +76,25 @@ function buildDirectorPrompt(
   parts.push('Create a presentation plan based on the following content and preferences.');
   parts.push('');
   
-  if (input.summary) {
-    parts.push('### SUMMARIZED CONTENT ###');
-    parts.push(formatSummaryForPrompt(input.summary));
-    parts.push('### END SUMMARIZED CONTENT ###');
-    parts.push('');
-  } else {
-    parts.push('### USER REQUEST ###');
-    parts.push(input.userQuery);
-    parts.push('### END USER REQUEST ###');
-    parts.push('');
-  }
-  
-  parts.push('### USER PREFERENCES ###');
-  parts.push(`- Selected Theme: ${input.themeName}`);
-  if (input.requestedSlideCount) {
-    parts.push(`- Requested Slide Count: ${input.requestedSlideCount}`);
-  }
-  if (input.additionalInstructions) {
-    parts.push(`- Additional Instructions: ${input.additionalInstructions}`);
-  }
-  parts.push('### END USER PREFERENCES ###');
+  parts.push('### RAW USER REQUEST ###');
+  parts.push(`The user wants: ${input.userQuery}`);
+  parts.push('### END USER REQUEST ###');
   parts.push('');
+
+  if (input.summary) {
+    parts.push('### DOCUMENT REFERENCE SUMMARY ###');
+    parts.push('Use the following facts and context extracted from provided documents to fulfill the request.');
+    parts.push(formatSummaryForPrompt(input.summary));
+    
+    if (input.summary.detailedContent) {
+      parts.push('');
+      parts.push('#### DETAILED SOURCE CONTENT ####');
+      parts.push(input.summary.detailedContent);
+    }
+    
+    parts.push('### END DOCUMENT REFERENCE SUMMARY ###');
+    parts.push('');
+  }
   
   if (input.themePrompt) {
     parts.push('### SELECTED THEME STYLE GUIDE ###');
@@ -105,6 +102,17 @@ function buildDirectorPrompt(
     parts.push('### END THEME STYLE GUIDE ###');
     parts.push('');
   }
+  
+  parts.push('### USER PREFERENCES & CONSTRAINTS (CRITICAL) ###');
+  parts.push(`- User Core Query: ${input.userQuery}`);
+  if (input.requestedSlideCount) {
+    parts.push(`- REQUIRED SLIDE COUNT: ${input.requestedSlideCount}`);
+  }
+  if (input.additionalInstructions) {
+    parts.push(`- MANDATORY STYLE OVERRIDES: ${input.additionalInstructions}`);
+  }
+  parts.push('### END USER PREFERENCES ###');
+  parts.push('');
   
   if (themesRegistry) {
     parts.push('### AVAILABLE THEMES ###');
@@ -218,10 +226,12 @@ export function validateDirectorOutput(output: DirectorOutput, requestedSlideCou
         slides: b.slides.map(s => s - 1).filter(s => s >= 0 && s < output.scenes.length)
       }));
     } else {
-      output.batches = output.batches.map(b => ({
-        ...b,
-        slides: b.slides.filter(s => s >= 0 && s < output.scenes.length)
-      }));
+      output.batches = output.batches
+        .map(b => ({
+          ...b,
+          slides: b.slides.filter(s => s >= 0 && s < output.scenes.length)
+        }))
+        .filter(b => b.slides.length > 0);
     }
     
     const coveredIndices = new Set(output.batches.flatMap(b => b.slides));

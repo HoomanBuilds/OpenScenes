@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { showAISuccess, showAIError } from '@/lib/utils/sonner';
+import { toast } from 'sonner';
 
 export interface RenderJob {
     jobId: string;
@@ -60,6 +62,11 @@ export const useRenderJobs = (projectId?: string) => {
                         const data = await res.json();
                         
                         if (data.status !== job.status || data.progress !== job.progress) {
+                            if (data.status === 'completed') {
+                                showAISuccess(`Video "${job.name}" rendered successfully!`);
+                            } else if (data.status === 'failed') {
+                                showAIError(`Video "${job.name}" failed to render: ${data.error}`);
+                            }
                             updateJob(job.jobId, {
                                 status: data.status,
                                 videoUrl: data.videoUrl,

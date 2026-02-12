@@ -16,7 +16,19 @@ function mapElementContext(el: any): any {
         id: el.id,
         type: el.type,
         isContainer: el.type === 'custom' || Array.isArray(el.children), 
+        x: el.x,
+        y: el.y,
+        width: el.width,
+        height: el.height,
+        rotation: el.rotation || el.rotate || 0,
+        opacity: el.opacity ?? 1,
+        scale: el.scale ?? 1,
+        zIndex: el.zIndex ?? 1
     };
+
+    if (el.animation) {
+        base.animation = el.animation;
+    }
 
     if (el.type === 'custom' && el.content && typeof el.content === 'object') {
         const content = el.content as any;
@@ -25,11 +37,10 @@ function mapElementContext(el: any): any {
         }
         if (content.animations) {
             base.animationsCount = Object.keys(content.animations).length;
-            base.animatedIds = Object.keys(content.animations);
+            base.currentAnimations = content.animations; // Expose full animations for context
         }
         if (content.timeline) {
             base.timelineSteps = content.timeline.length;
-            // Provide a summary of timeline steps (labels or target IDs)
             base.timelineSummary = content.timeline.map((s: any, i: number) => {
                 if (s.label) return `[${i}] Label: ${s.label}`;
                 if (s.id) return `[${i}] Animate: ${s.id}`;

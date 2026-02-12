@@ -110,13 +110,15 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
                  const scaleX = rootDOM.getBoundingClientRect().width / rootDOM.offsetWidth;
                  const scale = scaleX || 1;
 
-                 if (axis === 'x') {
-                     const val = (targetRect.left - parentRect.left + (targetRect.width / 2)) - (myRect.width / 2);
-                     return val / scale;
-                 } else {
-                     const val = (targetRect.top - parentRect.top + (targetRect.height / 2)) - (myRect.height / 2);
-                     return val / scale;
-                 }
+                  if (axis === 'x') {
+                      const targetCenter = targetRect.left + (targetRect.width / 2);
+                      const myCenter = myRect.left + (myRect.width / 2);
+                      return (targetCenter - myCenter) / scale;
+                  } else {
+                      const targetCenter = targetRect.top + (targetRect.height / 2);
+                      const myCenter = myRect.top + (myRect.height / 2);
+                      return (targetCenter - myCenter) / scale;
+                  }
             };
 
             const resolveValue = (val: any, axis: 'x' | 'y') => {
@@ -223,14 +225,32 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
     }
 
     const isVoid = VOID_ELEMENTS.has(tag);
+    
     const componentProps = {
         className: resolvedClassName,
-        style: {
-            ...resolvedStyle,
-            zIndex: (id && id === focusedId) ? 100 : ((resolvedStyle && resolvedStyle.zIndex) || 1),
-            filter: (resolvedStyle?.filter),
-            transition: 'box-shadow 0.3s ease, z-index 0.3s ease, filter 0.3s ease'
-        },
+        style: (() => {
+            const classList = resolvedClassName?.split(/\s+/) || [];
+            const isGradientText = classList.includes('bg-clip-text');
+            
+            return {
+                fontFamily: (elementRef.current?.style.fontFamily) || 'Inter, sans-serif',
+                ...resolvedStyle,
+                zIndex: (id && id === focusedId) ? 100 : ((resolvedStyle && resolvedStyle.zIndex) || 1),
+                filter: (resolvedStyle?.filter),
+                ...(isGradientText ? {
+                    WebkitBackgroundClip: 'text',
+                    backgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    color: 'transparent',
+                    display: tag === 'span' ? 'inline-block' : resolvedStyle?.display,
+                } : {}),
+                ...(classList.includes('text-transparent') ? {
+                    WebkitTextFillColor: 'transparent',
+                    color: 'transparent',
+                } : {}),
+                isolation: isGradientText ? 'isolate' : resolvedStyle?.isolation,
+            };
+        })(),
         ...sanitizeProps(props),
         ...interactionProps,
         ...a11yProps,
@@ -247,5 +267,5 @@ export const RenderNode: React.FC<RenderNodeProps> = ({ node, animationMap, regi
         return React.createElement(Component, componentProps);
     }
 
-    return React.createElement(Component, componentProps, spotlightOverlay, displayText || childElements);
+    return React.createElement(Component, componentProps, displayText || childElements, spotlightOverlay);
 };

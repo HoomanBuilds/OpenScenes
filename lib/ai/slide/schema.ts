@@ -181,11 +181,16 @@ const UpdateAnimationSchema = BaseActionSchema.extend({
     targetId: z.string().describe('ID of the element to animate'),
     properties: z.preprocess(val => {
         const parsed = parseJSON(val);
-        if (parsed && typeof parsed === 'object' && parsed.initial) {
-            return { ...parsed, ...parsed.initial };
+        if (parsed && typeof parsed === 'object') {
+            // If AI sends { initial: { ... } }, extract the content
+            if (parsed.initial && typeof parsed.initial === 'object') {
+                return parsed.initial;
+            }
+            // If AI sends { opacity: 0, ... } directly, use it
+            return parsed;
         }
-        return parsed;
-    }, z.record(z.string(), z.any())).describe('Initial animation state. MUST be an object, e.g. { "opacity": 0 }'),
+        return parsed || {};
+    }, z.record(z.string(), z.any())).describe('Animation properties (e.g. { "opacity": 0 }). If you send { "initial": { ... } }, it will be automatically unwrapped.'),
 });
 
 const UpdateTimelineSchema = BaseActionSchema.extend({

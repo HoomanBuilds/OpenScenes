@@ -1,0 +1,501 @@
+{
+  "name": "etherium",
+  "version": "1.0",
+  "createdAt": "2026-02-12T18:53:12.771Z",
+  "canvas": {
+    "width": 1000,
+    "height": 563
+  },
+  "fps": 30,
+  "totalDuration": {
+    "frames": 495,
+    "seconds": 16.5
+  },
+  "slideCount": 2,
+  "slides": [
+    {
+      "id": "slide-1770920259518",
+      "type": "default",
+      "props": {},
+      "duration": 6500,
+      "background": {
+        "type": "color",
+        "value": "#1e293b"
+      },
+      "elements": [
+        {
+          "id": "bottom-stats-row",
+          "type": "custom",
+          "x": -2.400054931640625,
+          "y": -4.000030517578125,
+          "width": 1007.9999389648438,
+          "height": 564.8000183105469,
+          "content": {
+            "layout": {
+              "id": "stats-container",
+              "tag": "div",
+              "className": "absolute bottom-12 left-0 right-0 px-16 flex justify-between gap-6 items-center",
+              "children": [
+                {
+                  "id": "card-1",
+                  "tag": "div",
+                  "className": "flex-1 bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl flex items-center gap-4 shadow-sm",
+                  "children": [
+                    {
+                      "tag": "div",
+                      "className": "w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center",
+                      "children": [
+                        {
+                          "tag": "div",
+                          "className": "w-4 h-4 rounded-full bg-blue-500"
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "children": [
+                        {
+                          "tag": "p",
+                          "className": "text-zinc-400 text-xs uppercase tracking-wider font-medium",
+                          "text": "Performance"
+                        },
+                        {
+                          "tag": "p",
+                          "className": "text-white font-semibold",
+                          "text": "99.9%"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "card-2",
+                  "tag": "div",
+                  "className": "flex-1 bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl flex items-center gap-4 shadow-sm",
+                  "children": [
+                    {
+                      "tag": "div",
+                      "className": "w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center",
+                      "children": [
+                        {
+                          "tag": "div",
+                          "className": "w-4 h-4 rounded-sm bg-emerald-500 rotate-45"
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "children": [
+                        {
+                          "tag": "p",
+                          "className": "text-zinc-400 text-xs uppercase tracking-wider font-medium",
+                          "text": "Security"
+                        },
+                        {
+                          "tag": "p",
+                          "className": "text-white font-semibold",
+                          "text": "Encrypted"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "card-3",
+                  "tag": "div",
+                  "className": "flex-1 bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl flex items-center gap-4 shadow-sm",
+                  "children": [
+                    {
+                      "tag": "div",
+                      "className": "w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center",
+                      "children": [
+                        {
+                          "tag": "div",
+                          "className": "w-4 h-4 bg-purple-500 rounded-sm"
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "children": [
+                        {
+                          "tag": "p",
+                          "className": "text-zinc-400 text-xs uppercase tracking-wider font-medium",
+                          "text": "Scalability"
+                        },
+                        {
+                          "tag": "p",
+                          "className": "text-white font-semibold",
+                          "text": "Elastic"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "animations": {
+              "card-1": {
+                "initial": {
+                  "opacity": 0,
+                  "y": 30
+                }
+              },
+              "card-2": {
+                "initial": {
+                  "opacity": 0,
+                  "y": 30
+                }
+              },
+              "card-3": {
+                "initial": {
+                  "opacity": 0,
+                  "y": 30
+                }
+              }
+            },
+            "timeline": [
+              {
+                "id": "card-1",
+                "animate": {
+                  "opacity": 1,
+                  "y": 0
+                },
+                "transition": {
+                  "duration": 0.6,
+                  "type": "spring",
+                  "bounce": 0.3
+                }
+              },
+              {
+                "id": "card-2",
+                "animate": {
+                  "opacity": 1,
+                  "y": 0
+                },
+                "transition": {
+                  "duration": 0.6,
+                  "delay": 0.1,
+                  "type": "spring",
+                  "bounce": 0.3
+                }
+              },
+              {
+                "id": "card-3",
+                "animate": {
+                  "opacity": 1,
+                  "y": 0
+                },
+                "transition": {
+                  "duration": 0.6,
+                  "delay": 0.2,
+                  "type": "spring",
+                  "bounce": 0.3
+                }
+              }
+            ]
+          },
+          "fontSize": 24
+        },
+        {
+          "id": "hero-section",
+          "type": "custom",
+          "x": -2.400146484375,
+          "y": -2.4000091552734375,
+          "width": 1002.3999633789062,
+          "height": 562.39990234375,
+          "content": {
+            "layout": {
+              "id": "hero-container",
+              "tag": "div",
+              "className": "absolute inset-0 flex flex-col items-center justify-center p-16 pb-48 text-center",
+              "children": [
+                {
+                  "id": "hero-title",
+                  "tag": "h1",
+                  "className": "text-7xl font-bold text-white tracking-tighter mb-6",
+                  "text": "Enterprise Cloud Scale"
+                },
+                {
+                  "id": "hero-subtitle",
+                  "tag": "p",
+                  "className": "text-xl text-zinc-400 max-w-2xl leading-relaxed",
+                  "text": "Deploy and manage your global infrastructure with unmatched precision and automated security protocols."
+                }
+              ]
+            },
+            "animations": {
+              "hero-container": {
+                "initial": {
+                  "opacity": 0,
+                  "scale": 0.95,
+                  "y": 10
+                }
+              }
+            },
+            "timeline": [
+              {
+                "id": "hero-container",
+                "animate": {
+                  "opacity": 1,
+                  "scale": 1,
+                  "y": 0
+                },
+                "transition": {
+                  "duration": 0.8,
+                  "ease": "easeOut"
+                }
+              }
+            ]
+          },
+          "fontSize": 24
+        }
+      ]
+    },
+    {
+      "id": "slide-1770921280552",
+      "type": "default",
+      "props": {},
+      "duration": 10000,
+      "background": {
+        "type": "color",
+        "value": "#000000"
+      },
+      "elements": [
+        {
+          "id": "slide-2-content",
+          "type": "custom",
+          "x": -2.399993896484375,
+          "y": -0.00002288818359375,
+          "width": 1001.5998229980469,
+          "height": 560.7999801635742,
+          "content": {
+            "layout": {
+              "id": "features-wrapper",
+              "tag": "div",
+              "className": "w-full h-full flex flex-col justify-center p-16 gap-12",
+              "children": [
+                {
+                  "id": "features-header",
+                  "tag": "div",
+                  "className": "space-y-4",
+                  "children": [
+                    {
+                      "id": "features-title",
+                      "tag": "h2",
+                      "className": "text-5xl font-bold text-white tracking-tight",
+                      "text": "Core Infrastructure Pillars"
+                    },
+                    {
+                      "id": "features-desc",
+                      "tag": "p",
+                      "className": "text-xl text-zinc-400 max-w-xl leading-relaxed",
+                      "text": "Our architecture is built on three fundamental principles to ensure your data remains accessible and secure."
+                    }
+                  ]
+                },
+                {
+                  "id": "features-grid",
+                  "tag": "div",
+                  "className": "grid grid-cols-3 gap-6",
+                  "children": [
+                    {
+                      "id": "card-1",
+                      "tag": "div",
+                      "className": "bg-zinc-900 border border-zinc-800 p-8 rounded-2xl flex flex-col gap-4",
+                      "children": [
+                        {
+                          "tag": "div",
+                          "className": "w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-white",
+                          "text": "01"
+                        },
+                        {
+                          "tag": "h3",
+                          "className": "text-xl font-semibold text-white",
+                          "text": "Zero-Trust Access"
+                        },
+                        {
+                          "tag": "p",
+                          "className": "text-zinc-500 text-sm leading-relaxed",
+                          "text": "Identity-aware proxy layers for every internal request."
+                        }
+                      ]
+                    },
+                    {
+                      "id": "card-2",
+                      "tag": "div",
+                      "className": "bg-zinc-900 border border-zinc-800 p-8 rounded-2xl flex flex-col gap-4",
+                      "children": [
+                        {
+                          "tag": "div",
+                          "className": "w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-white",
+                          "text": "02"
+                        },
+                        {
+                          "tag": "h3",
+                          "className": "text-xl font-semibold text-white",
+                          "text": "Elastic Scaling"
+                        },
+                        {
+                          "tag": "p",
+                          "className": "text-zinc-500 text-sm leading-relaxed",
+                          "text": "Dynamic resource allocation based on real-time traffic."
+                        }
+                      ]
+                    },
+                    {
+                      "id": "card-3",
+                      "tag": "div",
+                      "className": "bg-zinc-900 border border-zinc-800 p-8 rounded-2xl flex flex-col gap-4",
+                      "children": [
+                        {
+                          "tag": "div",
+                          "className": "w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-white",
+                          "text": "03"
+                        },
+                        {
+                          "tag": "h3",
+                          "className": "text-xl font-semibold text-white",
+                          "text": "Global Edge"
+                        },
+                        {
+                          "tag": "p",
+                          "className": "text-zinc-500 text-sm leading-relaxed",
+                          "text": "Nodes in over 200 cities for sub-10ms latency."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "animations": {
+              "features-header": {
+                "initial": {
+                  "opacity": 0,
+                  "x": -20
+                }
+              },
+              "card-1": {
+                "initial": {
+                  "opacity": 0,
+                  "y": 30
+                }
+              },
+              "card-2": {
+                "initial": {
+                  "opacity": 0,
+                  "y": 30
+                }
+              },
+              "card-3": {
+                "initial": {
+                  "opacity": 0,
+                  "y": 30
+                }
+              }
+            },
+            "timeline": [
+              {
+                "id": "features-header",
+                "animate": {
+                  "opacity": 1,
+                  "x": 0
+                },
+                "transition": {
+                  "duration": 0.6
+                }
+              },
+              {
+                "delay": 0.2
+              },
+              {
+                "id": "card-1",
+                "animate": {
+                  "opacity": 1,
+                  "y": 0
+                },
+                "transition": {
+                  "type": "spring",
+                  "bounce": 0.3
+                }
+              },
+              {
+                "id": "card-2",
+                "animate": {
+                  "opacity": 1,
+                  "y": 0
+                },
+                "transition": {
+                  "type": "spring",
+                  "bounce": 0.3
+                },
+                "at": "-=0.4"
+              },
+              {
+                "id": "card-3",
+                "animate": {
+                  "opacity": 1,
+                  "y": 0
+                },
+                "transition": {
+                  "type": "spring",
+                  "bounce": 0.3
+                },
+                "at": "-=0.4"
+              },
+              {
+                "delay": 4
+              },
+              {
+                "id": "card-3",
+                "animate": {
+                  "opacity": 0,
+                  "y": 30
+                },
+                "transition": {
+                  "duration": 0.5,
+                  "ease": "easeIn"
+                }
+              },
+              {
+                "id": "card-2",
+                "animate": {
+                  "opacity": 0,
+                  "y": 30
+                },
+                "transition": {
+                  "duration": 0.5,
+                  "ease": "easeIn"
+                }
+              },
+              {
+                "id": "card-1",
+                "animate": {
+                  "opacity": 0,
+                  "y": 30
+                },
+                "transition": {
+                  "duration": 0.5,
+                  "ease": "easeIn"
+                }
+              },
+              {
+                "id": "features-header",
+                "animate": {
+                  "opacity": 0,
+                  "x": -20
+                },
+                "transition": {
+                  "duration": 0.6,
+                  "ease": "easeIn"
+                }
+              }
+            ]
+          },
+          "fontSize": 24
+        }
+      ]
+    }
+  ]
+}

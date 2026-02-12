@@ -367,7 +367,7 @@ export const CustomComponentRenderer: React.FC<CustomComponentRendererProps> = (
                  });
 
                  const resolvedTransition = sanitizeTransition(transition);
-                 const shouldWait = (wait && !parallel) && resolvedTransition.repeat !== Infinity;
+                 const shouldWait = (wait && !parallel) && (resolvedTransition?.repeat !== Infinity);
 
                  try {
                      const controls = animate(el, resolvedAnim, resolvedTransition);
@@ -391,7 +391,7 @@ export const CustomComponentRenderer: React.FC<CustomComponentRendererProps> = (
     const tokens = parsed.tokens;
 
     return (
-        <div ref={rootRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
+        <div ref={rootRef} style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
             <RenderNode 
                 node={rootNode} 
                 animationMap={animationMap} 

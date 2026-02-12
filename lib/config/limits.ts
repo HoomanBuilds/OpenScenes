@@ -2,24 +2,36 @@ export const isDev = process.env.NODE_ENV === 'development';
 
 export const limits = {
   render: {
-    perMinute: 5,
-    perHour: 30,
-    perDay: 100,
+    perMinute: 2,
+    perHour: 10,
+    perDay: 30,
     maxPayloadBytes: 5 * 1024 * 1024,
-    maxSlides: 100,
-    maxSlideDurationMs: 60000,
-    maxTotalDurationMs: 600000,
+    maxSlides: 15,
+    maxSlideDurationMs: 15000,
+    maxTotalDurationMs: 180000,
   },
 
-  api: {
+  ai: {
+    generate: {
+      perMinute: 1,
+      perDay: 10,
+      perMonth: 50,
+    },
+    edit: {
+      perMinute: 2,
+      perDay: 20,
+      perMonth: 100,
+    },
     defaultPerMinute: 60,
     defaultPerHour: 1000,
   },
 
   validation: {
     maxTemplateNameLength: 100,
-    maxElementsPerSlide: 50,
-    allowedFormats: ['mp4', 'webm'] as const,
+    maxElementsPerSlide: 20,
+    maxFiles: 3,
+    maxFileSize: 5 * 1024 * 1024,
+    allowedFormats: ['pdf', 'txt', 'md', 'json', 'csv', 'html', 'js', 'ts', 'tsx', 'css'] as const,
     allowedQualities: ['low', 'medium', 'high', 'ultra'] as const,
     fpsRange: { min: 1, max: 120 },
     scaleRange: { min: 0.1, max: 2.0 },

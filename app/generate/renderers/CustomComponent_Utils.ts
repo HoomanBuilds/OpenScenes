@@ -94,13 +94,13 @@ export const resolveTarget = (
         const myRect = element.getBoundingClientRect();
 
         if (axis === 'x') {
-            const targetCenterX = targetRect.left - parentRect.left + (targetRect.width / 2);
-            const rawVal = targetCenterX - (myRect.width / 2);
-            return rawVal / scale;
+            const targetCenter = targetRect.left + (targetRect.width / 2);
+            const myCenter = myRect.left + (myRect.width / 2);
+            return (targetCenter - myCenter) / scale;
         } else {
-            const targetCenterY = targetRect.top - parentRect.top + (targetRect.height / 2);
-            const rawVal = targetCenterY - (myRect.height / 2);
-            return rawVal / scale;
+            const targetCenter = targetRect.top + (targetRect.height / 2);
+            const myCenter = myRect.top + (myRect.height / 2);
+            return (targetCenter - myCenter) / scale;
         }
     }
 

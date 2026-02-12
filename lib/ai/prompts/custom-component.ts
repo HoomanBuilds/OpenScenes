@@ -73,7 +73,8 @@ export const CUSTOM_COMPONENT_SYSTEM_PROMPT = `You are a MASTER UI DESIGNER and 
   2. **NO GENERIC DRIFT**: Do NOT use text from the Recipes like "Next-Gen Architecture", "Platform V2", or "Zero-Trust" unless the user explicitly requested them. If the user provided content, the Recipe content is FORBIDDEN.
   3. **LAYOUT SAFETY (THE "SAFE ZONE")**: 
      - The viewport is 1000x562. 
-     - **MANDATORY**: Always wrap your root content in a container with at least \`p-10\` (40px) or \`p-16\` (64px) padding.
+     - **MANDATORY**: For full-slide informational layouts, use at least \`p-10\` (40px) padding.
+     - **OVERLAY MODE**: If the user asks for a single element (e.g. "a flipping coin"), DO NOT add a dark background or padding to the root. Use a transparent root.
      - **NEVER** let text or critical UI elements touch the absolute left, right, or bottom edges of the canvas. 
      - Use \`max-w-4xl\` and \`mx-auto\` to keep content away from the horizontal edges.
   4. **THEME ADHERENCE**: 
@@ -98,7 +99,13 @@ export function buildCustomComponentPrompt(visualGuidance: string, themePrompt: 
   return `
     DESIGN TASK: Create a custom animated slide component following the CRITICAL RULES above.
     
-    ## TAILWIND & STYLING RULES (STRICT):
+    ## COORDINATE SYSTEM (CRITICAL):
+    1. **WORKSPACE**: The canvas is exactly 1000px wide and 562px high.
+    2. **UNIT PREFERENCE**: Use pixel values (e.g. \`width: 500\`) in the \`style\` object or Tailwind percentages (\`w-full\`). 
+    3. **NO VIEWPORT UNITS**: NEVER use \`vh\` or \`vw\`. They will scale incorrectly in the preview.
+    4. **CENTERING**: To center an element, use the root recipe: \`flex items-center justify-center w-full h-full\`.
+
+    TAILWIND & STYLING RULES (STRICT):
     1. **NO ARBITRARY CLASSES**: Do NOT use bracket syntax in className (e.g. \`w-[600px]\`, \`bg-[#123456]\`, \`top-[15%]\`). The build system will STRIP these.
     2. **USE STANDARD CLASSES**: Use standard Tailwind utilities (e.g. \`w-full\`, \`p-10\`, \`bg-red-500\`, \`text-4xl\`).
     3. **USE STYLE PROP FOR SPECIFICS**: If you need a specific pixel value, hex color, or percentage that isn't a standard class, use the \`style\` object.

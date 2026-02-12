@@ -18,6 +18,9 @@ import { useEditorHistory } from './hooks/useEditorHistory';
 import { useRenderJobs, RenderJob } from './hooks/useRenderJobs';
 import { useAI } from './hooks/useAI';
 import { useAIStatus } from './hooks/useAIStatus';
+import { toast } from 'sonner';
+import { showAIError } from '@/lib/utils/sonner';
+import { limits } from '@/lib/config/limits';
 
 const Dashboard: React.FC = () => {
     const searchParams = useSearchParams();
@@ -174,8 +177,12 @@ const Dashboard: React.FC = () => {
     };
 
     const handleAddRawFile = useCallback((file: RawFile) => {
+        if (rawFiles.length >= (limits.validation.maxFiles || 3)) {
+            showAIError(`Maximum ${limits.validation.maxFiles || 3} files allowed for context.`, true);
+            return;
+        }
         setRawFiles(prev => [...prev, file]);
-    }, []);
+    }, [rawFiles.length]);
 
     const handleRemoveRawFile = useCallback((id: string) => {
         setRawFiles(prev => prev.filter(f => f.id !== id));
@@ -497,7 +504,9 @@ const Dashboard: React.FC = () => {
 
         } catch (error: any) {
             console.error('Render trigger error:', error);
-            alert('Failed to start render: ' + error.message);
+            const message = error.message || 'Failed to start render';
+            const isRateLimit = message.toLowerCase().includes('limit exceeded');
+            showAIError(message, isRateLimit);
         }
     };
 

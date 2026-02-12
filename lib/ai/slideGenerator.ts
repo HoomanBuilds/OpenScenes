@@ -131,7 +131,7 @@ export async function generateSlides(
         if (scene.mode === 'custom') {
             const { CUSTOM_COMPONENTS } = await import('./components');
             const reference1 = JSON.stringify(CUSTOM_COMPONENTS['3card']);
-            const reference2 = JSON.stringify(CUSTOM_COMPONENTS['guided_cursor']);
+            const reference2 = JSON.stringify(CUSTOM_COMPONENTS['cloud']);
 
             const customPrompt = buildCustomComponentPrompt(
                  scene.slidePrompt, 

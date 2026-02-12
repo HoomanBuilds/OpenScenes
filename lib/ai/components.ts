@@ -4,6 +4,7 @@ import NeoTokyoComics from '../../public/templates/example/NeoTokyoComics.json';
 
 import ThreeCard from '../../public/templates/example/custom_template/3card.json';
 import GuidedCursor from '../../public/templates/example/custom_template/apiKey_guide.json';
+import Cloud from '../../public/templates/example/cloud.json';
 
 export const GENERIC_COMPONENTS: Record<string, any> = {
     'GalacticGrind': GalacticGrind,
@@ -13,7 +14,8 @@ export const GENERIC_COMPONENTS: Record<string, any> = {
 
 export const CUSTOM_COMPONENTS: Record<string, any> = {
     '3card': ThreeCard,
-    'guided_cursor': GuidedCursor
+    'guided_cursor': GuidedCursor,
+    'cloud': Cloud
 };
 
 export const COMPONENT_REGISTRY = {

@@ -28,6 +28,7 @@ export interface SummarizerOutput {
   tone: 'professional' | 'playful' | 'bold' | 'minimal' | 'corporate';
   suggestedSlideCount: number;
   contentDensity: 'sparse' | 'balanced' | 'dense';
+  detailedContent?: string; // Markdown format, 500-1000 tokens of main data
 }
 
 export interface DirectorInput {
@@ -168,6 +169,7 @@ export interface GenerationMetadata {
   themeName: string;
   userQuery: string;
   narrativeArc?: string[];
+  detailedContent?: string;
 }
 
 export interface PipelineInput {

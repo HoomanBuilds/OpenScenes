@@ -236,3 +236,11 @@ export const isVertexConfigured = () => !!(process.env.GOOGLE_CLOUD_PROJECT && p
 export const getVertexConfig = () => ({ project: process.env.GOOGLE_CLOUD_PROJECT, location: process.env.GOOGLE_CLOUD_LOCATION || 'us-central1' });
 export const estimateTokens = (text: string) => Math.ceil(text.length / 4);
 export const exceedsTokenLimit = (text: string, type: keyof typeof AI_MAX_TOKENS) => estimateTokens(text) > AI_MAX_TOKENS[type].input;
+
+export function truncateToTokens(text: string, maxTokens: number): string {
+  const estimatedTokens = estimateTokens(text);
+  if (estimatedTokens <= maxTokens) return text;
+  
+  const maxChars = maxTokens * 4;
+  return text.slice(0, maxChars) + '\n... (truncated)';
+}

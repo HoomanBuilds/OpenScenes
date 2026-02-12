@@ -24,6 +24,22 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
     selectedElementId, 
     onAddElement
 }) => {
+    const [canvasScale, setCanvasScale] = React.useState(1);
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        const updateScale = () => {
+            if (containerRef.current) {
+                const rect = containerRef.current.getBoundingClientRect();
+                setCanvasScale(rect.width / 1000);
+            }
+        };
+
+        updateScale();
+        window.addEventListener('resize', updateScale);
+        return () => window.removeEventListener('resize', updateScale);
+    }, []);
+
     const isSelected = (id: string) => selectedElementIds.includes(id) || selectedElementId === id;
 
     const handleDragOver = (e: React.DragEvent) => {
@@ -40,9 +56,10 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
 
         try {
             const parsed = JSON.parse(data);
-            const rect = e.currentTarget.getBoundingClientRect();
+            const rect = containerRef.current?.getBoundingClientRect();
+            if (!rect) return;
             
-            const scale = rect.width / 1000;
+            const scale = canvasScale;
             const x = (e.clientX - rect.left) / scale;
             const y = (e.clientY - rect.top) / scale;
 
@@ -109,6 +126,7 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
             </div>
 
             <div 
+                ref={containerRef}
                 className="relative bg-black shadow-[0_0_50px_-10px_rgba(0,0,0,0.5)] overflow-hidden cursor-crosshair border-2 border-zinc-800 group"
                 onPointerDown={handlePointerDownBackground}
                 style={{ 
@@ -146,24 +164,39 @@ const InteractiveSlidePreview: React.FC<InteractiveSlidePreviewProps> = ({
                     />
                 )}
 
-                {slide.elements?.map((element) => {
-                    const resolvedElement = resolveElementValues(element) as SlideElement;
-                    return (
-                        <DraggableElement 
-                            key={element.id}
-                            element={resolvedElement}
-                            slideId={slide.id}
-                            isSelected={isSelected(element.id)}
-                            onUpdate={(sid, eid, x, y, ch) => onUpdateElement(sid, eid, x, y, ch)}
-                            onSelect={(id, multi) => onSelectElement(id, multi)}
-                            onDrop={handleDropOnElement}
-                        />
-                    );
-                })}
+                {/* Scaled Layer (1000x562.5 internal resolution) */}
+                <div style={{ 
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: 1000,
+                    height: 562.5,
+                    transform: `scale(${canvasScale})`,
+                    transformOrigin: 'top left',
+                    pointerEvents: 'none'
+                }}>
+                    <div className="relative w-full h-full pointer-events-auto">
+                        {slide.elements?.map((element) => {
+                            const resolvedElement = resolveElementValues(element) as SlideElement;
+                            return (
+                                <DraggableElement 
+                                    key={element.id}
+                                    element={resolvedElement}
+                                    slideId={slide.id}
+                                    isSelected={isSelected(element.id)}
+                                    onUpdate={(sid, eid, x, y, ch) => onUpdateElement(sid, eid, x, y, ch)}
+                                    onSelect={(id, multi) => onSelectElement(id, multi)}
+                                    onDrop={handleDropOnElement}
+                                    scale={canvasScale}
+                                />
+                            );
+                        })}
+                    </div>
+                </div>
 
                 <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10 transition-opacity" style={{ 
                     backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)',
-                    backgroundSize: '100px 100px'
+                    backgroundSize: `${100 * canvasScale}px ${100 * canvasScale}px`
                 }}></div>
             </div>
 

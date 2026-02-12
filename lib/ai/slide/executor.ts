@@ -78,8 +78,8 @@ function applyAdd(slide: Slide, action: any) {
         type: action.elementType || 'custom',
         x: 0,
         y: 0,
-        width: 1920,
-        height: 1080,
+        width: 1000,
+        height: 562,
         content: action.structure,
     };
     
@@ -165,6 +165,24 @@ function removeFromDom(node: any, id: string) {
 }
 
 function applyAnimationUpdate(slide: Slide, targetId: string, properties: Record<string, any>) {
+    // 1. Check top-level elements first
+    const topElement = slide.elements?.find(el => el.id === targetId);
+    if (topElement) {
+        console.log(`[Executor]   -> Updating animation on top-level element ${targetId}`);
+        if (!topElement.animation) topElement.animation = { type: 'fade', duration: 1, delay: 0 };
+        Object.assign(topElement.animation, properties);
+        
+        // Also update direct properties if they are specified (like rotation, scale)
+        const visualProps = ['rotation', 'scale', 'opacity', 'x', 'y', 'width', 'height'];
+        for (const prop of visualProps) {
+            if (properties[prop] !== undefined) {
+                (topElement as any)[prop] = properties[prop];
+            }
+        }
+        return;
+    }
+
+    // 2. Search inside custom elements
     for (const el of slide.elements || []) {
         if (el.type === 'custom' && el.content && typeof el.content === 'object') {
             const content = el.content as any;
