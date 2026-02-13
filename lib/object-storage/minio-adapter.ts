@@ -22,7 +22,7 @@ class MinioStorageAdapter implements ObjectStorageAdapter {
 
     const protocol = useSSL ? 'https' : 'http';
     const publicHost = process.env.MINIO_PUBLIC_ENDPOINT || endpoint;
-    this.publicEndpoint = `${protocol}://${publicHost}:${port}`;
+    this.publicEndpoint = `${protocol}://${publicHost}`;
   }
 
   async ensureBucket(bucket: string): Promise<void> {
