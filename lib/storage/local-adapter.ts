@@ -8,40 +8,40 @@ const JOBS_KEY = 'clarity_jobs';
 const jobStore: Record<string, JobRecord> = {};
 
 class LocalStorageAdapter implements StorageAdapter {
-  private getProjectsFromStorage(): Record<string, Project> {
+  private getProjectsFromStorage = (): Record<string, Project> => {
     if (typeof window === 'undefined') return {};
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : {};
   }
 
-  private saveProjectsToStorage(projects: Record<string, Project>) {
+  private saveProjectsToStorage = (projects: Record<string, Project>) => {
     if (typeof window === 'undefined') return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
   }
 
-  async listProjects(): Promise<Project[]> {
+  listProjects = async (): Promise<Project[]> => {
     const projects = this.getProjectsFromStorage();
     return Object.values(projects).sort((a, b) => b.updatedAt - a.updatedAt);
   }
 
-  async getProject(id: string): Promise<Project | null> {
+  getProject = async (id: string): Promise<Project | null> => {
     const projects = this.getProjectsFromStorage();
     return projects[id] || null;
   }
 
-  async saveProject(project: Project): Promise<void> {
+  saveProject = async (project: Project): Promise<void> => {
     const projects = this.getProjectsFromStorage();
     projects[project.id] = { ...project, updatedAt: Date.now() };
     this.saveProjectsToStorage(projects);
   }
 
-  async deleteProject(id: string): Promise<void> {
+  deleteProject = async (id: string): Promise<void> => {
     const projects = this.getProjectsFromStorage();
     delete projects[id];
     this.saveProjectsToStorage(projects);
   }
 
-  async getNextRenderId(): Promise<number> {
+  getNextRenderId = async (): Promise<number> => {
       if (typeof window === 'undefined') return Math.floor(Math.random() * 10000);
       const current = parseInt(localStorage.getItem(RENDER_COUNTER_KEY) || '0', 10);
       const next = current + 1;
@@ -49,7 +49,7 @@ class LocalStorageAdapter implements StorageAdapter {
       return next;
   }
 
-  async saveRenderLog(id: number, log: string): Promise<void> {
+  saveRenderLog = async (id: number, log: string): Promise<void> => {
        if (typeof window === 'undefined') return;
        const raw = localStorage.getItem(RENDER_LOGS_KEY);
        const logs = raw ? JSON.parse(raw) : {};
@@ -57,7 +57,7 @@ class LocalStorageAdapter implements StorageAdapter {
        localStorage.setItem(RENDER_LOGS_KEY, JSON.stringify(logs));
   }
 
-  async getJob(jobId: string): Promise<JobRecord | null> {
+  getJob = async (jobId: string): Promise<JobRecord | null> => {
     if (typeof window === 'undefined') {
       return jobStore[jobId] || null;
     }
@@ -66,7 +66,7 @@ class LocalStorageAdapter implements StorageAdapter {
     return jobs[jobId] || null;
   }
 
-  async saveJob(job: JobRecord): Promise<void> {
+  saveJob = async (job: JobRecord): Promise<void> => {
     if (typeof window === 'undefined') {
       jobStore[job.jobId] = job;
       return;

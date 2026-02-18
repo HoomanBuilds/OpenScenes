@@ -74,8 +74,8 @@ export function validateRenderParams(params: {
     }
   }
 
-  if (params.format && !limits.validation.allowedFormats.includes(params.format as any)) {
-    errors.push(`Invalid format: ${params.format} (allowed: ${limits.validation.allowedFormats.join(', ')})`);
+  if (params.format && !limits.validation.allowedRenderFormats.includes(params.format as any)) {
+    errors.push(`Invalid format: ${params.format} (allowed: ${limits.validation.allowedRenderFormats.join(', ')})`);
   }
 
   if (params.quality && !limits.validation.allowedQualities.includes(params.quality as any)) {

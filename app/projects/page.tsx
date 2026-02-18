@@ -23,7 +23,7 @@ export default function ProjectsPage() {
             setLoading(true);
             let list = await storage.listProjects();
             
-            await initializeTemplatesIfNeeded(list, storage.saveProject);
+            await initializeTemplatesIfNeeded(list, (p) => storage.saveProject(p));
             
             list = await storage.listProjects();
             setProjects(list);

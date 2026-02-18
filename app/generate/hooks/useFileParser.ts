@@ -14,7 +14,7 @@ export function useFileParser() {
         setError(null);
 
         try {
-            const allowedExtensions = Array.from(limits.validation.allowedFormats);
+            const allowedExtensions = Array.from(limits.validation.allowedFileFormats);
             const ext = file.name.split('.').pop()?.toLowerCase();
 
             if (!(allowedExtensions as any[]).includes(ext || '')) {
