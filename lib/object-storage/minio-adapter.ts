@@ -6,11 +6,14 @@ class MinioStorageAdapter implements ObjectStorageAdapter {
   private publicEndpoint: string;
 
   constructor() {
-    const endpoint = process.env.MINIO_ENDPOINT || '127.0.0.1';
+    let endpoint = (process.env.MINIO_ENDPOINT || '127.0.0.1').replace(/['"]/g, '').trim();
+    // Standardize localhost to 127.0.0.1 to avoid IPv6 issues in Node
+    if (endpoint === 'localhost') endpoint = '127.0.0.1';
+    
     const port = parseInt(process.env.MINIO_PORT || '9000', 10);
     const useSSL = process.env.MINIO_USE_SSL === 'true';
     
-    console.log(`[MinIO] Connecting to ${endpoint}:${port} (SSL: ${useSSL})`);
+    console.log(`[MinIO] Connecting to ${endpoint}:${port} (SSL: ${useSSL}, Protocol: ${useSSL ? 'https' : 'http'})`);
     
     this.client = new Minio.Client({
       endPoint: endpoint,
@@ -74,6 +77,10 @@ class MinioStorageAdapter implements ObjectStorageAdapter {
 
   async getPresignedUrl(bucket: string, key: string, expiresIn: number = 3600): Promise<string> {
     return await this.client.presignedGetObject(bucket, key, expiresIn);
+  }
+
+  async getObject(bucket: string, key: string): Promise<import('stream').Readable> {
+    return await this.client.getObject(bucket, key);
   }
 
   async deleteFile(bucket: string, key: string): Promise<void> {

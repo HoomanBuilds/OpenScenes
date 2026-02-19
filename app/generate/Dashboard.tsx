@@ -511,9 +511,10 @@ const Dashboard: React.FC = () => {
     };
 
     const handleSelectRenderJob = (job: RenderJob) => {
-        if (job.status === 'completed' && job.videoUrl) {
+        if (job.status === 'completed') {
             setRenderStatus('done');
-            setRenderedVideoUrl(job.videoUrl);
+            // Use our proxy route instead of the direct MinIO URL which might fail CORS/DNS
+            setRenderedVideoUrl(`/api/video/serve/${job.jobId}`);
             setRenderFileName(`${job.name.replace(/[^a-z0-9]/gi, '_')}.mp4`);
         }
     };

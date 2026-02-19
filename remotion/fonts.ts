@@ -15,33 +15,61 @@ import { loadFont as loadOrbitron } from '@remotion/google-fonts/Orbitron';
 import { loadFont as loadOutfit } from '@remotion/google-fonts/Outfit';
 
 // Use more stable loading options
-const options = { 
+const heavyOptions = { 
     subsets: ['latin'], 
     weights: ['400', '700', '900'],
     ignoreTooManyRequestsWarning: true
 };
 
-const normalOnlyOptions = { 
+const boldOptions = { 
+    subsets: ['latin'], 
+    weights: ['400', '700'],
+    ignoreTooManyRequestsWarning: true
+};
+
+const regularOptions = { 
     subsets: ['latin'], 
     weights: ['400'],
     ignoreTooManyRequestsWarning: true
 };
 
-const { fontFamily: interFamily } = loadInter('normal', options as any);
-const { fontFamily: robotoFamily } = loadRoboto('normal', options as any);
-const { fontFamily: robotoMonoFamily } = loadRobotoMono('normal', options as any);
-const { fontFamily: merriweatherFamily } = loadMerriweather('normal', options as any);
-const { fontFamily: oswaldFamily } = loadOswald('normal', options as any);
-const { fontFamily: playfairFamily } = loadPlayfairDisplay('normal', options as any);
-const { fontFamily: bebasFamily } = loadBebasNeue('normal', normalOnlyOptions as any);
-const { fontFamily: loraFamily } = loadLora('normal', options as any);
-const { fontFamily: montserratFamily } = loadMontserrat('normal', options as any);
-const { fontFamily: latoFamily } = loadLato('normal', options as any);
-const { fontFamily: openSansFamily } = loadOpenSans('normal', options as any);
-const { fontFamily: poppinsFamily } = loadPoppins('normal', options as any);
-const { fontFamily: vt323Family } = loadVT323('normal', normalOnlyOptions as any);
-const { fontFamily: orbitronFamily } = loadOrbitron('normal', options as any);
-const { fontFamily: outfitFamily } = loadOutfit('normal', options as any);
+// Fallback helper to prevent render crashes if a font weight is missing
+const safeLoad = (loader: any, options: any, fallbackName: string) => {
+    try {
+        const { fontFamily } = loader('normal', options);
+        return fontFamily;
+    } catch (e) {
+        console.warn(`[SafeFontLoad] Failed to load font with options, falling back to regular:`, e);
+        try {
+            // Try loading only the regular weight
+            const { fontFamily } = loader('normal', { 
+                weights: ['400'], 
+                subsets: ['latin'],
+                ignoreTooManyRequestsWarning: true 
+            });
+            return fontFamily;
+        } catch (e2) {
+             console.error(`[SafeFontLoad] Critical failure loading font:`, fallbackName, e2);
+             return fallbackName;
+        }
+    }
+};
+
+const interFamily = safeLoad(loadInter, heavyOptions, 'Inter');
+const robotoFamily = safeLoad(loadRoboto, heavyOptions, 'Roboto');
+const robotoMonoFamily = safeLoad(loadRobotoMono, boldOptions, 'Roboto Mono');
+const merriweatherFamily = safeLoad(loadMerriweather, heavyOptions, 'Merriweather');
+const oswaldFamily = safeLoad(loadOswald, boldOptions, 'Oswald');
+const playfairFamily = safeLoad(loadPlayfairDisplay, heavyOptions, 'Playfair Display');
+const bebasFamily = safeLoad(loadBebasNeue, regularOptions, 'Bebas Neue');
+const loraFamily = safeLoad(loadLora, boldOptions, 'Lora');
+const montserratFamily = safeLoad(loadMontserrat, heavyOptions, 'Montserrat');
+const latoFamily = safeLoad(loadLato, heavyOptions, 'Lato');
+const openSansFamily = safeLoad(loadOpenSans, boldOptions, 'Open Sans');
+const poppinsFamily = safeLoad(loadPoppins, heavyOptions, 'Poppins');
+const vt323Family = safeLoad(loadVT323, regularOptions, 'VT323');
+const orbitronFamily = safeLoad(loadOrbitron, heavyOptions, 'Orbitron');
+const outfitFamily = safeLoad(loadOutfit, heavyOptions, 'Outfit');
 
 export const fontFamilyMap: Record<string, string> = {
     'Inter': interFamily,
