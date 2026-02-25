@@ -89,6 +89,67 @@ export const fontFamilyMap: Record<string, string> = {
     'Outfit': outfitFamily,
 };
 
+// Maps each font to the numeric weights that were actually loaded
+const loadedWeights: Record<string, number[]> = {
+    'Inter': [400, 700, 900],
+    'Roboto': [400, 700, 900],
+    'Roboto Mono': [400, 700],
+    'Merriweather': [400, 700, 900],
+    'Oswald': [400, 700],
+    'Playfair Display': [400, 700, 900],
+    'Bebas Neue': [400],
+    'Lora': [400, 700],
+    'Montserrat': [400, 700, 900],
+    'Lato': [400, 700, 900],
+    'Open Sans': [400, 700],
+    'Poppins': [400, 700, 900],
+    'VT323': [400],
+    'Orbitron': [400, 700, 900],
+    'Outfit': [400, 700, 900],
+};
+
+// Named weight lookup
+const namedWeightMap: Record<string, number> = {
+    'normal': 400,
+    'bold': 700,
+    'semibold': 600,
+    'bolder': 700,
+    'lighter': 400,
+};
+
 export const getFontFamily = (fontName: string): string => {
     return fontFamilyMap[fontName] || fontFamilyMap['Inter'] || 'sans-serif';
+};
+
+/**
+ * Clamps a requested fontWeight to the nearest weight that was actually loaded
+ * for the given font, preventing Remotion render crashes.
+ */
+export const getSafeFontWeight = (fontName: string, weight: string | number | undefined): string | number => {
+    if (weight === undefined) return 'normal';
+
+    // Convert named weights to numeric
+    const numericWeight = typeof weight === 'string'
+        ? (namedWeightMap[weight.toLowerCase()] ?? parseInt(weight, 10))
+        : weight;
+
+    // If it's not a valid number, return as-is (e.g. 'normal', 'bold')
+    if (isNaN(numericWeight)) return weight;
+
+    const available = loadedWeights[fontName] || loadedWeights['Inter'] || [400, 700];
+
+    // If the exact weight is available, use it
+    if (available.includes(numericWeight)) return numericWeight;
+
+    // Otherwise find the closest available weight
+    let closest = available[0];
+    let minDiff = Math.abs(numericWeight - closest);
+    for (const w of available) {
+        const diff = Math.abs(numericWeight - w);
+        if (diff < minDiff) {
+            closest = w;
+            minDiff = diff;
+        }
+    }
+    return closest;
 };

@@ -4,7 +4,7 @@ import {
     BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts';
-import { getFontFamily } from './fonts';
+import { getFontFamily, getSafeFontWeight } from './fonts';
 import * as LucideIcons from 'lucide-react';
 import { CustomComponentRenderer } from '../app/generate/renderers/CustomComponentRenderer';
 import { AnimatedElementProps, ElementContentProps, Slide, SlideCompositionProps, SlideElement, SlideRendererProps, TemplateData } from './types';
@@ -77,7 +77,7 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({ element, relativeFram
         transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${element.rotation || 0}deg)`,
         color: element.textColor || element.color || 'inherit',
         fontSize: element.fontSize || 16,
-        fontWeight: element.fontWeight || 'normal',
+        fontWeight: getSafeFontWeight(element.fontFamily || 'Inter', element.fontWeight || 'normal'),
         fontFamily: element.fontFamily || 'Inter, sans-serif',
         lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : (element.lineHeight || 1.2),
         textAlign: element.textAlign || 'left',
@@ -231,7 +231,7 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                 <div style={{ 
                     width: '100%', 
                     fontSize: element.fontSize || 48,
-                    fontWeight: element.fontWeight || 'bold',
+                    fontWeight: getSafeFontWeight(element.fontFamily || 'Inter', element.fontWeight || 'bold'),
                     fontFamily: getFontFamily(element.fontFamily || 'Inter'),
                     lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : (element.lineHeight || 1.1),
                     textAlign: element.textAlign || 'left',
@@ -248,7 +248,7 @@ const ElementContent: React.FC<ElementContentProps> = ({ element, parentWidth, p
                 <div style={{ 
                     width: '100%', 
                     fontSize: element.fontSize || 24,
-                    fontWeight: element.fontWeight || 'normal',
+                    fontWeight: getSafeFontWeight(element.fontFamily || 'Inter', element.fontWeight || 'normal'),
                     fontFamily: getFontFamily(element.fontFamily || 'Inter'),
                     lineHeight: (element.lineHeight && element.lineHeight > 5) ? `${element.lineHeight}px` : (element.lineHeight || 1.375),
                     textAlign: element.textAlign || 'left',
